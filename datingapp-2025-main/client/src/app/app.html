@@ -1,4 +1,13 @@
 <app-nav />
+<div class="chatbot-fab" (click)="toggleChatbot()">
+  <i class="fa  fa-comments"></i>
+</div>
+
+@if (chatbotVisible) {
+  <div class="chatbot-container">
+    <app-chatbot></app-chatbot>
+  </div>
+}
 
 <div 
     [class.mt-24]="router.url !== '/'"

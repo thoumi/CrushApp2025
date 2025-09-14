@@ -1,0 +1,33 @@
+<div class="chat-window">
+  <div class="chat-header">
+    <h5>Crush Helper</h5>
+    <p>Votre coach personnel</p>
+  </div>
+
+  <div class="messages-area" #scrollMe>
+    @for (message of messages; track message) {
+      <div class="message-container">
+        <div class="message" [ngClass]="{'user-message': message.sender === 'user', 'bot-message': message.sender === 'bot'}">
+          {{ message.prompt }}
+        </div>
+      </div>
+    }
+    <!-- Indicateur de chargement -->
+       @if (busyService.busyRequestCount() > 0) {
+    <span class="loading loading-spinner text-accent"></span>
+  }
+  </div>
+
+  <div class="input-area">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Posez votre question..."
+      [(ngModel)]="currentMessage"
+      (keyup.enter)="sendMessageBot()"
+      [disabled]="isLoading">
+    <button class="btn btn-primary" (click)="sendMessageBot()" [disabled]="isLoading">
+      <i class="fa fa-paper-plane"></i>
+    </button>
+  </div>
+</div>

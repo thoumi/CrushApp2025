@@ -1,4 +1,3 @@
-using System.Text;
 using API.Data;
 using API.Entities;
 using API.Helpers;
@@ -6,10 +5,13 @@ using API.Interfaces;
 using API.Middleware;
 using API.Services;
 using API.SignalR;
+using Chatbot.Core.Models;
+using Chatbot.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,7 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration
     .GetSection("CloudinarySettings"));
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<PresenceTracker>();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddIdentityCore<AppUser>(opt =>
 {
@@ -37,6 +40,12 @@ builder.Services.AddIdentityCore<AppUser>(opt =>
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<AppDbContext>();
+
+// Charger la configuration Ollama
+var ollamaOptions = builder.Configuration.GetSection("Ollama").Get<OllamaOptions>();
+
+// Ajouter le service du chatbot
+builder.Services.AddSingleton<IChatbotService>(new OllamaChatbotService(ollamaOptions));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -80,7 +89,7 @@ app.UseCors(x => x
     .AllowAnyHeader()
     .AllowAnyMethod()
     .AllowCredentials()
-    .WithOrigins("http://localhost:4200", "https://localhost:4200"));
+    .WithOrigins("http://localhost:4200", "https://localhost:4200", "http://localhost:8080", "https://localhost:8080"));
 
 app.UseAuthentication();
 app.UseAuthorization();
