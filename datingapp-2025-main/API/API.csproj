@@ -16,4 +16,10 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.11.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Chatbot.Core">
+      <HintPath>..\..\..\Libs\Chatbot.Core\bin\Debug\net9.0\Chatbot.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
