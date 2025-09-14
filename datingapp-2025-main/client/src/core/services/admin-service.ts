@@ -31,4 +31,16 @@ export class AdminService {
   rejectPhoto(photoId: number) {
     return this.http.post(this.baseUrl + 'admin/reject-photo/' + photoId, {});
   }
+  //Add block user
+  blockUser(userId: string) {
+    return this.http.post(this.baseUrl + 'admin/block-user/' + userId, {});
+  }
+  //Add unblock user
+  unblockUser(userId: string) {
+    return this.http.post(this.baseUrl + 'admin/unblock-user/' + userId, {});
+  }
+  //add search users
+  searchUsers(query: string) {
+    return this.http.get<User[]>(this.baseUrl + 'admin/search-users?query=' + query);
+  }
 }

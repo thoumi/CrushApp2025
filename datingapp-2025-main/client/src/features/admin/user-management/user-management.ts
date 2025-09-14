@@ -1,10 +1,12 @@
 import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { AdminService } from '../../../core/services/admin-service';
 import { User } from '../../../types/user';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-user-management',
-  imports: [],
+  imports: [CommonModule, RouterModule],
   templateUrl: './user-management.html',
   styleUrl: './user-management.css'
 })
@@ -52,5 +54,51 @@ export class UserManagement implements OnInit {
       },
       error: error => console.log('Failed to update roles', error)
     })
+  }
+
+  //add block user
+  blockUser(user: User) {
+    this.adminService.blockUser(user.id).subscribe({
+      next: () => {
+        this.users.update(users => users.map(u => {
+          if (u.id === user.id) u.isLockedOut = true;
+          return u;
+        }));
+      },
+      error: error => console.log('Failed to block user', error)
+    });
+  }
+
+  //add unblock user
+  unblockUser(user: User) {
+    this.adminService.unblockUser(user.id).subscribe({
+      next: () => {
+        this.users.update(users => users.map(u => {
+          if (u.id === user.id) u.isLockedOut = false;
+          return u;
+        }));
+      },
+      error: error => console.log('Failed to unblock user', error)
+    });
+  }
+
+  //add search users
+  searchUsers(query: string) {
+    if (!query) {
+      this.getUserWithRoles();
+      return;
+    }
+    this.adminService.searchUsers(query).subscribe({
+      next: users => this.users.set(users),
+      error: error => console.log('Failed to search users', error)
+    });
+  } 
+
+  toggleUser(user: User) {
+    if (user.isLockedOut) {
+      this.unblockUser(user); 
+    } else {
+      this.blockUser(user);   
+    }
   }
 }

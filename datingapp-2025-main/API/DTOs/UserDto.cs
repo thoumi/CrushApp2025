@@ -9,4 +9,5 @@ public class UserDto
     public required string DisplayName { get; set; }
     public string? ImageUrl { get; set; }
     public required string Token { get; set; }
+    public bool IsLockedOut { get; set; }
 }

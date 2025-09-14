@@ -4,7 +4,9 @@
             <tr>
                 <th>Email</th>
                 <th>Active roles</th>
-                <th>Actions</th>
+                <th>Roles Edit</th>
+                <th>Block/Unblock</th>
+                <th>Profile</th>
             </tr>
         </thead>
         <tbody>
@@ -12,8 +14,24 @@
                 <tr>
                     <td>{{user.email}}</td>
                     <td>{{user.roles}}</td>
-                    <td><button (click)="openRolesModal(user)" class="btn btn-primary">Edit roles</button></td>
-                </tr>
+                <td>
+                    <button (click)="openRolesModal(user)" class="btn btn-primary">Edit roles</button>
+                </td>
+                <td>
+                    <button 
+                      (click)="toggleUser(user)" 
+                      [ngClass]="user.isLockedOut ? 'btn-locked' : 'btn-unlocked'">
+                      <i [class]="user.isLockedOut ? 'fa fa-lock me-1' : 'fa fa-unlock me-1'"></i>
+                      {{ user.isLockedOut ? 'Bloqué' : 'Actif' }}
+                    </button>
+                  </td>
+                  <td>
+                    <a [routerLink]="['/members', user.id, 'profile']" class="btn btn-profile" >
+                      <i class="fa fa-user"></i>
+                    </a>
+                </td>
+            </tr>
+      
             }
         </tbody>
     </table>

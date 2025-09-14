@@ -116,4 +116,27 @@ public class AdminController(UserManager<AppUser> userManager, IUnitOfWork uow,
 
         return Ok();
     }
+
+    [Authorize(Policy = "RequireAdminRole")]
+    [HttpPost("block-user/{userId}")]
+    public async Task<ActionResult> BlockUser(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) return BadRequest("Could not retrieve user");
+        var result = await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+        if (!result.Succeeded) return BadRequest("Failed to lock user");
+        return Ok(new { Message = $"User {user.UserName} has been blocked successfully." });
+    }
+
+    [Authorize(Policy = "RequireAdminRole")]
+    [HttpPost("unblock-user/{userId}")]
+    public async Task<ActionResult> UnBlockUser(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound("Could not find user");
+        var result = await userManager.SetLockoutEndDateAsync(user, null);
+        if (!result.Succeeded) return BadRequest("Failed to unlock user");
+        return Ok(new { Message = $"User {user.UserName} has been unlocked successfully." });
+    }
+
 }
