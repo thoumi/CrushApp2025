@@ -3,10 +3,11 @@ import { AdminService } from '../../../core/services/admin-service';
 import { User } from '../../../types/user';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-user-management',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './user-management.html',
   styleUrl: './user-management.css'
 })
@@ -16,6 +17,7 @@ export class UserManagement implements OnInit {
   protected users = signal<User[]>([]);
   protected availableRoles = ['Member', 'Moderator', 'Admin'];
   protected selectedUser: User | null = null;
+  searchTerm = '';
 
   ngOnInit(): void {
     this.getUserWithRoles();
@@ -84,7 +86,7 @@ export class UserManagement implements OnInit {
 
   //add search users
   searchUsers(query: string) {
-    if (!query) {
+    if (!query.trim()) {
       this.getUserWithRoles();
       return;
     }
