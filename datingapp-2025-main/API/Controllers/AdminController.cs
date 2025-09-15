@@ -25,6 +25,7 @@ public class AdminController(UserManager<AppUser> userManager, IUnitOfWork uow,
             {
                 user.Id,
                 user.Email,
+                user.DisplayName,
                 Roles = roles.ToList()
             });
         }
@@ -137,6 +138,30 @@ public class AdminController(UserManager<AppUser> userManager, IUnitOfWork uow,
         var result = await userManager.SetLockoutEndDateAsync(user, null);
         if (!result.Succeeded) return BadRequest("Failed to unlock user");
         return Ok(new { Message = $"User {user.UserName} has been unlocked successfully." });
+    }
+
+    //Search Users by username Or email
+    [Authorize(Policy = "RequireAdminRole")]
+    [HttpGet("search-users")]
+    public async Task<ActionResult> SearchUsers([FromQuery] string query)
+    {
+        if (string.IsNullOrEmpty(query)) return BadRequest("Query cannot be empty");
+        var users = await userManager.Users
+            .Where(u => u.UserName.Contains(query) || u.Email.Contains(query))
+            .ToListAsync();
+        var userList = new List<object>();
+        foreach (var user in users)
+        {
+            var roles = await userManager.GetRolesAsync(user);
+            userList.Add(new
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                Roles = roles.ToList()
+            });
+        }
+        return Ok(userList);
     }
 
 }
