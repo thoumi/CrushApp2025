@@ -1,54 +1,96 @@
-<!-- Barre de contrôles (Recherche et Filtres) -->
+<!-- La barre de contrôles devrait toujours être visible -->
 <div class="flex items-center justify-between mb-4">
-    <input 
-    type="text" 
-    placeholder="Search by email or userName" 
-    class="input input-bordered w-full max-w-xs" 
-    [(ngModel)]="searchTerm"
-    (ngModelChange)="searchUsers(searchTerm)" 
-  />
+    <input
+        type="text"
+        placeholder="Search by email or userName"
+        class="input input-bordered w-full max-w-xs"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="searchUsers(searchTerm)"
+    />
+
+    <div class="col-md-6 text-end mt-2 mt-md-0">
+        <button class="btn btn-secondary me-2" (click)="openFilterModal()">
+            <i class="fa fa-filter me-1" aria-hidden="true"></i>
+        </button>
+    </div>
 </div>
 
-<div class="h-[75vh] overflow-auto rounded-box border border-base-content/5 bg-base-100">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Email</th>
-                <th>UserName</th>
-                <th>Active roles</th>
-                <th>Roles Edit</th>
-                <th>Block/Unblock</th>
-                <th>Profile</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (user of users(); track user.id) {
-                <tr>
-                    <td>{{user.email}}</td>
-                    <td>{{user.displayName}}</td>
-                    <td>{{user.roles}}</td>
-                <td>
-                    <button (click)="openRolesModal(user)" class="btn btn-primary">Edit roles</button>
-                </td>
-                <td>
-                    <button 
-                      (click)="toggleUser(user)" 
-                      [ngClass]="user.isLockedOut ? 'btn-locked' : 'btn-unlocked'">
-                      <i [class]="user.isLockedOut ? 'fa fa-lock me-1' : 'fa fa-unlock me-1'"></i>
-                      {{ user.isLockedOut ? 'Bloqué' : 'Actif' }}
-                    </button>
-                  </td>
-                  <td>
-                    <a [routerLink]="['/members', user.id, 'profile']" class="btn btn-profile" >
-                      <i class="fa fa-user"></i>
-                    </a>
-                </td>
-            </tr>
-      
+<!-- Le bloc @if pour la pagination et la table des membres -->
+@if (paginatedMembers(); as paginatedResult) {
+    <div class="flex flex-col w-full">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex gap-3 items-center">
+                <button (click)="openFilterModal()" class="btn btn-primary">Select Filters</button>
+                <button (click)="resetFilters()" class="btn btn-neutral">Reset Filters</button>
+                <div class="text-lg bg-base-100 py-2 px-4 border-1 rounded-lg text-primary capitalize">
+                    
+                    @if (selectedRole) {
+                        <span>Role: {{selectedRole}}</span>
+                    } @else {
+                        <span>Role: All</span>
+                    }
+                    &nbsp;|&nbsp;
+                    @if (selectedStatus) {
+                        <span>Status: {{selectedStatus}}</span>
+                    } @else {
+                        <span>Status: All</span>
+                    }
+                </div>
+            </div>
+            @if (paginatedResult.metadata; as metadata) {
+                <app-paginator
+                    [pageNumber]="metadata.currentPage"
+                    [totalCount]="metadata.totalCount"
+                    [totalPages]="metadata.totalPages"
+                    [pageSize]="metadata.pageSize"
+                    (pageChange)="onPageChange($event)"
+                />
             }
-        </tbody>
-    </table>
-</div>
+        </div>
+
+        <div class="h-[75vh] overflow-auto rounded-box border border-base-content/5 bg-base-100">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>UserName</th>
+                        <th>Active roles</th>
+                        <th>Roles Edit</th>
+                        <th>Block/Unblock</th>
+                        <th>Profile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (user of paginatedResult.items; track user.id) { <!-- Utilisez paginatedResult.items ici -->
+                        <tr>
+                            <td>{{user.email}}</td>
+                            <td>{{user.displayName}}</td>
+                            <td>{{user.roles}}</td>
+                            <td>
+                                <button (click)="openRolesModal(user)" class="btn btn-primary">Edit roles</button>
+                            </td>
+                            <td>
+                                <button
+                                    (click)="toggleUser(user)"
+                                    [ngClass]="user.isLockedOut ? 'btn-locked' : 'btn-unlocked'">
+                                    <i [class]="user.isLockedOut ? 'fa fa-lock me-1' : 'fa fa-unlock me-1'"></i>
+                                    {{ user.isLockedOut ? 'Bloqué' : 'Actif' }}
+                                </button>
+                            </td>
+                            <td>
+                                <a [routerLink]="['/members', user.id, 'profile']" class="btn btn-profile" >
+                                    <i class="fa fa-user"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+} @else {
+    <p>Loading users...</p> <!-- Message de chargement ou si aucun membre n'est trouvé -->
+}
 
 <dialog #rolesModal class="modal">
     <div class="modal-box">
@@ -58,7 +100,7 @@
             <legend class="fieldset-legend">Select roles</legend>
             @for (role of availableRoles; track $index) {
                 <label class="fieldset-label">
-                    <input 
+                    <input
                         (change)="toggleRole($event, role)"
                         type="checkbox"
                         [checked]="selectedUser?.roles?.includes(role)"
@@ -77,3 +119,34 @@
         <button>Close</button>
     </form>
 </dialog>
+
+<!-- Filter Modal (non commenté pour la modification) -->
+<dialog #filterModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold mb-4">Filter Users</h3>
+        <div class="mb-4">
+        <label class="block mb-2 font-semibold">Role</label>
+        <select [(ngModel)]="selectedRole" class="select select-bordered w-full max-w-xs">
+            <option value="">All Roles</option>
+            @for (role of availableRoles; track $index) {
+            <option [value]="role">{{role}}</option>
+            }
+        </select>
+        </div>
+        <div class="mb-4">
+        <label class="block mb-2 font-semibold">Status</label>
+        <select [(ngModel)]="selectedStatus" class="select select-bordered w-full max-w-xs">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+        </select>
+        </div>
+        <div class="modal-action">
+        <button (click)="applyFilters()" class="btn btn-primary">Apply Filters</button>
+        <button (click)="onClose()" class="btn btn-secondary">Cancel</button> <!-- Changer "Reset Filters" en "Cancel" ou laisser "Reset Filters" si c'est ce que vous voulez -->
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>Close</button>
+    </form>
+</dialog> 

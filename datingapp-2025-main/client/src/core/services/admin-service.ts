@@ -1,8 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { User } from '../../types/user';
-import { Photo } from '../../types/member';
+import { Member, MemberParams, Photo } from '../../types/member';
+import { Observable } from 'rxjs/internal/Observable';
+import { PaginatedResult } from '../../types/pagination';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +14,30 @@ export class AdminService {
   baseUrl = environment.apiUrl;
   private http = inject(HttpClient);
 
-  getUserWithRoles() {
-    return this.http.get<User[]>(this.baseUrl + 'admin/users-with-roles');
+  getUserWithRoles(memberParams: MemberParams): Observable<PaginatedResult<User>> {
+    let params = new HttpParams();
+  
+    if (memberParams.pageNumber) {
+      params = params.append('pageNumber', memberParams.pageNumber.toString());
+    }
+    if (memberParams.pageSize) {
+      params = params.append('pageSize', memberParams.pageSize.toString());
+    }
+    if (memberParams.searchTerm) {
+      params = params.append('searchTerm', memberParams.searchTerm);
+    }
+    if (memberParams.roles && memberParams.roles.trim()) {
+      params = params.append('roles', memberParams.roles);
+    }
+    if (memberParams.isLockedOut !== undefined) {
+      params = params.append('isLockedOut', memberParams.isLockedOut.toString());
+    }
+  
+    // Debug: afficher les paramètres envoyés
+    console.log('Sending params to backend:', params.toString());
+    console.log('MemberParams:', memberParams);
+  
+    return this.http.get<PaginatedResult<User>>(this.baseUrl + 'admin/users-with-roles', { params });
   }
 
   updateUserRoles(userId: string, roles: string[]) {
@@ -31,15 +56,12 @@ export class AdminService {
   rejectPhoto(photoId: number) {
     return this.http.post(this.baseUrl + 'admin/reject-photo/' + photoId, {});
   }
-  //Add block user
-  blockUser(userId: string) {
-    return this.http.post(this.baseUrl + 'admin/block-user/' + userId, {});
+  // block/unblock user
+  toggleUserStatus(userId: string){
+    return this.http.post<{isLockedOut: boolean}>(this.baseUrl + 'admin/toggle-user-status/' + userId, {});
   }
-  //Add unblock user
-  unblockUser(userId: string) {
-    return this.http.post(this.baseUrl + 'admin/unblock-user/' + userId, {});
-  }
-  //add search users
+  
+ //add search users
   searchUsers(query: string) {
     return this.http.get<User[]>(this.baseUrl + 'admin/search-users?query=' + query);
   }

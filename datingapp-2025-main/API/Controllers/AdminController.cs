@@ -1,10 +1,15 @@
-using System;
+using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace API.Controllers;
 
@@ -13,24 +18,9 @@ public class AdminController(UserManager<AppUser> userManager, IUnitOfWork uow,
 {
     [Authorize(Policy = "RequireAdminRole")]
     [HttpGet("users-with-roles")]
-    public async Task<ActionResult> GetUsersWithRoles()
+    public async Task<ActionResult<PaginatedResult<UsersManageDto>>> GetUsersWithRoles([FromQuery] MemberParams memberParams)
     {
-        var users = await userManager.Users.ToListAsync();
-        var userList = new List<object>();
-
-        foreach (var user in users)
-        {
-            var roles = await userManager.GetRolesAsync(user);
-            userList.Add(new
-            {
-                user.Id,
-                user.Email,
-                user.DisplayName,
-                Roles = roles.ToList()
-            });
-        }
-
-        return Ok(userList);
+        return Ok(await uow.AdminRepository.GetUsersWithRoles(memberParams));       
     }
 
     [Authorize(Policy = "RequireAdminRole")]
@@ -119,49 +109,29 @@ public class AdminController(UserManager<AppUser> userManager, IUnitOfWork uow,
     }
 
     [Authorize(Policy = "RequireAdminRole")]
-    [HttpPost("block-user/{userId}")]
+    [HttpPost("toggle-user-status/{userId}")]
     public async Task<ActionResult> BlockUser(string userId)
     {
         var user = await userManager.FindByIdAsync(userId);
-        if (user == null) return BadRequest("Could not retrieve user");
-        var result = await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
-        if (!result.Succeeded) return BadRequest("Failed to lock user");
-        return Ok(new { Message = $"User {user.UserName} has been blocked successfully." });
-    }
-
-    [Authorize(Policy = "RequireAdminRole")]
-    [HttpPost("unblock-user/{userId}")]
-    public async Task<ActionResult> UnBlockUser(string userId)
-    {
-        var user = await userManager.FindByIdAsync(userId);
         if (user == null) return NotFound("Could not find user");
-        var result = await userManager.SetLockoutEndDateAsync(user, null);
-        if (!result.Succeeded) return BadRequest("Failed to unlock user");
-        return Ok(new { Message = $"User {user.UserName} has been unlocked successfully." });
-    }
 
-    //Search Users by username Or email
-    [Authorize(Policy = "RequireAdminRole")]
-    [HttpGet("search-users")]
-    public async Task<ActionResult> SearchUsers([FromQuery] string query)
-    {
-        if (string.IsNullOrEmpty(query)) return BadRequest("Query cannot be empty");
-        var users = await userManager.Users
-            .Where(u => u.UserName.Contains(query) || u.Email.Contains(query))
-            .ToListAsync();
-        var userList = new List<object>();
-        foreach (var user in users)
+        bool isLocked = user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now;
+
+        IdentityResult result;
+
+        if (isLocked)
         {
-            var roles = await userManager.GetRolesAsync(user);
-            userList.Add(new
-            {
-                user.Id,
-                user.UserName,
-                user.Email,
-                Roles = roles.ToList()
-            });
+            // D�bloquer
+            result = await userManager.SetLockoutEndDateAsync(user, null);
+            if (!result.Succeeded) return BadRequest("Failed to unlock user");
+            return Ok(new { Message = $"User {user.UserName} has been unlocked successfully.", isLockedOut = false });
         }
-        return Ok(userList);
+        else
+        {
+            // Bloquer
+            result = await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+            if (!result.Succeeded) return BadRequest("Failed to lock user");
+            return Ok(new { Message = $"User {user.UserName} has been blocked successfully.", isLockedOut = true });
+        }
     }
-
 }

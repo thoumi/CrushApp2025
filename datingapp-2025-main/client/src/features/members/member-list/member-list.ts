@@ -50,8 +50,7 @@ export class MemberList implements OnInit {
   }
 
   onClose() {
-    console.log('Modal closed')
-  }
+    this.modal.close();}
 
   onFilterChange(data: MemberParams) {
     this.memberParams = {...data};
