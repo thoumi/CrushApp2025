@@ -1,50 +1,50 @@
 @if (memberService.member(); as member) {
 <div class="flex flex-col gap-3">
     <div class="flex gap-3">
-        <span class="font-semibold">Member since:</span>
+        <span class="font-semibold">{{ 'profile.memberSince' | translate }}:</span>
         <span>{{member.created | date: 'longDate'}}</span>
     </div>
     <div class="flex gap-3">
-        <span class="font-semibold">Last active:</span>
+        <span class="font-semibold">{{ 'profile.lastActive' | translate }}:</span>
         <span>{{member.lastActive | timeAgo }}</span>
     </div>
-    <h3 class="text-lg font-semibold text-primary">About {{member.displayName}}</h3>
+    <h3 class="text-lg font-semibold text-primary">{{ 'profile.about' | translate }} {{member.displayName}}</h3>
     @if (memberService.editMode()) {
     <form #editForm="ngForm" (ngSubmit)="updateProfile()" class="flex flex-col w-full gap-4">
         <label class="floating-label">
-            <span>Display Name</span>
+            <span>{{ 'profile.displayName' | translate }}</span>
             <input 
                 class="input w-full"
                 name="displayName" 
                 [(ngModel)]="editableMember.displayName" 
-                placeholder="Display name">
+                [placeholder]="'profile.displayName' | translate">
         </label>
         <label class="floating-label">
-            <span>Description</span>
+            <span>{{ 'profile.description' | translate }}</span>
             <textarea 
                 class="textarea w-full"
                 name="description" 
                 [(ngModel)]="editableMember.description" 
-                placeholder="Description"></textarea>
+                [placeholder]="'common.description' | translate"></textarea>
         </label>
         <label class="floating-label">
-            <span>City</span>
+            <span>{{ 'profile.city' | translate }}</span>
             <input 
                 class="input w-full"
                 name="city" 
                 [(ngModel)]="editableMember.city" 
-                placeholder="City">
+                [placeholder]="'common.city' | translate">
         </label>
         <label class="floating-label">
-            <span>Country</span>
+            <span>{{ 'profile.country' | translate }}</span>
             <input 
                 class="input w-full"
                 name="country" 
                 [(ngModel)]="editableMember.country" 
-                placeholder="Country">
+                [placeholder]="'common.country' | translate">
         </label>
         <div class="flex self-end">
-            <button [disabled]="!editForm.dirty" type="submit" class="btn btn-success">Submit</button>
+            <button [disabled]="!editForm.dirty" type="submit" class="btn btn-success">{{ 'profile.submit' | translate }}</button>
         </div>
     </form>
     } @else {

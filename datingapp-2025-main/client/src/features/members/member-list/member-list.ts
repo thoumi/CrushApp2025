@@ -5,10 +5,11 @@ import { MemberCard } from "../member-card/member-card";
 import { PaginatedResult } from '../../../types/pagination';
 import { Paginator } from "../../../shared/paginator/paginator";
 import { FilterModal } from '../filter-modal/filter-modal';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-member-list',
-  imports: [MemberCard, Paginator, FilterModal],
+  imports: [MemberCard, Paginator, FilterModal, TranslatePipe],
   templateUrl: './member-list.html',
   styleUrl: './member-list.css'
 })

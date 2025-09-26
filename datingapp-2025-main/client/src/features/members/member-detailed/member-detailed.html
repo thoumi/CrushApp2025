@@ -20,18 +20,17 @@
             <div class="divider"></div>
 
             <ul class="menu rounded-box w-full text-xl">
-                <li><a routerLink="profile" routerLinkActive="text-primary">Profile</a></li>
-                <li><a routerLink="photos" routerLinkActive="text-primary">Photos</a></li>
+                <li><a routerLink="profile" routerLinkActive="text-primary">{{ 'profile.profile' | translate }}</a></li>
+                <li><a routerLink="photos" routerLinkActive="text-primary">{{ 'profile.photos' | translate }}</a></li>
                 @if (!isCurrentUser()) {
-                <li><a routerLink="messages" routerLinkActive="text-primary">Messages</a></li>
+                <li><a routerLink="messages" routerLinkActive="text-primary">{{ 'profile.messages' | translate }}</a></li>
                 }
             </ul>
         </div>
         <div class="card-actions justify-between gap-2 px-2 mb-3">
-            <button routerLink="/members" class="btn btn-info flex-1">Go back</button>
+            <button routerLink="/members" class="btn btn-info flex-1">{{ 'common.back' | translate }}</button>
             <button (click)="likesService.toggleLike(member.id)" [class.btn-error]="hasLiked()"
-                [class.btn-success]="!hasLiked()" class="btn flex-1">{{hasLiked() ? 'Remove like' : 'Like
-                user'}}</button>
+                [class.btn-success]="!hasLiked()" class="btn flex-1">{{hasLiked() ? ('members.unlike' | translate) : ('members.like' | translate)}}</button>
         </div>
     </div>
 
@@ -40,7 +39,7 @@
             <h3 class="card-title text-3xl text-primary">{{title()}}</h3>
             @if (isCurrentUser()) {
             <button (click)="memberService.editMode.set(!memberService.editMode())" class="btn btn-outline btn-primary">
-                {{memberService.editMode() ? 'Cancel' : 'Edit'}}
+                {{memberService.editMode() ? ('common.cancel' | translate) : ('common.edit' | translate)}}
             </button>
             }
         </div>
@@ -53,5 +52,5 @@
 
 </div>
 } @else {
-<div>Member not found</div>
+<div>{{ 'members.notFound' | translate }}</div>
 }

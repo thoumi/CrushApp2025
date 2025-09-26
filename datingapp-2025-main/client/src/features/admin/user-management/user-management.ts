@@ -7,10 +7,11 @@ import { FormsModule } from '@angular/forms';
 import { MemberParams } from '../../../types/member';
 import { PaginatedResult } from '../../../types/pagination';
 import { Paginator } from "../../../shared/paginator/paginator";
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-user-management',
-  imports: [CommonModule, RouterModule, FormsModule, Paginator],
+  imports: [CommonModule, RouterModule, FormsModule, Paginator, TranslatePipe],
   templateUrl: './user-management.html',
   styleUrl: './user-management.css'
 })

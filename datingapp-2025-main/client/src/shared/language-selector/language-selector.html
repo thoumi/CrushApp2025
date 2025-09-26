@@ -1,0 +1,22 @@
+<div class="dropdown dropdown-end">
+  <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+    <i class="fa fa-globe me-1"></i>
+    <span>{{ translationService.getLanguageName(translationService.getCurrentLanguage()) }}</span>
+    <i class="fa fa-chevron-down ms-1"></i>
+  </div>
+  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+    @for (language of availableLanguages(); track language) {
+      <li>
+        <button 
+          (click)="changeLanguage(language)"
+          [class.active]="language === translationService.getCurrentLanguage()"
+          class="flex items-center justify-between w-full">
+          <span>{{ translationService.getLanguageName(language) }}</span>
+          @if (language === translationService.getCurrentLanguage()) {
+            <i class="fa fa-check text-primary"></i>
+          }
+        </button>
+      </li>
+    }
+  </ul>
+</div>

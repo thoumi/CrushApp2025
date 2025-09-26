@@ -1,31 +1,31 @@
 <dialog #filterModal class="modal">
   <div class="modal-box max-w-lg">
-    <h3 class="text-lg font-bold">Select filters</h3>
+    <h3 class="text-lg font-bold">{{ 'filter.title' | translate }}</h3>
 
     <div class="flex justify-between w-full items-center mt-6">
         <div class="flex flex-col w-full gap-6">
             <label class="flex justify-between items-center">
-                <span class="font-semibold">Select gender:</span>
+                <span class="font-semibold">{{ 'filter.selectGender' | translate }}:</span>
                 <form class="filter">
                     <input type="reset" value="x" class="btn btn-square">
                     <input 
                         type="radio" class="btn" 
                         [(ngModel)]="memberParams().gender"
-                        aria-label="Male"
+                        [aria-label]="'filter.male' | translate"
                         name="gender"
                         value="male"
                     >
                     <input 
                         type="radio" class="btn" 
                         [(ngModel)]="memberParams().gender"
-                        aria-label="Female"
+                        [aria-label]="'filter.female' | translate"
                         name="gender"
                         value="female"
                     >
                 </form>
             </label>
             <label class="flex justify-between items-center">
-                <span class="font-semibold">Select age</span>
+                <span class="font-semibold">{{ 'filter.selectAge' | translate }}</span>
                 <div class="flex gap-3">
                     <input 
                         type="number"
@@ -46,23 +46,23 @@
                 </div>
             </label>
             <label class="flex justify-between items-center">
-                <span class="font-semibold">Order by: </span>
+                <span class="font-semibold">{{ 'filter.orderBy' | translate }}: </span>
                 <select name="orderBy" class="select" [(ngModel)]="memberParams().orderBy">
-                    <option disabled selected>Order by</option>
-                    <option value="created">Newest members</option>
-                    <option value="lastActive">Last active</option>
+                    <option disabled selected>{{ 'filter.orderBy' | translate }}</option>
+                    <option value="created">{{ 'filter.newestMembers' | translate }}</option>
+                    <option value="lastActive">{{ 'filter.lastActive' | translate }}</option>
                 </select>
             </label>
         </div>
     </div>
 
     <div class="modal-action">
-      <button (click)="submit()" class="btn btn-primary">Submit</button>
+      <button (click)="submit()" class="btn btn-primary">{{ 'filter.submit' | translate }}</button>
     </div>
   </div>
 
   <form method="dialog" class="modal-backdrop">
-    <button (click)="close()">Close</button>
+    <button (click)="close()">{{ 'filter.close' | translate }}</button>
   </form>
 
 </dialog>

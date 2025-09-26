@@ -7,10 +7,11 @@ import { TimeAgoPipe } from '../../../core/pipes/time-ago-pipe';
 import { FormsModule } from '@angular/forms';
 import { PresenceService } from '../../../core/services/presence-service';
 import { ActivatedRoute } from '@angular/router';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-member-messages',
-  imports: [DatePipe, TimeAgoPipe, FormsModule],
+  imports: [DatePipe, TimeAgoPipe, FormsModule, TranslatePipe],
   templateUrl: './member-messages.html',
   styleUrl: './member-messages.css'
 })

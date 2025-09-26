@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { Photo } from '../../../types/member';
 import { AdminService } from '../../../core/services/admin-service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-photo-management',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './photo-management.html',
   styleUrl: './photo-management.css'
 })
