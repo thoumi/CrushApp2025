@@ -4,10 +4,11 @@ import { Member } from '../../types/member';
 import { MemberCard } from "../members/member-card/member-card";
 import { PaginatedResult } from '../../types/pagination';
 import { Paginator } from "../../shared/paginator/paginator";
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-lists',
-  imports: [MemberCard, Paginator],
+  imports: [MemberCard, Paginator, TranslatePipe],
   templateUrl: './lists.html',
   styleUrl: './lists.css'
 })
@@ -19,9 +20,9 @@ export class Lists implements OnInit {
   protected pageSize = 5;
 
   tabs = [
-    {label: 'Liked', value: 'liked'},
-    {label: 'Liked me', value: 'likedBy'},
-    {label: 'Mutual', value: 'mutual'},
+    {label: 'lists.likes', value: 'liked'},
+    {label: 'lists.likedBy', value: 'likedBy'},
+    {label: 'lists.mutual', value: 'mutual'},
   ]
 
   ngOnInit(): void {

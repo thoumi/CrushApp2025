@@ -6,10 +6,12 @@ import { ToastService } from '../../core/services/toast-service';
 import { themes } from '../theme';
 import { BusyService } from '../../core/services/busy-service';
 import { HasRole } from '../../shared/directives/has-role';
+import { LanguageSelector } from '../../shared/language-selector/language-selector';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-nav',
-  imports: [FormsModule, RouterLink, RouterLinkActive, HasRole],
+  imports: [FormsModule, RouterLink, RouterLinkActive, HasRole, LanguageSelector, TranslatePipe],
   templateUrl: './nav.html',
   styleUrl: './nav.css'
 })

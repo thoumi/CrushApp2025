@@ -7,10 +7,11 @@ import { AccountService } from '../../../core/services/account-service';
 import { MemberService } from '../../../core/services/member-service';
 import { PresenceService } from '../../../core/services/presence-service';
 import { LikesService } from '../../../core/services/likes-service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-member-detailed',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, AgePipe],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, AgePipe, TranslatePipe],
   templateUrl: './member-detailed.html',
   styleUrl: './member-detailed.css'
 })

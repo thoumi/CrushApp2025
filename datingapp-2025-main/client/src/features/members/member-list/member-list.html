@@ -2,8 +2,8 @@
     <div class="flex flex-col w-full">
         <div class="flex justify-between items-center">
             <div class="flex gap-3 items-center">
-                <button (click)="openModal()" class="btn btn-primary">Select Filters</button>
-                <button (click)="resetFilters()" class="btn btn-neutral">Reset Filters</button>
+                <button (click)="openModal()" class="btn btn-primary">{{ 'members.selectFilters' | translate }}</button>
+                <button (click)="resetFilters()" class="btn btn-neutral">{{ 'members.resetFilters' | translate }}</button>
                 <div class="text-lg bg-base-100 py-2 px-4 border-1 rounded-lg text-primary capitalize">
                     {{displayMessage}}
                 </div>

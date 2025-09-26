@@ -3,7 +3,7 @@
     <div class="tabs tabs-box tabs-lg text-primary w-fit">
       @for (tab of tabs; track $index) {
       <button role="tab" class="tab" [class.tab-active]="container === tab.value" (click)="setContainer(tab.value)">
-        {{tab.label}}
+        {{ tab.label | translate }}
       </button>
       }
     </div>
@@ -19,9 +19,9 @@
   <table class="table bg-base-100 table-fixed w-full">
     <thead>
       <tr>
-        <th class="w-2/9">Sender / Recipient</th>
-        <th class="w-4/9">Message</th>
-        <th class="w-2/9">Date</th>
+        <th class="w-2/9">{{ 'messages.senderRecipient' | translate }}</th>
+        <th class="w-4/9">{{ 'messages.message' | translate }}</th>
+        <th class="w-2/9">{{ 'messages.date' | translate }}</th>
         <th class="w-1/9"></th>
       </tr>
     </thead>

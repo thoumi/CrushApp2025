@@ -1,5 +1,5 @@
 <div class="flex items-center w-full gap-3 py-3">
-    <span>Items per page:</span>
+    <span>{{ 'pagination.itemsPerPage' | translate }}:</span>
     <select class="select w-24" (change)="onPageChange(undefined, $event.target)">
         @for (size of pageSizeOptions(); track $index) {
             <option [value]="size" [selected]="size === pageSize()">{{size}}</option>
@@ -7,7 +7,7 @@
     </select>
 
     <div class="text-sm">
-        {{(pageNumber() - 1) * pageSize() + 1}} - {{lastItemIndex()}} of {{totalCount()}}
+        {{(pageNumber() - 1) * pageSize() + 1}} - {{lastItemIndex()}} {{ 'pagination.of' | translate }} {{totalCount()}}
     </div>
 
     <div class="flex items-center gap-2">

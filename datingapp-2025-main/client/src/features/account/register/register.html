@@ -1,26 +1,26 @@
 <div class="card bg-base-100 w-1/2 mx-auto flex flex-col p-6 rounded-lg shadow-lg">
-    <div class="card-title justify-center text-3xl text-primary">Sign up</div>
+    <div class="card-title justify-center text-3xl text-primary">{{ 'register.title' | translate }}</div>
     <div class="card-body w-full">
 
         <ul class="steps">
-            <li class="step step-primary">Credentials</li>
-            <li class="step" [class.step-primary]="currentStep() === 2">Profile</li>
+            <li class="step step-primary">{{ 'register.credentials' | translate }}</li>
+            <li class="step" [class.step-primary]="currentStep() === 2">{{ 'register.profile' | translate }}</li>
         </ul>
 
         @if (currentStep() === 1) {
         <form [formGroup]="credentialsForm" class="flex flex-col gap-4 w-full steps">
-            <app-text-input class="mt-2" label="Email" formControlName="email" />
-            <app-text-input label="Display name" formControlName="displayName" />
-            <app-text-input label="Password" formControlName="password" type="password" />
-            <app-text-input label="Confirm Password" formControlName="confirmPassword" 
+            <app-text-input class="mt-2" [label]="'auth.email' | translate" formControlName="email" />
+            <app-text-input [label]="'auth.displayName' | translate" formControlName="displayName" />
+            <app-text-input [label]="'auth.password' | translate" formControlName="password" type="password" />
+            <app-text-input [label]="'register.confirmPassword' | translate" formControlName="confirmPassword" 
                 type="password" />
 
             <div class="flex items-center justify-end gap-3">
-                <button (click)="cancel()" type="button" class="btn">Cancel</button>
+                <button (click)="cancel()" type="button" class="btn">{{ 'register.cancel' | translate }}</button>
                 <button
                     [disabled]="!credentialsForm.valid" 
                     (click)="nextStep()"
-                    class="btn btn-primary" type="button">Next</button>
+                    class="btn btn-primary" type="button">{{ 'register.next' | translate }}</button>
             </div>
         </form>
         }
@@ -29,14 +29,14 @@
             <form [formGroup]="profileForm" class="flex flex-col w-full gap-4 steps">
                 
                 <div class="flex items-center gap-4">
-                    <div class="font-semibold">Gender: </div>
+                    <div class="font-semibold">{{ 'auth.gender' | translate }}: </div>
                     <label class="flex gap-3 items-center">
-                        <span>Male</span>
+                        <span>{{ 'register.male' | translate }}</span>
                         <input type="radio" formControlName="gender" value="male" 
                             class="radio radio-primary">
                     </label>
                     <label class="flex gap-3 items-center">
-                        <span>Female</span>
+                        <span>{{ 'register.female' | translate }}</span>
                         <input type="radio" formControlName="gender" value="female" 
                             class="radio radio-primary">
                     </label>
@@ -44,16 +44,16 @@
 
                 <app-text-input 
                     [maxDate]="getMaxDate()"
-                    type="date" label="Date of Birth" formControlName="dateOfBirth" />
-                <app-text-input label="City" formControlName="city" />
-                <app-text-input label="Country" formControlName="country" />
+                    type="date" [label]="'auth.dateOfBirth' | translate" formControlName="dateOfBirth" />
+                <app-text-input [label]="'common.city' | translate" formControlName="city" />
+                <app-text-input [label]="'common.country' | translate" formControlName="country" />
 
                 <div class="flex items-center justify-end gap-3">
-                <button (click)="prevStep()" type="button" class="btn">Back</button>
+                <button (click)="prevStep()" type="button" class="btn">{{ 'register.back' | translate }}</button>
                 <button
                     [disabled]="!profileForm.valid" 
                     (click)="register()"
-                    class="btn btn-primary" type="button">Register</button>
+                    class="btn btn-primary" type="button">{{ 'register.register' | translate }}</button>
             </div>
             </form>
         }

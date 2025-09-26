@@ -1,10 +1,11 @@
 import { Component, ElementRef, input, model, output, ViewChild } from '@angular/core';
 import { MemberParams } from '../../../types/member';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-filter-modal',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './filter-modal.html',
   styleUrl: './filter-modal.css'
 })

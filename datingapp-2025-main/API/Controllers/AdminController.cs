@@ -1,10 +1,15 @@
-using System;
+using API.DTOs;
 using API.Entities;
+using API.Helpers;
 using API.Interfaces;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace API.Controllers;
 
@@ -13,23 +18,9 @@ public class AdminController(UserManager<AppUser> userManager, IUnitOfWork uow,
 {
     [Authorize(Policy = "RequireAdminRole")]
     [HttpGet("users-with-roles")]
-    public async Task<ActionResult> GetUsersWithRoles()
+    public async Task<ActionResult<PaginatedResult<UsersManageDto>>> GetUsersWithRoles([FromQuery] MemberParams memberParams)
     {
-        var users = await userManager.Users.ToListAsync();
-        var userList = new List<object>();
-
-        foreach (var user in users)
-        {
-            var roles = await userManager.GetRolesAsync(user);
-            userList.Add(new
-            {
-                user.Id,
-                user.Email,
-                Roles = roles.ToList()
-            });
-        }
-
-        return Ok(userList);
+        return Ok(await uow.AdminRepository.GetUsersWithRoles(memberParams));       
     }
 
     [Authorize(Policy = "RequireAdminRole")]
@@ -115,5 +106,32 @@ public class AdminController(UserManager<AppUser> userManager, IUnitOfWork uow,
         await uow.Complete();
 
         return Ok();
+    }
+
+    [Authorize(Policy = "RequireAdminRole")]
+    [HttpPost("toggle-user-status/{userId}")]
+    public async Task<ActionResult> BlockUser(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound("Could not find user");
+
+        bool isLocked = user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now;
+
+        IdentityResult result;
+
+        if (isLocked)
+        {
+            // D�bloquer
+            result = await userManager.SetLockoutEndDateAsync(user, null);
+            if (!result.Succeeded) return BadRequest("Failed to unlock user");
+            return Ok(new { Message = $"User {user.UserName} has been unlocked successfully.", isLockedOut = false });
+        }
+        else
+        {
+            // Bloquer
+            result = await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+            if (!result.Succeeded) return BadRequest("Failed to lock user");
+            return Ok(new { Message = $"User {user.UserName} has been blocked successfully.", isLockedOut = true });
+        }
     }
 }

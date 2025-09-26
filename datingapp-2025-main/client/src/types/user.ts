@@ -5,6 +5,7 @@ export type User = {
     token: string;
     imageUrl?: string;
     roles: string[];
+    isLockedOut: boolean;
 }
 
 export type LoginCreds = {

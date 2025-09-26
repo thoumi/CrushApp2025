@@ -1,0 +1,4 @@
+.dropdown-content li button.active {
+  background-color: hsl(var(--p));
+  color: hsl(var(--pc));
+}

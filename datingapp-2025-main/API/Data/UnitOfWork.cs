@@ -1,15 +1,18 @@
-using System;
+using API.Entities;
 using API.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace API.Data;
 
-public class UnitOfWork(AppDbContext context) : IUnitOfWork
+public class UnitOfWork(AppDbContext context, UserManager<AppUser> userManager) : IUnitOfWork
 {
     private IMemberRepository? _memberRepository;
     private IMessageRepository? _messageRepository;
     private ILikesRepository? _likesRepository;
     private IPhotoRepository? _photoRepository;
+    private IAdminRepository? _adminRepository;
 
     public IMemberRepository MemberRepository => _memberRepository
         ??= new MemberRepository(context);
@@ -23,6 +26,8 @@ public class UnitOfWork(AppDbContext context) : IUnitOfWork
     public IPhotoRepository PhotoRepository => _photoRepository
         ??= new PhotoRepository(context);
 
+    public IAdminRepository AdminRepository => _adminRepository
+       ??= new AdminRepository(context, userManager);
     public async Task<bool> Complete()
     {
         try

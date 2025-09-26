@@ -15,13 +15,13 @@
         <nav class="flex gap-3 my-2 uppercase text-lg text-white">
             @if (accountService.currentUser()) {
             <a routerLink="/members" routerLinkActive="text-accent" [routerLinkActiveOptions]="{exact: true}">
-                Matches
+                {{ 'nav.members' | translate }}
             </a>
-            <a routerLink="/lists" routerLinkActive="text-accent">Lists</a>
-            <a routerLink="/messages" routerLinkActive="text-accent">Messages</a>
-            <a *appHasRole="['Admin', 'Moderator']" routerLink="/admin" routerLinkActive="text-accent">Admin</a>
+            <a routerLink="/lists" routerLinkActive="text-accent">{{ 'nav.lists' | translate }}</a>
+            <a routerLink="/messages" routerLinkActive="text-accent">{{ 'nav.messages' | translate }}</a>
+            <a *appHasRole="['Admin', 'Moderator']" routerLink="/admin" routerLinkActive="text-accent">{{ 'nav.admin' | translate }}</a>
             }
-            <a routerLink="/errors" routerLinkActive="text-accent">Errors</a>
+            <a routerLink="/errors" routerLinkActive="text-accent">{{ 'errors.title' | translate }}</a>
 
         </nav>
 
@@ -30,6 +30,9 @@
         }
 
         <div class="flex align-middle ml-auto gap-3">
+
+            <!-- Sélecteur de langue -->
+            <app-language-selector></app-language-selector>
 
             <div class="dropdown mr-5 dropdown-end">
                 <button tabindex="1" class="flex flex-col justify-center align-middle 
@@ -57,21 +60,21 @@
                     <span>{{user.displayName}}</span>
                 </div>
                 <ul (click)="handleSelectUserItem()" tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
-                    <li><a routerLink="/members/{{user.id}}">Edit profile</a></li>
-                    <li><a (click)="logout()">Logout</a></li>
+                    <li><a routerLink="/members/{{user.id}}">{{ 'profile.edit' | translate }}</a></li>
+                    <li><a (click)="logout()">{{ 'nav.logout' | translate }}</a></li>
                 </ul>
             </div>
             } @else {
             <form #loginForm="ngForm" (ngSubmit)="login()" class="flex items-center gap-3">
-                <input [(ngModel)]="creds.email" name="email" type="text" class="input" placeholder="Email">
+                <input [(ngModel)]="creds.email" name="email" type="text" class="input" [placeholder]="'auth.email' | translate">
                 <input [(ngModel)]="creds.password" name="password" type="password" class="input"
-                    placeholder="Password">
+                    [placeholder]="'auth.password' | translate">
                 <button type="submit" 
                     class="btn btn-primary">
                     @if (loading()) {
                         <span class="mr-2 loading loading-spinner"></span>
                     }
-                    Login
+                    {{ 'nav.login' | translate }}
                 </button>
             </form>
             }

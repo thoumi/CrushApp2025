@@ -1,33 +1,106 @@
-<div class="h-[75vh] overflow-auto rounded-box border border-base-content/5 bg-base-100">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Email</th>
-                <th>Active roles</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (user of users(); track user.id) {
-                <tr>
-                    <td>{{user.email}}</td>
-                    <td>{{user.roles}}</td>
-                    <td><button (click)="openRolesModal(user)" class="btn btn-primary">Edit roles</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<!-- La barre de contrôles devrait toujours être visible -->
+<div class="flex items-center justify-between mb-4">
+    <input
+        type="text"
+        [placeholder]="'admin.searchUsers' | translate"
+        class="input input-bordered w-full max-w-xs"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="searchUsers(searchTerm)"
+    />
+
+    <div class="col-md-6 text-end mt-2 mt-md-0">
+        <button class="btn btn-secondary me-2" (click)="openFilterModal()">
+            <i class="fa fa-filter me-1" aria-hidden="true"></i>
+        </button>
+    </div>
 </div>
+
+<!-- Le bloc @if pour la pagination et la table des membres -->
+@if (paginatedMembers(); as paginatedResult) {
+    <div class="flex flex-col w-full">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex gap-3 items-center">
+                <button (click)="openFilterModal()" class="btn btn-primary">{{ 'admin.selectFilters' | translate }}</button>
+                <button (click)="resetFilters()" class="btn btn-neutral">{{ 'admin.resetFilters' | translate }}</button>
+                <div class="text-lg bg-base-100 py-2 px-4 border-1 rounded-lg text-primary capitalize">
+                    
+                    @if (selectedRole) {
+                        <span>{{ 'admin.role' | translate }}: {{selectedRole}}</span>
+                    } @else {
+                        <span>{{ 'admin.role' | translate }}: {{ 'admin.allRoles' | translate }}</span>
+                    }
+                    &nbsp;|&nbsp;
+                    @if (selectedStatus) {
+                        <span>{{ 'admin.status' | translate }}: {{selectedStatus}}</span>
+                    } @else {
+                        <span>{{ 'admin.status' | translate }}: {{ 'admin.allStatuses' | translate }}</span>
+                    }
+                </div>
+            </div>
+            @if (paginatedResult.metadata; as metadata) {
+                <app-paginator
+                    [pageNumber]="metadata.currentPage"
+                    [totalCount]="metadata.totalCount"
+                    [totalPages]="metadata.totalPages"
+                    [pageSize]="metadata.pageSize"
+                    (pageChange)="onPageChange($event)"
+                />
+            }
+        </div>
+
+        <div class="h-[75vh] overflow-auto rounded-box border border-base-content/5 bg-base-100">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{{ 'auth.email' | translate }}</th>
+                        <th>{{ 'auth.displayName' | translate }}</th>
+                        <th>{{ 'admin.roles' | translate }}</th>
+                        <th>{{ 'admin.editRoles' | translate }}</th>
+                        <th>{{ 'admin.blockUser' | translate }}</th>
+                        <th>{{ 'profile.title' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (user of paginatedResult.items; track user.id) { <!-- Utilisez paginatedResult.items ici -->
+                        <tr>
+                            <td>{{user.email}}</td>
+                            <td>{{user.displayName}}</td>
+                            <td>{{user.roles}}</td>
+                            <td>
+                                <button (click)="openRolesModal(user)" class="btn btn-primary">{{ 'admin.editRoles' | translate }}</button>
+                            </td>
+                            <td>
+                                <button
+                                    (click)="toggleUser(user)"
+                                    [ngClass]="user.isLockedOut ? 'btn-locked' : 'btn-unlocked'">
+                                    <i [class]="user.isLockedOut ? 'fa fa-lock me-1' : 'fa fa-unlock me-1'"></i>
+                                    {{ user.isLockedOut ? ('admin.blocked' | translate) : ('admin.active' | translate) }}
+                                </button>
+                            </td>
+                            <td>
+                                <a [routerLink]="['/members', user.id, 'profile']" class="btn btn-profile" >
+                                    <i class="fa fa-user"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+} @else {
+    <p>{{ 'common.loadingUsers' | translate }}</p>
+}
 
 <dialog #rolesModal class="modal">
     <div class="modal-box">
-        <h3 class="text-lg font-bold">Edit roles for {{selectedUser?.email}}</h3>
+        <h3 class="text-lg font-bold">{{ 'common.editRolesFor' | translate }} {{selectedUser?.email}}</h3>
 
         <fieldset class="fieldset w-full p-4 bg-base-100 border border-base-300 rounded-box">
-            <legend class="fieldset-legend">Select roles</legend>
+            <legend class="fieldset-legend">{{ 'common.selectRoles' | translate }}</legend>
             @for (role of availableRoles; track $index) {
                 <label class="fieldset-label">
-                    <input 
+                    <input
                         (change)="toggleRole($event, role)"
                         type="checkbox"
                         [checked]="selectedUser?.roles?.includes(role)"
@@ -39,10 +112,41 @@
             }
         </fieldset>
         <div class="modal-action">
-            <button (click)="updateRoles()" class="btn btn-primary">Submit</button>
+            <button (click)="updateRoles()" class="btn btn-primary">{{ 'common.submit' | translate }}</button>
         </div>
     </div>
     <form method="dialog" class="modal-backdrop">
-        <button>Close</button>
+        <button>{{ 'common.close' | translate }}</button>
     </form>
 </dialog>
+
+<!-- Filter Modal (non commenté pour la modification) -->
+<dialog #filterModal class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold mb-4">{{ 'admin.filter' | translate }} {{ 'admin.users' | translate }}</h3>
+        <div class="mb-4">
+        <label class="block mb-2 font-semibold">{{ 'admin.role' | translate }}</label>
+        <select [(ngModel)]="selectedRole" class="select select-bordered w-full max-w-xs">
+            <option value="">{{ 'admin.allRoles' | translate }}</option>
+            @for (role of availableRoles; track $index) {
+            <option [value]="role">{{role}}</option>
+            }
+        </select>
+        </div>
+        <div class="mb-4">
+        <label class="block mb-2 font-semibold">{{ 'admin.status' | translate }}</label>
+        <select [(ngModel)]="selectedStatus" class="select select-bordered w-full max-w-xs">
+            <option value="">{{ 'admin.allStatuses' | translate }}</option>
+            <option value="active">{{ 'admin.active' | translate }}</option>
+            <option value="blocked">{{ 'admin.blocked' | translate }}</option>
+        </select>
+        </div>
+        <div class="modal-action">
+        <button (click)="applyFilters()" class="btn btn-primary">{{ 'admin.applyFilters' | translate }}</button>
+        <button (click)="onClose()" class="btn btn-secondary">{{ 'admin.cancel' | translate }}</button>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>{{ 'common.close' | translate }}</button>
+    </form>
+</dialog> 

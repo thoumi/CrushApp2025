@@ -6,10 +6,11 @@ import { Paginator } from "../../shared/paginator/paginator";
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ConfirmDialogService } from '../../core/services/confirm-dialog-service';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-messages',
-  imports: [Paginator, RouterLink, DatePipe],
+  imports: [Paginator, RouterLink, DatePipe, TranslatePipe],
   templateUrl: './messages.html',
   styleUrl: './messages.css'
 })
@@ -23,8 +24,8 @@ export class Messages implements OnInit {
   protected paginatedMessages = signal<PaginatedResult<Message> | null>(null);
 
   tabs = [
-    { label: 'Inbox', value: 'Inbox' },
-    { label: 'Outbox', value: 'Outbox' },
+    { label: 'messages.inbox', value: 'Inbox' },
+    { label: 'messages.outbox', value: 'Outbox' },
   ]
 
   ngOnInit(): void {

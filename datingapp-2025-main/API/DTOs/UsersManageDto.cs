@@ -2,13 +2,11 @@ using System;
 
 namespace API.DTOs;
 
-public class UserDto
+public class UsersManageDto
 {
     public required string Id { get; set; }
     public required string Email { get; set; }
     public required string DisplayName { get; set; }
-    public string? ImageUrl { get; set; }
-    public required string Token { get; set; }
     public bool IsLockedOut { get; set; }
     public IList<string> Roles { get; set; } = new List<string>();
 }

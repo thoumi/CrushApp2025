@@ -1,8 +1,9 @@
 import { Component, computed, input, model, output } from '@angular/core';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-paginator',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './paginator.html',
   styleUrl: './paginator.css'
 })
