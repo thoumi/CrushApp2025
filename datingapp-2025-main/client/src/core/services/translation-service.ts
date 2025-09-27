@@ -24,7 +24,7 @@ export class TranslationService {
       // Navigation
       'nav.home': 'Accueil',
       'nav.members': 'Membres',
-      'nav.lists': 'Listes',
+      'nav.lists': 'Ma Liste',
       'nav.messages': 'Messages',
       'nav.admin': 'Administration',
       'nav.logout': 'Déconnexion',
@@ -99,7 +99,7 @@ export class TranslationService {
       'messages.enterMessage': 'Tapez votre message',
 
       // Listes
-      'lists.title': 'Listes',
+      'lists.title': 'Ma Liste',
       'lists.likes': 'J\'aime',
       'lists.likedBy': 'Qui m\'aime',
       'lists.mutual': 'Mutuel',

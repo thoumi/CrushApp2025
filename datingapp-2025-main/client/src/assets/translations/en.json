@@ -1,7 +1,7 @@
 {
   "nav.home": "Home",
   "nav.members": "Members",
-  "nav.lists": "Lists",
+  "nav.lists": "My Liste",
   "nav.messages": "Messages",
   "nav.admin": "Administration",
   "nav.logout": "Logout",
@@ -80,7 +80,7 @@
   "messages.delivered": "Delivered",
   "messages.enterMessage": "Enter your message",
 
-  "lists.title": "Lists",
+  "lists.title": "My List",
   "lists.likes": "Likes",
   "lists.likedBy": "Liked By",
   "lists.mutual": "Mutual",
