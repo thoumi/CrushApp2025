@@ -3,3 +3,50 @@
     themes: all;
     exclude: rootscrollgutter;
 }
+
+/* Styles pour les notifications de messages */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+  animation: slideInRight 0.3s ease-out;
+}
+
+.alert-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Animation de pulsation pour attirer l'attention */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.alert-info.pulse {
+  animation: pulse 1s infinite;
+}

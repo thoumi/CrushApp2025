@@ -33,12 +33,36 @@
             
             </div>
         }
+        
+        <!-- Indicateur de typing -->
+        @for (typingUser of typingUsers | keyvalue; track typingUser.key) {
+            <div class="chat chat-start">
+                <div class="chat-image avatar">
+                    <div class="w-10 rounded-full">
+                        <img [alt]="typingUser.value.displayName" [src]="typingUser.value.imageUrl || '/user.png'" />
+                    </div>
+                </div>
+                <div class="chat-bubble bg-gray-200">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="text-xs opacity-70 mt-1">
+                        {{ typingUser.value.displayName }} {{ 'messages.typing' | translate }}
+                    </div>
+                </div>
+            </div>
+        }
+        
         <div #messageEndRef></div>
     </div>
 
     <div class="flex join w-full">
         <input [(ngModel)]="messageContent" class="input w-full" 
-            [placeholder]="'messages.enterMessage' | translate" (keydown.enter)="sendMessage()">
+            [placeholder]="'messages.enterMessage' | translate" 
+            (keydown.enter)="sendMessage()" 
+            (input)="onTyping()">
         <button (click)="sendMessage()" type="submit" class="btn btn-primary join-item">
             {{ 'messages.send' | translate }}
         </button>

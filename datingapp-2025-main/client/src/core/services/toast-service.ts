@@ -27,19 +27,28 @@ export class ToastService {
 
     const toast = document.createElement('div');
     toast.classList.add('alert', alertClass, 'shadow-lg', 'flex', 
-        'items-center', 'gap-3', 'cursor-pointer');
+        'items-center', 'gap-3', 'cursor-pointer', 'mb-2', 'max-w-sm');
+
+    // Ajouter une animation de pulsation pour les notifications de messages
+    if (alertClass === 'alert-info' && message.includes('💬')) {
+      toast.classList.add('pulse');
+    }
 
     if (route) {
       toast.addEventListener('click', () => this.router.navigateByUrl(route))
     }
 
     toast.innerHTML = `
-      ${avatar ? `<img src=${avatar || '/user.png'} class='w-10 h-10 rounded'` : ''}
-      <span>${message}</span>
-      <button class="ml-4 btn btn-sm btn-ghost">x</button>
+      ${avatar ? `<img src=${avatar || '/user.png'} class='w-10 h-10 rounded-full border-2 border-white'` : ''}
+      <div class="flex-1">
+        <div class="font-semibold text-sm">${message}</div>
+        <div class="text-xs opacity-90">Cliquez pour voir le message</div>
+      </div>
+      <button class="ml-2 btn btn-sm btn-ghost text-white hover:bg-white hover:bg-opacity-20">×</button>
     `
 
-    toast.querySelector('button')?.addEventListener('click', () => {
+    toast.querySelector('button')?.addEventListener('click', (e) => {
+      e.stopPropagation();
       toastContainer.removeChild(toast);
     })
 
