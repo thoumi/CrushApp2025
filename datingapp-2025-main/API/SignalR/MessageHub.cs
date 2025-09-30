@@ -65,6 +65,38 @@ public class MessageHub(IUnitOfWork uow, IHubContext<PresenceHub> presenceHub) :
         }
     }
 
+    public async Task SendTypingIndicator(string recipientId, bool isTyping)
+    {
+        var senderId = GetUserId();
+        var groupName = GetGroupName(senderId, recipientId);
+        
+        if (isTyping)
+        {
+            // Récupérer les informations de l'utilisateur qui tape
+            var sender = await uow.MemberRepository.GetMemberByIdAsync(senderId);
+            if (sender != null)
+            {
+                var userInfo = new
+                {
+                    displayName = sender.DisplayName,
+                    //imageUrl = sender.Photos?.FirstOrDefault(p => p.IsMain)?.Url ?? "/user.png"
+                };
+                                
+                // Envoyer l'indicateur de typing avec les informations de l'utilisateur
+                await Clients.OthersInGroup(groupName).SendAsync("UserTyping", senderId, isTyping, userInfo);
+            }
+            else
+            {
+                Console.WriteLine($"Sender not found for ID: {senderId}");
+            }
+        }
+        else
+        {
+            // Pour arrêter le typing, pas besoin des informations utilisateur
+            await Clients.OthersInGroup(groupName).SendAsync("UserTyping", senderId, isTyping);
+        }
+    }
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await uow.MessageRepository.RemoveConnection(Context.ConnectionId);

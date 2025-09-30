@@ -79,6 +79,7 @@
   "messages.notRead": "Not read",
   "messages.delivered": "Delivered",
   "messages.enterMessage": "Enter your message",
+  "messages.typing": "typing...",
 
   "lists.title": "My List",
   "lists.likes": "Likes",

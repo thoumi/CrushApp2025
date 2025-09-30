@@ -2,16 +2,17 @@ import { Component, effect, ElementRef, inject, model, OnDestroy, OnInit, signal
 import { MessageService } from '../../../core/services/message-service';
 import { MemberService } from '../../../core/services/member-service';
 import { Message } from '../../../types/message';
-import { DatePipe } from '@angular/common';
+import { DatePipe, KeyValuePipe } from '@angular/common';
 import { TimeAgoPipe } from '../../../core/pipes/time-ago-pipe';
 import { FormsModule } from '@angular/forms';
 import { PresenceService } from '../../../core/services/presence-service';
 import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '../../../core/pipes/translate.pipe';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-member-messages',
-  imports: [DatePipe, TimeAgoPipe, FormsModule, TranslatePipe],
+  imports: [DatePipe, KeyValuePipe, TimeAgoPipe, FormsModule, TranslatePipe],
   templateUrl: './member-messages.html',
   styleUrl: './member-messages.css'
 })
@@ -22,6 +23,8 @@ export class MemberMessages implements OnInit, OnDestroy {
   protected presenceService = inject(PresenceService);
   private route = inject(ActivatedRoute);
   protected messageContent = model('');
+  private typingSubject = new Subject<string>();
+  private typingTimeout?: any;
 
   constructor() {
     effect(() => {
@@ -29,7 +32,15 @@ export class MemberMessages implements OnInit, OnDestroy {
       if (currentMessages.length > 0) {
         this.scrollToBottom();
       }
-    })
+    });
+
+    // Gérer les événements de typing avec debounce
+    this.typingSubject.pipe(
+      debounceTime(1000),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      this.stopTyping();
+    });
   }
 
   ngOnInit(): void {
@@ -47,7 +58,38 @@ export class MemberMessages implements OnInit, OnDestroy {
     if (!recipientId || !this.messageContent()) return;
     this.messageService.sendMessage(recipientId, this.messageContent())?.then(() => {
       this.messageContent.set('');
+      this.stopTyping();
     })
+  }
+
+  onTyping() {
+    const recipientId = this.memberService.member()?.id;
+    if (!recipientId) return;
+
+    // Envoyer l'indicateur de typing
+    this.messageService.sendTypingIndicator(recipientId, true);
+    
+    // Annuler le timeout précédent
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
+    
+    // Programmer l'arrêt du typing après 3 secondes
+    this.typingTimeout = setTimeout(() => {
+      this.stopTyping();
+    }, 3000);
+  }
+
+  private stopTyping() {
+    const recipientId = this.memberService.member()?.id;
+    if (!recipientId) return;
+
+    this.messageService.sendTypingIndicator(recipientId, false);
+    
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+      this.typingTimeout = undefined;
+    }
   }
 
   scrollToBottom() {
@@ -60,5 +102,12 @@ export class MemberMessages implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.messageService.stopHubConnection();
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
+  }
+
+  get typingUsers() {
+    return this.messageService.typingUsersInfo();
   }
 }

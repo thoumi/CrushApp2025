@@ -1,26 +1,38 @@
 @if (paginatedMembers(); as paginatedResult) {
     <div class="flex flex-col w-full">
-        <div class="flex justify-between items-center">
-            <div class="flex gap-3 items-center">
-                <button (click)="openModal()" class="btn btn-primary">{{ 'members.selectFilters' | translate }}</button>
-                <button (click)="resetFilters()" class="btn btn-neutral">{{ 'members.resetFilters' | translate }}</button>
-                <div class="text-lg bg-base-100 py-2 px-4 border-1 rounded-lg text-primary capitalize">
-                    {{displayMessage}}
+        <!-- Layout responsive pour les filtres et pagination -->
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+            <!-- Boutons de filtres -->
+            <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <div class="flex gap-2">
+                    <button (click)="openModal()" class="btn btn-primary btn-sm">{{ 'members.selectFilters' | translate }}</button>
+                    <button (click)="resetFilters()" class="btn btn-neutral btn-sm">{{ 'members.resetFilters' | translate }}</button>
+                </div>
+                <!-- Message des filtres sélectionnés - responsive -->
+                <div class="text-xs lg:text-xs bg-base-100 py-1 px-2 lg:px-3 border-1 rounded text-primary font-light max-w-full overflow-hidden">
+                    <span class="block sm:inline">
+                        <span class="lg:hidden">{{displayMessageShort}}</span>
+                        <span class="hidden lg:inline">{{displayMessage}}</span>
+                    </span>
                 </div>
             </div>
+            
+            <!-- Pagination -->
             @if (paginatedResult.metadata; as metadata) {
-                <app-paginator 
-                    [pageNumber]="metadata.currentPage"
-                    [totalCount]="metadata.totalCount"
-                    [totalPages]="metadata.totalPages"
-                    [pageSize]="metadata.pageSize"
-                    (pageChange)="onPageChange($event)"
-                />
+                <div class="flex justify-center lg:justify-end">
+                    <app-paginator 
+                        [pageNumber]="metadata.currentPage"
+                        [totalCount]="metadata.totalCount"
+                        [totalPages]="metadata.totalPages"
+                        [pageSize]="metadata.pageSize"
+                        (pageChange)="onPageChange($event)"
+                    />
+                </div>
             }
         </div>
 
     @if (paginatedResult.items; as members) {
-        <div class="grid grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
             @for (member of members; track member.id) {
                 <app-member-card [member]="member" />
             }

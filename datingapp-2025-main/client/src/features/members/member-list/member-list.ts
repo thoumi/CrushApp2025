@@ -86,4 +86,26 @@ export class MemberList implements OnInit {
     
     return filters.length > 0 ? `Selected: ${filters.join('  | ')}` : 'All members'
   }
+
+  get displayMessageShort(): string {
+    const defaultParams = new MemberParams();
+
+    const filters: string[] = [];
+
+    if (this.updatedParams.gender) {
+      filters.push(this.updatedParams.gender + 's')
+    } else {
+      filters.push('All');
+    }
+    
+    if (this.updatedParams.minAge !== defaultParams.minAge 
+        || this.updatedParams.maxAge !== defaultParams.maxAge) {
+        filters.push(`${this.updatedParams.minAge}-${this.updatedParams.maxAge}y`)
+    }
+
+    filters.push(this.updatedParams.orderBy === 'lastActive' 
+        ? 'Recent' : 'New');
+    
+    return filters.length > 0 ? filters.join(' | ') : 'All members'
+  }
 }

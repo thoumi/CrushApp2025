@@ -18,6 +18,8 @@ export class MessageService {
   private toast = inject(ToastService);
   private hubConnection?: HubConnection;
   messageThread = signal<Message[]>([]);
+  typingUsers = signal<Set<string>>(new Set());
+  typingUsersInfo = signal<Map<string, {id: string, displayName: string, imageUrl: string}>>(new Map());
 
   createHubConnection(otherUserId: string) {
     const currentUser = this.accountService.currentUser();
@@ -41,6 +43,36 @@ export class MessageService {
     this.hubConnection.on('NewMessage', (message: Message) => {
       message.currentUserSender = message.senderId === currentUser.id;
       this.messageThread.update(messages => [...messages, message])
+    });
+
+    this.hubConnection.on('UserTyping', (userId: string, isTyping: boolean, userInfo?: {displayName: string, imageUrl: string}) => {
+      console.log('UserTyping event received:', { userId, isTyping, userInfo });
+      
+      this.typingUsers.update(users => {
+        const newUsers = new Set(users);
+        if (isTyping) {
+          newUsers.add(userId);
+        } else {
+          newUsers.delete(userId);
+        }
+        return newUsers;
+      });
+
+      this.typingUsersInfo.update(info => {
+        const newInfo = new Map(info);
+        if (isTyping && userInfo) {
+          newInfo.set(userId, {
+            id: userId,
+            displayName: userInfo.displayName,
+            imageUrl: userInfo.imageUrl
+          });
+          console.log('Added typing user info:', { userId, userInfo });
+        } else {
+          newInfo.delete(userId);
+          console.log('Removed typing user:', userId);
+        }
+        return newInfo;
+      });
     });
   }
 
@@ -70,5 +102,9 @@ export class MessageService {
 
   deleteMessage(id: string) {
     return this.http.delete(this.baseUrl + 'messages/' + id);
+  }
+
+  sendTypingIndicator(recipientId: string, isTyping: boolean) {
+    return this.hubConnection?.invoke('SendTypingIndicator', recipientId, isTyping);
   }
 }

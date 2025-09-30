@@ -79,6 +79,7 @@
   "messages.notRead": "Non lu",
   "messages.delivered": "Livré",
   "messages.enterMessage": "Tapez votre message",
+  "messages.typing": "en train d'écrire...",
 
   "lists.title": "Ma Liste",
   "lists.likes": "J'aime",
