@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/bdaadd98-8848-496e-a3fc-1ffff8192e55/resourceGroups/da-2025-rg/providers/Microsoft.Web/sites/crush2025",
+    "appService.deploySubpath": "datingapp-2025-main\\API\\bin\\Publish"
+}
