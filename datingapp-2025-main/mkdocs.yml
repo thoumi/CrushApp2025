@@ -1,0 +1,138 @@
+# Configuration MkDocs pour Documentation CrushApp Microservices
+site_name: CrushApp - Migration Partielle vers Microservices
+site_description: Documentation technique - Migration progressive d'un monolithe ASP.NET Core vers une architecture microservices
+site_author: CrushApp Dev Team
+site_url: https://yourusername.github.io/crushapp-2025
+
+# Repository
+repo_name: yourusername/datingapp-2025
+repo_url: https://github.com/yourusername/datingapp-2025
+edit_uri: edit/main/docs/
+
+# Theme
+theme:
+  name: material
+  language: fr
+  palette:
+    # Light mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Basculer en mode sombre
+    # Dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Basculer en mode clair
+  
+  font:
+    text: Roboto
+    code: Roboto Mono
+  
+  features:
+    - navigation.instant        # Navigation rapide sans rechargement
+    - navigation.tracking       # Ancre URL mise à jour
+    - navigation.tabs           # Onglets navigation
+    - navigation.sections       # Sections dans sidebar
+    - navigation.top            # Bouton retour en haut
+    - search.suggest            # Suggestions recherche
+    - search.highlight          # Surligner résultats
+    - content.code.copy         # Copier code blocks
+    - content.action.edit       # Bouton éditer page
+    - toc.integrate             # Intégrer TOC dans sidebar (masque TOC à droite)
+  
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+# Plugins
+plugins:
+  - search:
+      lang: 
+        - fr
+        - en
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+      locale: fr
+
+# Extensions Markdown
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - admonition
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - tables
+  - footnotes
+  - attr_list
+  - def_list
+  - abbr
+
+# Navigation
+nav:
+  - Accueil: index.md
+  - Guide de Démarrage:
+      - Introduction: MICROSERVICES-MIGRATION.md
+      - Utilisation de la Documentation: architecture/README.md
+  - Architecture:
+      - Vue d'ensemble: architecture/00-OVERVIEW.md
+      - Décisions Architecturales: architecture/01-ADR-INDEX.md
+  - Migration:
+      - Guide Complet: architecture/02-MIGRATION-GUIDE.md
+      - Configuration Docker Compose: architecture/03-DOCKER-COMPOSE-COMPLETE.md
+  - Opérations:
+      - Monitoring et Observabilité: architecture/04-MONITORING-OBSERVABILITY.md
+      - Pipeline CI/CD: architecture/05-CI-CD-PIPELINE.md
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/yourusername
+      name: GitHub
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/yourprofile
+      name: LinkedIn
+  
+  version:
+    provider: mike
+    default: latest
+  
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX  # Remplacer par ton GA ID (optionnel)
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
+
+# Copyright
+copyright: Copyright &copy; 2025 CrushApp Dev Team - Documentation Technique
+
