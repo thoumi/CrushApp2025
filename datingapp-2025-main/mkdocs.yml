@@ -2,11 +2,11 @@
 site_name: CrushApp - Migration Partielle vers Microservices
 site_description: Documentation technique - Migration progressive d'un monolithe ASP.NET Core vers une architecture microservices
 site_author: CrushApp Dev Team
-site_url: https://thoumi.github.io/crushApp/
+site_url: https://thoumi.github.io/CruchApp2025/
 
 # Repository
-repo_name: thoumi/crushApp
-repo_url: https://github.com/thoumi/crushApp
+repo_name: thoumi/CruchApp2025
+repo_url: https://github.com/thoumi/CruchApp2025
 edit_uri: edit/main/docs/
 
 # Theme
