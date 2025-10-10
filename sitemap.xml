@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://thoumi.github.io/CrushApp2025/</loc>
-         <lastmod>2025-10-10</lastmod>
-    </url>
-    <url>
-         <loc>https://thoumi.github.io/CrushApp2025/QUICKSTART-MIGRATION/</loc>
-         <lastmod>2025-10-10</lastmod>
-    </url>
-    <url>
-         <loc>https://thoumi.github.io/CrushApp2025/STATUS-FINAL/</loc>
-         <lastmod>2025-10-10</lastmod>
-    </url>
-    <url>
          <loc>https://thoumi.github.io/CrushApp2025/TROUBLESHOOTING-WEBSOCKET/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
