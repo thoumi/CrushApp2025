@@ -32,4 +32,12 @@
          <loc>https://thoumi.github.io/CrushApp2025/guide/03-MIGRATION-ANGULAR/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
+    <url>
+         <loc>https://thoumi.github.io/CrushApp2025/guide/04-MIGRATION-DOTNET/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://thoumi.github.io/CrushApp2025/guide/05-MIGRATION-MICROSERVICES/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
 </urlset>
