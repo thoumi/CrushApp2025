@@ -14,5 +14,5 @@ public class Photo
     [JsonIgnore]
     public Member Member { get; set; } = null!;
     public string MemberId { get; set; } = null!;
-    //public bool IsMain { get; internal set; }
+    public bool IsMain { get; set; }
 }

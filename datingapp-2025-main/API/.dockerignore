@@ -1,0 +1,52 @@
+# ============================================
+# .dockerignore pour Core API
+# ============================================
+
+# Binaires et obj
+**/bin/
+**/obj/
+
+# Nuget packages
+**/packages/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+
+# Logs
+*.log
+
+# Database
+*.db
+*.db-*
+
+# Environment
+.env
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# Tests
+**/TestResults/
+

@@ -1,0 +1,33 @@
+# ============================================
+# API Gateway - Dockerfile
+# ============================================
+
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# Copy csproj and restore
+COPY ["ApiGateway.csproj", "./"]
+RUN dotnet restore "ApiGateway.csproj"
+
+# Copy everything else and build
+COPY . .
+RUN dotnet build "ApiGateway.csproj" -c Release -o /app/build
+
+# Publish
+FROM build AS publish
+RUN dotnet publish "ApiGateway.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+
+# Install wget for healthcheck
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
+COPY --from=publish /app/publish .
+
+EXPOSE 80
+
+ENTRYPOINT ["dotnet", "ApiGateway.dll"]
+

@@ -17,6 +17,12 @@ export class PresenceService {
   createHubConnection(user: User) {
     console.log('🔗 Initialisation de la connexion PresenceService pour les notifications globales');
     
+    // Vérifier si une connexion existe déjà
+    if (this.hubConnection?.state === HubConnectionState.Connected) {
+      console.log('⚠️ PresenceService déjà connecté, arrêt de la connexion existante');
+      this.stopHubConnection();
+    }
+    
     // Demander la permission pour les notifications du navigateur
     this.requestNotificationPermission();
 
@@ -24,8 +30,32 @@ export class PresenceService {
       .withUrl(this.hubUrl + 'presence', {
         accessTokenFactory: () => user.token
       })
-      .withAutomaticReconnect()
+      .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: retryContext => {
+          if (retryContext.previousRetryCount === 0) {
+            return 0;
+          }
+          return Math.min(1000 * Math.pow(2, retryContext.previousRetryCount), 30000);
+        }
+      })
       .build();
+
+    // Gestion des événements de connexion
+    this.hubConnection.onclose(error => {
+      if (error) {
+        console.error('❌ PresenceService déconnecté avec erreur:', error);
+      } else {
+        console.log('🔌 PresenceService déconnecté normalement');
+      }
+    });
+
+    this.hubConnection.onreconnecting(error => {
+      console.log('🔄 PresenceService en cours de reconnexion...', error);
+    });
+
+    this.hubConnection.onreconnected(connectionId => {
+      console.log('✅ PresenceService reconnecté avec succès');
+    });
 
     this.hubConnection.start()
       .then(() => {
@@ -33,6 +63,13 @@ export class PresenceService {
       })
       .catch(error => {
         console.error('❌ Erreur de connexion PresenceService:', error);
+        // Retry après 5 secondes
+        setTimeout(() => {
+          if (this.hubConnection?.state !== HubConnectionState.Connected) {
+            console.log('🔄 Tentative de reconnexion PresenceService...');
+            this.hubConnection?.start().catch(err => console.error('❌ Échec de la reconnexion:', err));
+          }
+        }, 5000);
       });
 
     this.hubConnection.on('UserOnline', userId => {
@@ -123,5 +160,6 @@ export class PresenceService {
     if (this.hubConnection?.state === HubConnectionState.Connected) {
       this.hubConnection.stop().catch(error => console.log(error))
     }
+    this.hubConnection = undefined;
   }
 }

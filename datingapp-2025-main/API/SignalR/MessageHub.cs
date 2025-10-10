@@ -14,16 +14,27 @@ public class MessageHub(IUnitOfWork uow, IHubContext<PresenceHub> presenceHub) :
 {
     public override async Task OnConnectedAsync()
     {
-        var httpContext = Context.GetHttpContext();
-        var otherUser = httpContext?.Request?.Query["userId"].ToString()
-            ?? throw new HubException("Other user not found");
-        var groupName = GetGroupName(GetUserId(), otherUser);
-        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-        await AddToGroup(groupName);
+        try
+        {
+            var httpContext = Context.GetHttpContext();
+            var otherUser = httpContext?.Request?.Query["userId"].ToString()
+                ?? throw new HubException("Other user not found");
+            var userId = GetUserId();
+            var groupName = GetGroupName(userId, otherUser);
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            await AddToGroup(groupName);
 
-        var messages = await uow.MessageRepository.GetMessageThread(GetUserId(), otherUser);
+            var messages = await uow.MessageRepository.GetMessageThread(userId, otherUser);
 
-        await Clients.Group(groupName).SendAsync("ReceiveMessageThread", messages);
+            await Clients.Group(groupName).SendAsync("ReceiveMessageThread", messages);
+            
+            Console.WriteLine($"User {userId} connected to MessageHub for conversation with {otherUser}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in MessageHub OnConnectedAsync: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task SendMessage(CreateMessageDto createMessageDto)

@@ -5,6 +5,7 @@ import { ConfirmDialog } from "../shared/confirm-dialog/confirm-dialog";
 import { ChatbotComponent } from '../features/chatbot/chat/chat';
 import { PresenceService } from '../core/services/presence-service';
 import { AccountService } from '../core/services/account-service';
+import { HubConnectionState } from '@microsoft/signalr';
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,7 @@ export class App implements OnInit {
     // S'assurer que le PresenceService est initialisé quand l'utilisateur se connecte
     effect(() => {
       const user = this.accountService.currentUser();
-      if (user && !this.presenceService.hubConnection) {
+      if (user && this.presenceService.hubConnection?.state !== HubConnectionState.Connected) {
         console.log('🔄 Initialisation globale du PresenceService depuis App');
         this.presenceService.createHubConnection(user);
       }

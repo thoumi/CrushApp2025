@@ -24,14 +24,58 @@ export class MessageService {
   createHubConnection(otherUserId: string) {
     const currentUser = this.accountService.currentUser();
     if (!currentUser) return;
+    
+    // Vérifier si une connexion existe déjà
+    if (this.hubConnection?.state === HubConnectionState.Connected) {
+      console.log('⚠️ MessageService déjà connecté, arrêt de la connexion existante');
+      this.stopHubConnection();
+    }
+    
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(this.hubUrl + 'messages?userId=' + otherUserId, {
         accessTokenFactory: () => currentUser.token
       })
-      .withAutomaticReconnect()
+      .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: retryContext => {
+          if (retryContext.previousRetryCount === 0) {
+            return 0;
+          }
+          return Math.min(1000 * Math.pow(2, retryContext.previousRetryCount), 30000);
+        }
+      })
       .build();
 
-    this.hubConnection.start().catch(error => console.log(error));
+    // Gestion des événements de connexion
+    this.hubConnection.onclose(error => {
+      if (error) {
+        console.error('❌ MessageService déconnecté avec erreur:', error);
+      } else {
+        console.log('🔌 MessageService déconnecté normalement');
+      }
+    });
+
+    this.hubConnection.onreconnecting(error => {
+      console.log('🔄 MessageService en cours de reconnexion...', error);
+    });
+
+    this.hubConnection.onreconnected(connectionId => {
+      console.log('✅ MessageService reconnecté avec succès');
+    });
+
+    this.hubConnection.start()
+      .then(() => {
+        console.log('✅ MessageService connecté');
+      })
+      .catch(error => {
+        console.error('❌ Erreur de connexion MessageService:', error);
+        // Retry après 5 secondes
+        setTimeout(() => {
+          if (this.hubConnection?.state !== HubConnectionState.Connected) {
+            console.log('🔄 Tentative de reconnexion MessageService...');
+            this.hubConnection?.start().catch(err => console.error('❌ Échec de la reconnexion:', err));
+          }
+        }, 5000);
+      });
 
     this.hubConnection.on('ReceiveMessageThread', (messages: Message[]) => {
       this.messageThread.set(messages.map(message => ({
@@ -80,6 +124,7 @@ export class MessageService {
     if (this.hubConnection?.state === HubConnectionState.Connected) {
       this.hubConnection.stop().catch(error => console.log(error))
     }
+    this.hubConnection = undefined;
   }
 
   getMessages(container: string, pageNumber: number, pageSize: number) {
@@ -97,7 +142,12 @@ export class MessageService {
   }
 
   sendMessage(recipientId: string, content: string) {
-    return this.hubConnection?.invoke('SendMessage', {recipientId, content})
+    if (this.hubConnection?.state !== HubConnectionState.Connected) {
+      console.error('❌ Impossible d\'envoyer le message: connexion non établie');
+      this.toast.error('Erreur de connexion. Veuillez réessayer.');
+      return Promise.reject('Connection not established');
+    }
+    return this.hubConnection.invoke('SendMessage', {recipientId, content})
   }
 
   deleteMessage(id: string) {
@@ -105,6 +155,10 @@ export class MessageService {
   }
 
   sendTypingIndicator(recipientId: string, isTyping: boolean) {
-    return this.hubConnection?.invoke('SendTypingIndicator', recipientId, isTyping);
+    if (this.hubConnection?.state !== HubConnectionState.Connected) {
+      console.error('❌ Impossible d\'envoyer l\'indicateur de frappe: connexion non établie');
+      return Promise.reject('Connection not established');
+    }
+    return this.hubConnection.invoke('SendTypingIndicator', recipientId, isTyping);
   }
 }

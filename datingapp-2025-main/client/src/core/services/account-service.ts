@@ -64,8 +64,13 @@ export class AccountService {
     user.roles = this.getRolesFromToken(user);
     this.currentUser.set(user);
     this.likesService.getLikeIds();
+    
+    // Vérifier l'état de la connexion avant de créer une nouvelle connexion
     if (this.presenceService.hubConnection?.state !== HubConnectionState.Connected) {
-      this.presenceService.createHubConnection(user)
+      console.log('🔄 Création de la connexion PresenceService pour l\'utilisateur connecté');
+      this.presenceService.createHubConnection(user);
+    } else {
+      console.log('✅ PresenceService déjà connecté, pas de nouvelle connexion nécessaire');
     }
   }
 
@@ -75,10 +80,10 @@ export class AccountService {
         localStorage.removeItem('filters');
         this.likesService.clearLikeIds();
         this.currentUser.set(null);
+        console.log('🔌 Déconnexion de l\'utilisateur - Arrêt des connexions SignalR');
         this.presenceService.stopHubConnection();
       }
     })
-
   }
 
   private getRolesFromToken(user: User): string[] {

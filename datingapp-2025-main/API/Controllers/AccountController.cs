@@ -15,6 +15,12 @@ namespace API.Controllers;
 
 public class AccountController(UserManager<AppUser> userManager, ITokenService tokenService) : BaseApiController
 {
+    [HttpGet("check-users")] // api/account/check-users - Endpoint de diagnostic
+    public ActionResult CheckUsers()
+    {
+        return Ok(new { message = "API is working" });
+    }
+
     [HttpPost("register")] // api/account/register
     public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
     {
@@ -95,8 +101,8 @@ public class AccountController(UserManager<AppUser> userManager, ITokenService t
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = false, // Changed to false for development (localhost HTTP)
+            SameSite = SameSiteMode.Lax, // Changed to Lax for development
             Expires = DateTime.UtcNow.AddDays(7)
         };
 
