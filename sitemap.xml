@@ -2,38 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/MICROSERVICES-MIGRATION/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/architecture/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/architecture/00-OVERVIEW/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/architecture/01-ADR-INDEX/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/architecture/02-MIGRATION-GUIDE/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/architecture/03-DOCKER-COMPOSE-COMPLETE/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/architecture/04-MONITORING-OBSERVABILITY/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
     <url>
          <loc>https://thoumi.github.io/CrushApp2025/architecture/05-CI-CD-PIPELINE/</loc>
-         <lastmod>2025-10-09</lastmod>
+         <lastmod>2025-10-10</lastmod>
     </url>
 </urlset>
