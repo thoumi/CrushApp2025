@@ -36,4 +36,16 @@
          <loc>https://thoumi.github.io/CrushApp2025/architecture/05-CI-CD-PIPELINE/</loc>
          <lastmod>2025-10-10</lastmod>
     </url>
+    <url>
+         <loc>https://thoumi.github.io/CrushApp2025/guide/01-FONCTIONNALITES/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://thoumi.github.io/CrushApp2025/guide/02-GUIDE-UTILISATEUR/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
+    <url>
+         <loc>https://thoumi.github.io/CrushApp2025/guide/03-MIGRATION-ANGULAR/</loc>
+         <lastmod>2025-10-10</lastmod>
+    </url>
 </urlset>
