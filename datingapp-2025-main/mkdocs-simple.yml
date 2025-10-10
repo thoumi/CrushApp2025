@@ -76,7 +76,7 @@ nav:
   - Accueil: index-simple.md
   
   - Guide Utilisateur:
-      - Fonctionnalités: guide/01-FONCTIONNALITES.md
+      - Fonctionnalités: guide/01-FONCTIONNALITES-SIMPLE.md
       - Guide Utilisateur: guide/02-GUIDE-UTILISATEUR.md
   
   - Guide Technique:

@@ -1,6 +1,19 @@
 {
   "Routes": [
     {
+      "UpstreamPathTemplate": "/health",
+      "UpstreamHttpMethod": [ "Get", "Head" ],
+      "DownstreamPathTemplate": "/health",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "core-api",
+          "Port": 80
+        }
+      ],
+      "Priority": 10
+    },
+    {
       "UpstreamPathTemplate": "/api/chatbot/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete", "Options" ],
       "DownstreamPathTemplate": "/api/chatbot/{everything}",
@@ -11,7 +24,10 @@
           "Port": 80
         }
       ],
-      "RouteClaimsRequirement": {}
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      }
     },
     {
       "UpstreamPathTemplate": "/api/members/{everything}",

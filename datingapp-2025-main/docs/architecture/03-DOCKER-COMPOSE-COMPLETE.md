@@ -39,7 +39,7 @@ services:
     hostname: sql
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "REDACTED_DB_PASSWORD"
+      MSSQL_SA_PASSWORD: "VOTRE_MOT_DE_PASSE_SQL"
       MSSQL_PID: "Developer"
     ports:
       - "1433:1433"
@@ -49,7 +49,7 @@ services:
     networks:
       - datingapp-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P REDACTED_DB_PASSWORD -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P VOTRE_MOT_DE_PASSE_SQL -Q 'SELECT 1' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -155,7 +155,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sql;Database=DatingApp;User Id=sa;Password=REDACTED_DB_PASSWORD;TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - ConnectionStrings__DefaultConnection=Server=sql;Database=DatingApp;User Id=sa;Password=VOTRE_MOT_DE_PASSE_SQL;TrustServerCertificate=True;MultipleActiveResultSets=true;
       - TokenKey=${JWT_TOKEN_KEY}
       - RabbitMQ__Host=rabbitmq
       - RabbitMQ__User=guest
@@ -246,7 +246,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sql;Database=MediaService;User Id=sa;Password=REDACTED_DB_PASSWORD;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=sql;Database=MediaService;User Id=sa;Password=VOTRE_MOT_DE_PASSE_SQL;TrustServerCertificate=True;
       - CloudinarySettings__CloudName=${CLOUDINARY_CLOUD_NAME}
       - CloudinarySettings__ApiKey=${CLOUDINARY_API_KEY}
       - CloudinarySettings__ApiSecret=${CLOUDINARY_API_SECRET}
@@ -357,12 +357,12 @@ BUILD_CONFIGURATION=Release
 ASPNETCORE_ENVIRONMENT=Development
 
 # JWT Security
-JWT_TOKEN_KEY=super_secret_unguessable_key_min_32_chars_for_production_use_vault
+JWT_TOKEN_KEY=VOTRE_CLE_JWT_SECRETE_32_CARACTERES_MINIMUM
 
 # Cloudinary (Photo Storage)
 CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_API_KEY=VOTRE_CLE_API_CLOUDINARY
+CLOUDINARY_API_SECRET=VOTRE_SECRET_CLOUDINARY
 
 # Ollama AI
 OLLAMA_BASE_URL=http://host.docker.internal:11434
@@ -572,10 +572,10 @@ docker stats
 
 ```powershell
 # Se connecter à SQL Server
-docker-compose exec sql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "REDACTED_DB_PASSWORD"
+docker-compose exec sql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "VOTRE_MOT_DE_PASSE_SQL"
 
 # Backup database
-docker-compose exec sql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "REDACTED_DB_PASSWORD" -Q "BACKUP DATABASE [DatingApp] TO DISK='/var/opt/mssql/backup/datingapp.bak'"
+docker-compose exec sql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "VOTRE_MOT_DE_PASSE_SQL" -Q "BACKUP DATABASE [DatingApp] TO DISK='/var/opt/mssql/backup/datingapp.bak'"
 
 # Copier backup vers host
 docker cp datingapp-sql:/var/opt/mssql/backup/datingapp.bak ./backups/

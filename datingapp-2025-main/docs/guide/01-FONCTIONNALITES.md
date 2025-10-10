@@ -147,43 +147,14 @@ Accessible uniquement aux administrateurs et modérateurs :
 
 ## 🏗️ Architecture Fonctionnelle
 
-### Diagramme de Contexte
+### Architecture de l'Application
 
-```mermaid
-graph TB
-    subgraph "Utilisateurs"
-        A[Utilisateur Standard]
-        B[Modérateur]
-        C[Administrateur]
-    end
-    
-    subgraph "CrushApp"
-        D[Interface Web Angular]
-        E[API Backend ASP.NET]
-        F[Chatbot IA]
-    end
-    
-    subgraph "Services Externes"
-        G[Cloudinary]
-        H[Ollama AI]
-        I[SQL Server]
-    end
-    
-    A --> D
-    B --> D
-    C --> D
-    D --> E
-    E --> F
-    E --> G
-    F --> H
-    E --> I
-    
-    style A fill:#90EE90
-    style B fill:#FFD700
-    style C fill:#FF6347
-    style D fill:#87CEEB
-    style E fill:#9370DB
-```
+L'application CrushApp suit une architecture en couches avec les composants suivants :
+
+- **Interface Web Angular** : Frontend moderne avec composants standalone
+- **API Backend ASP.NET** : Services REST et SignalR pour le temps réel
+- **Chatbot IA** : Service d'assistance utilisant Ollama + Phi-3
+- **Services Externes** : Cloudinary pour les images, SQL Server pour les données
 
 ### Architecture en Couches
 
