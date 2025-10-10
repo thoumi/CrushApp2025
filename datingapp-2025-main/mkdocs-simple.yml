@@ -1,43 +1,48 @@
-# Configuration MkDocs Simplifiée - Documentation Essentielle
-site_name: CrushApp - Documentation Essentielle
-site_description: Documentation essentielle de CrushApp - Application de rencontres moderne
+# Configuration MkDocs pour Documentation CrushApp
+site_name: CrushApp - Documentation Technique Complète
+site_description: Documentation complète de CrushApp - Application de rencontres moderne avec Angular 20 et ASP.NET Core 9, migration vers microservices
 site_author: CrushApp Dev Team
 site_url: https://thoumi.github.io/CrushApp2025/
-
-# Repository
-repo_name: thoumi/CrushApp2025
-repo_url: https://github.com/thoumi/CrushApp2025
-edit_uri: edit/main/docs/
 
 # Theme
 theme:
   name: material
   language: fr
   palette:
+    # Light mode
     - scheme: default
       primary: indigo
       accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Basculer en mode sombre
+    # Dark mode
     - scheme: slate
       primary: indigo
       accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Basculer en mode clair
   
   font:
     text: Roboto
     code: Roboto Mono
   
   features:
-    - navigation.instant
-    - navigation.tracking
-    - navigation.top
-    - search.suggest
-    - search.highlight
-    - content.code.copy
-    - content.action.edit
-    - toc.integrate
+    - navigation.instant        # Navigation rapide sans rechargement
+    - navigation.tracking       # Ancre URL mise à jour
+    - navigation.tabs           # Onglets navigation
+    - navigation.sections       # Sections dans sidebar
+    - navigation.top            # Bouton retour en haut
+    - search.suggest            # Suggestions recherche
+    - search.highlight          # Surligner résultats
+    - content.code.copy         # Copier code blocks
+    - content.action.edit       # Bouton éditer page
+    - toc.integrate             # Intégrer TOC dans sidebar (masque TOC à droite)
   
   icon:
-    repo: fontawesome/brands/github
     edit: material/pencil
+    view: material/eye
 
 # Plugins
 plugins:
@@ -47,6 +52,10 @@ plugins:
         - en
   - minify:
       minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+      locale: fr
 
 # Extensions Markdown
 markdown_extensions:
@@ -54,11 +63,18 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - admonition
   - codehilite:
       guess_lang: false
@@ -71,36 +87,21 @@ markdown_extensions:
   - def_list
   - abbr
 
-# Navigation Simplifiée - Fichiers Essentiels Seulement
+# Navigation Flexible et Modulaire
 nav:
-  - Accueil: index-simple.md
-  
-  - Guide Utilisateur:
-      - Fonctionnalités: guide/01-FONCTIONNALITES-SIMPLE.md
-      - Guide Utilisateur: guide/02-GUIDE-UTILISATEUR.md
-  
-  - Guide Technique:
-      - Migration Angular: guide/03-MIGRATION-ANGULAR.md
-      - Architecture: architecture/00-OVERVIEW.md
-  
-  - Déploiement:
-      - Quick Start: QUICKSTART-MIGRATION.md
-      - Docker Compose: architecture/03-DOCKER-COMPOSE-COMPLETE.md
-      - Status Final: STATUS-FINAL.md
-  
-  - Résolution des Problèmes:
-      - Guide WebSocket: TROUBLESHOOTING-WEBSOCKET.md
-
-# Extra
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/thoumi/CrushApp2025
-      name: GitHub
-  
-  version:
-    provider: mike
-    default: latest
+- Accueil: index-simple.md
+- Guide Utilisateur:
+  - Fonctionnalités: guide/01-FONCTIONNALITES-SIMPLE.md
+  - Guide Utilisateur: guide/02-GUIDE-UTILISATEUR.md
+- Guide Technique:
+  - Migration Angular: guide/03-MIGRATION-ANGULAR.md
+  - Migration .NET: guide/04-MIGRATION-DOTNET.md
+  - Migration Microservices: guide/05-MIGRATION-MICROSERVICES.md
+  - Architecture: architecture/00-OVERVIEW.md
+- Déploiement:
+  - Docker Compose: architecture/03-DOCKER-COMPOSE-COMPLETE.md
+- Résolution des Problèmes:
+  - Guide WebSocket: TROUBLESHOOTING-WEBSOCKET.md
 
 # Copyright
-copyright: Copyright &copy; 2025 CrushApp Dev Team - Documentation Essentielle
+copyright: Copyright &copy; 2025 CrushApp Dev Team - Documentation Technique

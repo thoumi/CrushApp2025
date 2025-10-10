@@ -1,0 +1,61 @@
+# Configuration de Navigation Flexible pour CrushApp
+# Ce fichier peut être facilement modifié pour réorganiser la table des matières
+
+# Structure de base
+base_structure:
+  - Accueil: index-simple.md
+
+# Sections principales
+sections:
+  # Guide Utilisateur
+  user_guide:
+    title: "Guide Utilisateur"
+    items:
+      - Fonctionnalités: guide/01-FONCTIONNALITES-SIMPLE.md
+      - Guide Utilisateur: guide/02-GUIDE-UTILISATEUR.md
+  
+  # Guide Technique
+  technical_guide:
+    title: "Guide Technique"
+    items:
+      - Migration Angular: guide/03-MIGRATION-ANGULAR.md
+      - Migration .NET: guide/04-MIGRATION-DOTNET.md
+      - Migration Microservices: guide/05-MIGRATION-MICROSERVICES.md
+      - Architecture: architecture/00-OVERVIEW.md
+  
+  # Déploiement
+  deployment:
+    title: "Déploiement"
+    items:
+      - Docker Compose: architecture/03-DOCKER-COMPOSE-COMPLETE.md
+  
+  # Résolution des Problèmes
+  troubleshooting:
+    title: "Résolution des Problèmes"
+    items:
+      - Guide WebSocket: TROUBLESHOOTING-WEBSOCKET.md
+
+# Ordre des sections (facilement modifiable)
+section_order:
+  - user_guide
+  - technical_guide
+  - deployment
+  - troubleshooting
+
+# Configuration des sections (optionnel)
+section_config:
+  user_guide:
+    icon: "material/account"
+    description: "Documentation utilisateur et fonctionnalités"
+  
+  technical_guide:
+    icon: "material/cog"
+    description: "Guides techniques et migrations"
+  
+  deployment:
+    icon: "material/rocket-launch"
+    description: "Déploiement et configuration"
+  
+  troubleshooting:
+    icon: "material/tools"
+    description: "Résolution des problèmes techniques"
