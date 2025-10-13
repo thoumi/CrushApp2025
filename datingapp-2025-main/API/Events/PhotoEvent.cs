@@ -14,3 +14,4 @@ public class PhotoEvent
     public Dictionary<string, string> Metadata { get; set; } = new();
 }
 
+

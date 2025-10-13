@@ -7,3 +7,4 @@ public class CloudinarySettings
     public required string ApiSecret { get; set; }
 }
 
+

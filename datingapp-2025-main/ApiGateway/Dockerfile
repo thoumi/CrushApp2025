@@ -31,3 +31,4 @@ EXPOSE 80
 
 ENTRYPOINT ["dotnet", "ApiGateway.dll"]
 
+

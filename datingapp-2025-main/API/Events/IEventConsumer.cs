@@ -8,3 +8,4 @@ public interface IEventConsumer
     Task ConsumeAsync<T>(string queueName, Func<T, Task> handler, CancellationToken cancellationToken);
 }
 
+

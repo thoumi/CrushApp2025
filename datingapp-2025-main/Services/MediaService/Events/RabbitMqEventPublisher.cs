@@ -89,3 +89,4 @@ public class RabbitMqEventPublisher : IEventPublisher, IDisposable
     }
 }
 
+

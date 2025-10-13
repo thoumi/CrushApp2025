@@ -1666,3 +1666,4 @@ memberId = input.required<string>();
 **Date** : Octobre 2025  
 **Version du Guide** : 1.0.0
 
+

@@ -9,3 +9,4 @@ public interface IPhotoService
     Task<DeletionResult> DeletePhotoAsync(string publicId);
 }
 
+

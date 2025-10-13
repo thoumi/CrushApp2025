@@ -86,3 +86,4 @@ public class PhotoEventConsumer : BackgroundService
     }
 }
 
+

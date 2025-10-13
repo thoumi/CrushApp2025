@@ -24,3 +24,4 @@ public class Photo
     public bool IsMain { get; set; } = false;
 }
 
+

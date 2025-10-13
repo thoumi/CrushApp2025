@@ -105,3 +105,4 @@ public class RabbitMqEventConsumer : IEventConsumer, IDisposable
     }
 }
 
+

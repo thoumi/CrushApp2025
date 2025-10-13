@@ -908,3 +908,4 @@ CrushApp est un projet open-source !
 **Version** : 1.0.0  
 **Dernière mise à jour** : Octobre 2025
 
+
