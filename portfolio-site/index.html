@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lhoussaine Thoumi · Software Engineer</title>
+<meta name="description" content="Développeur Senior Fullstack .NET Core / Angular · études de cas techniques d'architecture, DDD et systèmes événementiels.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="#profil">Profil</a>
+      <a href="#projets" class="current">Études de cas</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<header id="profil" class="wrap" style="padding: 5rem 1.5rem 4rem;">
+  <div style="display:grid; grid-template-columns: auto 1fr; gap: 2.5rem; align-items: center;">
+    <img src="assets/img/profile.jpg" alt="Lhoussaine Thoumi" style="width:132px; height:132px; border:1.5px solid var(--accent); object-fit:cover; flex-shrink:0;">
+    <div>
+      <p class="eyebrow">Software Engineer · Software Architect</p>
+      <h1>Lhoussaine&nbsp;Thoumi</h1>
+      <p class="section-intro" style="margin-top:0.9rem; font-size:1.05rem;">
+        Développeur Senior Fullstack .NET Core / Angular, spécialisé dans la modernisation de systèmes legacy et la conception d'architectures orientées événements. Vision produit issue de 5 ans en environnement industriel (Michelin, Renault, Crown Holdings, Nestlé) avant de rejoindre le développement logiciel.
+      </p>
+      <div style="display:flex; gap:0.9rem; flex-wrap:wrap; margin-top:1.4rem;">
+        <a class="btn btn-ghost" href="mailto:thoumi@outlook.com">Email</a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/lhoussaine-thoumi-710383160/" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn btn-ghost" href="https://github.com/thoumi" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="projets" style="padding-bottom: 4rem;">
+  <p class="eyebrow">Études de cas</p>
+  <h2>Ce que j'ai construit, expliqué comme je le construis</h2>
+  <p class="section-intro">Chaque projet ci-dessous se lit comme une étude de cas : le problème métier qu'il résout, les décisions d'architecture qui en découlent, les compromis assumés en chemin, plutôt que comme une liste de technologies.</p>
+
+  <div class="reveal" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem; margin-top:2.5rem;">
+
+    <a href="projects/halo.html" class="panel" style="display:block; text-decoration:none; color:inherit; overflow:hidden; transition: border-color .2s ease, transform .2s ease;" onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+      <div style="aspect-ratio: 16/9; border-bottom:1px solid var(--border); background:
+          repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 22px),
+          repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 22px),
+          var(--panel-2);
+          display:flex; align-items:center; justify-content:center;">
+        <svg width="72" height="72" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="75" cy="75" r="62" stroke="var(--accent)" stroke-width="4" stroke-dasharray="298 96" stroke-linecap="round" transform="rotate(-38 75 75)"/>
+          <circle cx="75" cy="75" r="44" stroke="var(--text-muted)" stroke-width="10" stroke-dasharray="221 55" stroke-linecap="round" transform="rotate(20 75 75)"/>
+        </svg>
+      </div>
+      <div style="padding:1.4rem 1.5rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:0.6rem; margin-bottom:0.6rem;">
+          <h3 style="font-size:1.15rem;">Halo</h3>
+          <span class="badge badge-done"><span class="dot"></span>En développement</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.92rem; margin:0 0 1rem;">Une plateforme de rencontre repensée en Clean Architecture et DDD : microservices .NET 9, temps réel via SignalR, un agrégat <span class="mono">Match</span> explicite, et un contrat OpenAPI généré plutôt que documenté à la main.</p>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <span class="badge badge-roadmap">.NET 9</span>
+          <span class="badge badge-roadmap">Angular 20</span>
+          <span class="badge badge-roadmap">DDD</span>
+          <span class="badge badge-roadmap">Docker</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="panel" style="padding:1.4rem 1.5rem; opacity:0.75; border-style:dashed;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:0.6rem; margin-bottom:0.6rem;">
+        <h3 style="font-size:1.15rem; color:var(--text-muted);">Prochaine étude de cas</h3>
+        <span class="badge badge-roadmap">Roadmap</span>
+      </div>
+      <p style="color:var(--text-muted); font-size:0.92rem; margin:0;">Des tests automatisés (xUnit, Testcontainers) d'abord, puis CQRS et Kafka/Outbox sur Halo, publiés au fur et à mesure que le projet avance.</p>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Lhoussaine Thoumi · Baillargues (34)</span>
+    <span class="mono">thoumi@outlook.com</span>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

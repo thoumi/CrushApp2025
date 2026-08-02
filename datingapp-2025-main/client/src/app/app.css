@@ -3,7 +3,7 @@
   top: 80px; /* Augmenté pour éviter la superposition avec la navbar */
   right: 20px;
   z-index: 1050; /* Z-index plus élevé */
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in oklab, var(--color-base-100) 95%, transparent);
   backdrop-filter: blur(10px);
   border-radius: 8px;
   padding: 4px;
@@ -71,13 +71,12 @@
 }
 
 
-/* AJOUTEZ CES RÈGLES ICI */
 .chatbot-fab {
     position: fixed;
     bottom: 25px;
     right: 25px;
-    background-color: #e91e63;
-    color: white;
+    background-color: var(--color-primary);
+    color: var(--color-primary-content);
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -87,7 +86,7 @@
     font-size: 24px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     cursor: pointer;
-    z-index: 1040; 
+    z-index: 1040;
 }
 
 .chatbot-container {
@@ -95,4 +94,8 @@
     bottom: 100px;
     right: 25px;
     z-index: 1050;
+    background: var(--color-base-100);
+    border: 1px solid var(--color-base-300);
+    border-radius: 12px;
+    overflow: hidden;
 }

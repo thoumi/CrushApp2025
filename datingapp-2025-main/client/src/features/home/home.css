@@ -1,0 +1,37 @@
+.halo-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-base-200);
+}
+
+.halo-hero::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 46rem;
+  height: 46rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 42%, color-mix(in oklab, var(--color-primary) 22%, transparent) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.halo-hero::after {
+  content: "";
+  position: absolute;
+  bottom: -25%;
+  left: -12%;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--color-secondary) 16%, transparent) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.halo-mark-ring circle:first-child {
+  color: var(--color-base-content);
+}
+
+.halo-mark-ring circle:nth-child(2) {
+  color: var(--color-primary);
+}

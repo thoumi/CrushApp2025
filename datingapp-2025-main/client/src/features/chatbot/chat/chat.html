@@ -1,7 +1,7 @@
 <div class="chat-window">
   <div class="chat-header">
-    <h5>Crush Helper</h5>
-    <p>Votre coach personnel</p>
+    <h5 class="font-display">{{ 'chatbot.title' | translate }}</h5>
+    <p>{{ 'chatbot.subtitle' | translate }}</p>
   </div>
 
   <div class="messages-area" #scrollMe>
@@ -22,7 +22,7 @@
     <input
       type="text"
       class="form-control"
-      placeholder="Posez votre question..."
+      [placeholder]="'chatbot.placeholder' | translate"
       [(ngModel)]="currentMessage"
       (keyup.enter)="sendMessageBot()"
       [disabled]="isLoading">

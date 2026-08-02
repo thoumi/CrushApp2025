@@ -1,8 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { catchError, map } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 interface Translation {
   [key: string]: string;
@@ -23,7 +20,8 @@ export class TranslationService {
     fr: {
       // Navigation
       'nav.home': 'Accueil',
-      'nav.members': 'Membres',
+      'nav.daily': 'Rendez-vous du jour',
+      'nav.members': 'Explorer',
       'nav.lists': 'Ma Liste',
       'nav.messages': 'Messages',
       'nav.admin': 'Administration',
@@ -32,11 +30,24 @@ export class TranslationService {
       'nav.register': 'Inscription',
 
       // Accueil
-      'home.title': 'Trouvez votre âme sœur',
-      'home.subtitle': 'Connectez-vous avec des personnes extraordinaires',
-      'home.register': 'S\'inscrire',
+      'home.title': 'Moins de profils. De vraies raisons d\'écrire.',
+      'home.subtitle': 'Halo vous propose une sélection restreinte chaque jour, avec de vraies amorces de conversation, pas juste une photo.',
+      'home.register': 'Commencer',
       'home.login': 'Se connecter',
-      'home.learnMore': 'En savoir plus',
+      'home.learnMore': 'Comment ça marche',
+
+      // Rendez-vous du jour
+      'daily.title': 'Votre rendez-vous du jour',
+      'daily.subtitle': 'Une sélection restreinte, renouvelée chaque jour : regardez-la vraiment plutôt que de défiler.',
+      'daily.empty': 'Plus personne à découvrir aujourd\'hui. Revenez demain, ou essayez Explorer.',
+
+      // Coach (chatbot)
+      'chatbot.title': 'Coach Halo',
+      'chatbot.subtitle': 'Des conseils de conversation, à la demande',
+      'chatbot.placeholder': 'Posez votre question...',
+      'chatbot.send': 'Envoyer',
+      'chatbot.thinking': 'Réflexion...',
+      'chatbot.error': 'Erreur lors de la génération de la réponse',
 
       // Authentification
       'auth.email': 'Email',
@@ -130,9 +141,6 @@ export class TranslationService {
       'photo.reject': 'Rejeter',
       'photo.management': 'Gestion des photos',
 
-      // Erreurs
-      'errors.title': 'Erreurs',
-      'errors.details': 'Détails',
 
       // Images
       'image.cancel': 'Annuler',
@@ -168,6 +176,12 @@ export class TranslationService {
       'register.female': 'Femme',
       'register.back': 'Retour',
       'register.register': 'S\'inscrire',
+      'register.prompts': 'Prompts',
+      'register.promptsIntro': 'Choisissez jusqu\'à 3 amorces : elles apparaîtront sur votre profil et donnent aux autres une vraie raison de vous écrire.',
+      'register.choosePrompt': 'Choisir une amorce',
+      'register.yourAnswer': 'Votre réponse',
+      'register.skip': 'Passer',
+      'register.finish': 'Terminer',
 
       // Commun
       'common.back': 'Retour',
@@ -197,7 +211,8 @@ export class TranslationService {
     en: {
       // Navigation
       'nav.home': 'Home',
-      'nav.members': 'Members',
+      'nav.daily': 'Today\'s Picks',
+      'nav.members': 'Explore',
       'nav.lists': 'Lists',
       'nav.messages': 'Messages',
       'nav.admin': 'Administration',
@@ -206,11 +221,24 @@ export class TranslationService {
       'nav.register': 'Register',
 
       // Home
-      'home.title': 'Find your soulmate',
-      'home.subtitle': 'Connect with extraordinary people',
-      'home.register': 'Register',
+      'home.title': 'Fewer profiles. Better reasons to talk.',
+      'home.subtitle': 'Halo shows you a small, curated selection each day, with real conversation starters, not just a photo.',
+      'home.register': 'Get started',
       'home.login': 'Login',
-      'home.learnMore': 'Learn more',
+      'home.learnMore': 'How it works',
+
+      // Today's picks
+      'daily.title': 'Your picks for today',
+      'daily.subtitle': 'A small selection, refreshed daily: worth actually looking at instead of scrolling past.',
+      'daily.empty': 'No one new to discover today. Check back tomorrow, or try Explore.',
+
+      // Coach (chatbot)
+      'chatbot.title': 'Halo Coach',
+      'chatbot.subtitle': 'Conversation tips, on demand',
+      'chatbot.placeholder': 'Ask your question...',
+      'chatbot.send': 'Send',
+      'chatbot.thinking': 'Thinking...',
+      'chatbot.error': 'Error generating response',
 
       // Authentication
       'auth.email': 'Email',
@@ -304,9 +332,6 @@ export class TranslationService {
       'photo.reject': 'Reject',
       'photo.management': 'Photo Management',
 
-      // Errors
-      'errors.title': 'Errors',
-      'errors.details': 'Details',
 
       // Images
       'image.cancel': 'Cancel',
@@ -342,6 +367,12 @@ export class TranslationService {
       'register.female': 'Female',
       'register.back': 'Back',
       'register.register': 'Register',
+      'register.prompts': 'Prompts',
+      'register.promptsIntro': 'Pick up to 3 prompts: they\'ll show on your profile and give people a real reason to write to you.',
+      'register.choosePrompt': 'Choose a prompt',
+      'register.yourAnswer': 'Your answer',
+      'register.skip': 'Skip',
+      'register.finish': 'Finish',
 
       // Common
       'common.back': 'Back',
@@ -374,7 +405,7 @@ export class TranslationService {
   private languageSubject = new BehaviorSubject<string>('fr');
   public language$ = this.languageSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor() {
     // Charger la langue sauvegardée ou utiliser le français par défaut
     const savedLanguage = localStorage.getItem('preferred-language') || 'fr';
     this.setLanguage(savedLanguage);

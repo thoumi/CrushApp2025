@@ -1,0 +1,277 @@
+/* ============================================================
+   Design tokens : identité "carnet d'architecte" (Lhoussaine Thoumi)
+   Fond encre bleutée, grille de blueprint en filigrane, accent cuivre.
+   ============================================================ */
+:root {
+  --ink: #0e1116;
+  --ink-panel: #161c26;
+  --ink-panel-2: #1c2330;
+  --paper: #f2efe8;
+  --paper-panel: #ffffff;
+  --paper-panel-2: #e9e4d8;
+
+  --copper: #c98a3e;
+  --copper-strong: #e3a857;
+  --good: #4c9a78;
+  --good-bg: rgba(76, 154, 120, 0.12);
+  --slate: #7c8494;
+
+  --bg: var(--ink);
+  --panel: var(--ink-panel);
+  --panel-2: var(--ink-panel-2);
+  --text: #ece9e1;
+  --text-muted: #9aa1b0;
+  --border: #2a3140;
+  --accent: var(--copper-strong);
+  --grid-line: rgba(236, 233, 225, 0.045);
+  --code-bg: #10141b;
+  --shadow: 0 20px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: var(--paper);
+    --panel: var(--paper-panel);
+    --panel-2: var(--paper-panel-2);
+    --text: #1b1d22;
+    --text-muted: #5c6270;
+    --border: #ddd6c4;
+    --accent: var(--copper);
+    --grid-line: rgba(27, 29, 34, 0.05);
+    --code-bg: #ece7da;
+    --shadow: 0 20px 50px -32px rgba(30, 25, 15, 0.25);
+  }
+}
+:root[data-theme="light"] {
+  --bg: var(--paper);
+  --panel: var(--paper-panel);
+  --panel-2: var(--paper-panel-2);
+  --text: #1b1d22;
+  --text-muted: #5c6270;
+  --border: #ddd6c4;
+  --accent: var(--copper);
+  --grid-line: rgba(27, 29, 34, 0.05);
+  --code-bg: #ece7da;
+  --shadow: 0 20px 50px -32px rgba(30, 25, 15, 0.25);
+}
+:root[data-theme="dark"] {
+  --bg: var(--ink);
+  --panel: var(--ink-panel);
+  --panel-2: var(--ink-panel-2);
+  --text: #ece9e1;
+  --text-muted: #9aa1b0;
+  --border: #2a3140;
+  --accent: var(--copper-strong);
+  --grid-line: rgba(236, 233, 225, 0.045);
+  --code-bg: #10141b;
+  --shadow: 0 20px 60px -30px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 100% 44px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 44px 100%,
+    var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+.mono {
+  font-family: Consolas, "SFMono-Regular", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace;
+}
+
+a { color: inherit; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+.wrap-narrow { max-width: 800px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ---------- Nav ---------- */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+.site-nav .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  font-family: Consolas, "SFMono-Regular", "Cascadia Code", monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+.brand .mark {
+  width: 30px; height: 30px;
+  border: 1.5px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+.nav-links { display: flex; align-items: center; gap: 1.75rem; font-size: 0.88rem; }
+.nav-links a { text-decoration: none; color: var(--text-muted); }
+.nav-links a:hover { color: var(--text); }
+.nav-links a.current { color: var(--accent); }
+
+.theme-toggle {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text-muted);
+  width: 34px; height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+}
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- Eyebrow / headings ---------- */
+.eyebrow {
+  font-family: Consolas, "SFMono-Regular", "Cascadia Code", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.eyebrow::before { content: ""; width: 22px; height: 1px; background: var(--accent); display: inline-block; }
+
+h1, h2, h3 { font-family: Consolas, "SFMono-Regular", "Cascadia Code", "JetBrains Mono", ui-monospace, monospace; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+h1 { font-weight: 700; font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.08; }
+h2 { font-weight: 700; font-size: clamp(1.5rem, 3vw, 1.9rem); line-height: 1.2; }
+h3 { font-weight: 700; font-size: 1.05rem; }
+
+.section-intro { color: var(--text-muted); max-width: 68ch; font-size: 1rem; margin: 0.6rem 0 0; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 4px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn-primary { background: var(--accent); color: #1a1305; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--accent) 60%, transparent); }
+.btn-ghost { background: transparent; border-color: var(--border); color: var(--text); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-lg { padding: 1.1rem 2rem; font-size: 1.02rem; }
+
+/* ---------- Badges / pills ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: Consolas, "SFMono-Regular", monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.badge-done { color: var(--good); background: var(--good-bg); border-color: color-mix(in srgb, var(--good) 40%, var(--border)); }
+.badge-roadmap { color: var(--text-muted); }
+.badge-done .dot, .badge-roadmap .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ---------- Cards / panels ---------- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+/* ---------- Diagram building blocks ---------- */
+.diagram-wrap { overflow-x: auto; padding: 0.5rem 0 1rem; }
+.node {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 6px;
+  padding: 0.85rem 1.1rem;
+  text-align: center;
+  min-width: 150px;
+}
+.node .mono { display: block; font-weight: 700; font-size: 0.85rem; }
+.node .sub { display: block; color: var(--text-muted); font-size: 0.72rem; margin-top: 0.3rem; }
+.node.accent { border-color: var(--accent); }
+.node.faint { opacity: 0.7; border-style: dashed; }
+.connector-v { width: 1px; height: 1.6rem; background: var(--border); margin: 0 auto; }
+
+/* ---------- Table ---------- */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 560px; }
+th {
+  text-align: left; font-family: Consolas, "SFMono-Regular", monospace;
+  font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 700; padding: 0 0.8rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 0.75rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+/* ---------- Callout ---------- */
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--panel);
+  border-radius: 0 8px 8px 0;
+  padding: 1.2rem 1.4rem;
+}
+.callout h3 { margin-bottom: 0.5rem; }
+.callout p { margin: 0 0 0.7rem; color: var(--text-muted); font-size: 0.94rem; }
+.callout p:last-child { margin-bottom: 0; }
+
+pre.snippet {
+  margin: 0; background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1rem 1.1rem; overflow-x: auto;
+  font-size: 0.82rem; line-height: 1.55;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 6rem;
+  padding: 2.5rem 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.site-footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem; }
+
+/* ---------- Reveal on scroll ---------- */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+}

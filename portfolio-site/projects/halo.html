@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halo · Étude de cas · Lhoussaine Thoumi</title>
+<meta name="description" content="Étude de cas technique : refonte de Halo en Clean Architecture / DDD, microservices .NET 9, SignalR temps réel.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  /* ============================================================
+     Habillage "page de doc" façon Confluence pour cette étude de cas.
+     Redéfinit les tokens de style.css (chargé juste avant) : le reste
+     du site (accueil) garde l'identité carnet d'architecte d'origine.
+     ============================================================ */
+  :root {
+    --bg: #F7F8F9;
+    --panel: #FFFFFF;
+    --panel-2: #EEF4FF;
+    --text: #172B4D;
+    --text-muted: #626F86;
+    --border: #DCDFE4;
+    --accent: #0C66E4;
+    --grid-line: transparent;
+    --code-bg: #F1F2F4;
+    --good: #1F845A;
+    --good-bg: #DFFCF0;
+    --lozenge-bg: #DCDFE4; --lozenge-text: #44546F;
+    --lozenge-green-bg: #BAF3DB; --lozenge-green-text: #164B35;
+    --lozenge-blue-bg: #CCE0FF; --lozenge-blue-text: #09326C;
+    --info-bg: #E9F2FF; --info-icon: #0C66E4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1D2125; --panel: #22272B; --panel-2: #1C2B41;
+      --text: #DEE4EA; --text-muted: #8C9BAB; --border: #38414A;
+      --accent: #579DFF; --grid-line: transparent; --code-bg: #161A1D;
+      --good: #4BCE97; --good-bg: #133328;
+      --lozenge-bg: #38414A; --lozenge-text: #B6C2CF;
+      --lozenge-green-bg: #164B35; --lozenge-green-text: #7EE2B8;
+      --lozenge-blue-bg: #09326C; --lozenge-blue-text: #85B8FF;
+      --info-bg: #0E2A4A; --info-icon: #579DFF;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1D2125; --panel: #22272B; --panel-2: #1C2B41;
+    --text: #DEE4EA; --text-muted: #8C9BAB; --border: #38414A;
+    --accent: #579DFF; --grid-line: transparent; --code-bg: #161A1D;
+    --good: #4BCE97; --good-bg: #133328;
+    --lozenge-bg: #38414A; --lozenge-text: #B6C2CF;
+    --lozenge-green-bg: #164B35; --lozenge-green-text: #7EE2B8;
+    --lozenge-blue-bg: #09326C; --lozenge-blue-text: #85B8FF;
+    --info-bg: #0E2A4A; --info-icon: #579DFF;
+  }
+  :root[data-theme="light"] {
+    --bg: #F7F8F9; --panel: #FFFFFF; --panel-2: #EEF4FF;
+    --text: #172B4D; --text-muted: #626F86; --border: #DCDFE4;
+    --accent: #0C66E4; --grid-line: transparent; --code-bg: #F1F2F4;
+    --good: #1F845A; --good-bg: #DFFCF0;
+    --lozenge-bg: #DCDFE4; --lozenge-text: #44546F;
+    --lozenge-green-bg: #BAF3DB; --lozenge-green-text: #164B35;
+    --lozenge-blue-bg: #CCE0FF; --lozenge-blue-text: #09326C;
+    --info-bg: #E9F2FF; --info-icon: #0C66E4;
+  }
+
+  body, h1, h2, h3, .eyebrow, .brand {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    letter-spacing: normal;
+  }
+  h1 { font-size: 2.1rem; font-weight: 700; }
+  h2 { font-size: 1.35rem; font-weight: 700; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
+  h3 { font-weight: 600; }
+  .eyebrow::before { display: none; }
+  .eyebrow { font-weight: 600; letter-spacing: 0.02em; text-transform: none; }
+
+  /* Breadcrumb */
+  .breadcrumb-bar { border-bottom: 1px solid var(--border); }
+  .breadcrumb-bar .wrap { padding: 0.75rem 1.5rem; }
+  .breadcrumb { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: var(--text-muted); flex-wrap: wrap; }
+  .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--accent); text-decoration: underline; }
+  .breadcrumb .sep { color: var(--border); }
+  .breadcrumb .current { color: var(--text); font-weight: 600; }
+
+  /* Two-column doc layout */
+  .confluence-shell { display: flex; gap: 2.75rem; align-items: flex-start; padding: 2.5rem 1.5rem 5rem; max-width: 1120px; margin: 0 auto; }
+  .page-toc { position: sticky; top: 84px; width: 216px; flex-shrink: 0; }
+  .page-toc-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem; }
+  .page-toc nav { display: flex; flex-direction: column; gap: 0.1rem; border-left: 2px solid var(--border); }
+  .page-toc a { padding: 0.32rem 0 0.32rem 0.85rem; margin-left: -2px; border-left: 2px solid transparent; font-size: 0.84rem; color: var(--text-muted); text-decoration: none; line-height: 1.35; }
+  .page-toc a:hover { color: var(--text); }
+  .page-toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  .page-content { flex: 1; min-width: 0; max-width: 760px; }
+
+  @media (max-width: 900px) {
+    .confluence-shell { flex-direction: column; }
+    .page-toc { position: static; width: 100%; }
+    .page-toc nav { flex-direction: row; flex-wrap: wrap; border-left: none; border-top: 1px solid var(--border); padding-top: 0.6rem; gap: 0.2rem 1rem; }
+    .page-toc a { border-left: none; border-bottom: 2px solid transparent; padding-left: 0; }
+    .page-toc a.active { border-left: none; border-bottom-color: var(--accent); }
+  }
+
+  /* Page head */
+  .lozenge-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .lozenge { display: inline-flex; align-items: center; height: 20px; padding: 0 0.55rem; border-radius: 3px; font-size: 0.72rem; font-weight: 600; background: var(--lozenge-bg); color: var(--lozenge-text); white-space: nowrap; }
+  .lozenge-green { background: var(--lozenge-green-bg); color: var(--lozenge-green-text); }
+  .byline { color: var(--text-muted); font-size: 0.88rem; margin: 0.6rem 0 0; }
+  .page-summary { font-size: 1.05rem; color: var(--text); margin: 1.1rem 0 0; max-width: 68ch; }
+
+  /* Info panel (was: dark "callout") */
+  .callout { border-left: none; background: var(--info-bg); border-radius: 6px; padding: 1rem 1.1rem 1rem 3.1rem; position: relative; }
+  .callout::before {
+    content: "i"; position: absolute; left: 1.05rem; top: 1.05rem;
+    width: 19px; height: 19px; border-radius: 50%; background: var(--info-icon); color: #fff;
+    font-size: 0.72rem; font-weight: 700; font-style: normal; font-family: Georgia, "Times New Roman", serif;
+    display: flex; align-items: center; justify-content: center; line-height: 1;
+  }
+
+  section.cs { margin-top: 2.75rem; scroll-margin-top: 100px; }
+  section.cs .num { display: none; }
+
+  .flow-step { display:flex; gap:1rem; padding: 0.9rem 0; border-top:1px solid var(--border); }
+  .flow-step:first-child { border-top:none; }
+  .flow-step .n { font-family: Consolas, monospace; color: var(--accent); font-weight:700; font-size:0.85rem; flex-shrink:0; width: 2.4rem; }
+  .flow-step .t { font-size: 0.94rem; }
+  .flow-step .t .mono { color: var(--text); }
+  .tech-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem; }
+  .tech-card { padding:1.1rem 1.3rem; }
+  .tech-card h3 { font-size:0.95rem; margin-bottom:0.5rem; border-bottom:none; padding-bottom:0; }
+  .tech-card p { margin:0.25rem 0; font-size:0.85rem; color:var(--text-muted); }
+  .tech-card p strong { color:var(--text); font-weight:600; }
+  .comp-list dt { font-weight:700; font-size:0.9rem; color:var(--accent); margin-top:1.4rem; }
+  .comp-list dt:first-child { margin-top:0; }
+  .comp-list dd { margin:0.3rem 0 0; color:var(--text-muted); font-size:0.92rem; max-width:70ch; }
+  .skill-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:0.9rem; }
+  .skill-card { padding:1rem 1.2rem; }
+  .skill-card h3 { border-bottom:none; padding-bottom:0; }
+  .skill-card .stars { color: var(--accent); letter-spacing:0.1em; font-size:0.85rem; }
+
+  .page-footer-meta { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.82rem; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html">← Études de cas</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#projets">Études de cas</a>
+      <span class="sep">/</span>
+      <span class="current">Halo</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#contexte">1. Contexte &amp; problème</a>
+      <a href="#objectifs">2. Objectifs</a>
+      <a href="#architecture">3. Architecture</a>
+      <a href="#composants">4. Composants</a>
+      <a href="#choix-techniques">5. Choix techniques</a>
+      <a href="#patterns">6. Patterns</a>
+      <a href="#flux">7. Flux d'une requête</a>
+      <a href="#qualite">8. Qualité &amp; DevOps</a>
+      <a href="#difficultes">9. Difficultés &amp; compromis</a>
+      <a href="#competences">10. Compétences</a>
+      <a href="#demonstration">Démonstration</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-green">Phase 1 terminée</span>
+      <span class="lozenge">.NET 9</span>
+      <span class="lozenge">Angular 20</span>
+      <span class="lozenge">Docker Compose</span>
+      <span class="lozenge">SQL Server</span>
+    </div>
+    <h1>Halo</h1>
+    <p class="byline">Par Lhoussaine Thoumi · Mis à jour le 1 août 2026</p>
+    <p class="page-summary">Refonte d'une application de rencontre en Clean Architecture / DDD : microservices .NET 9, temps réel SignalR, contrat API explicite.</p>
+
+    <!-- 1. Contexte métier -->
+    <section class="cs reveal" id="contexte">
+      <p class="num">01</p>
+      <h2>Contexte &amp; problème métier</h2>
+      <p class="section-intro">Au départ, l'application de rencontre fonctionnait, mais elle avait été construite comme un exercice pédagogique : la logique métier traînait dans les controllers, aucune notion de « match » n'existait vraiment en base, et la sécurité tournait encore sur sa configuration par défaut. Le vrai problème n'était donc pas fonctionnel (tout marchait) mais structurel : sans donner une forme explicite au domaine métier, impossible de faire évoluer le produit, qu'il s'agisse de notifier un match, d'en garder l'historique ou de fiabiliser la modération.</p>
+      <p class="section-intro" style="margin-top:0.8rem;">Le projet Halo reconstruit cette base couche par couche, en traitant chaque décision d'architecture comme le ferait une vraie équipe produit : partir d'un besoin métier, documenter le compromis, livrer, puis mesurer.</p>
+    </section>
+
+    <!-- 2. Objectifs -->
+    <section class="cs reveal" id="objectifs">
+      <p class="num">02</p>
+      <h2>Objectifs fonctionnels &amp; techniques</h2>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1.5rem;">
+        <div class="panel" style="padding:1.3rem 1.5rem;">
+          <h3>Fonctionnels</h3>
+          <ul style="color:var(--text-muted); font-size:0.92rem; padding-left:1.1rem; margin:0.6rem 0 0;">
+            <li>Profils, photos modérées, sélection quotidienne de profils</li>
+            <li>Likes réciproques → match explicite et daté</li>
+            <li>Messagerie et présence en temps réel</li>
+            <li>Back-office de modération photo</li>
+          </ul>
+        </div>
+        <div class="panel" style="padding:1.3rem 1.5rem;">
+          <h3>Techniques</h3>
+          <ul style="color:var(--text-muted); font-size:0.92rem; padding-left:1.1rem; margin:0.6rem 0 0;">
+            <li>Clean Architecture + DDD sur le service principal</li>
+            <li>Conformité SOLID vérifiée par audit, pas supposée</li>
+            <li>Migrations EF Core traçables, avec backfill de données historiques</li>
+            <li>Contrat API explicite (OpenAPI) → client TypeScript généré</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Architecture -->
+    <section class="cs reveal" id="architecture">
+      <p class="num">03</p>
+      <h2>Architecture</h2>
+      <p class="section-intro">Vue d'ensemble : un client Angular consomme l'API à travers une passerelle qui route vers trois services .NET indépendants, chacun avec son propre cycle de déploiement.</p>
+
+      <div class="diagram-wrap" style="margin-top:1.75rem;">
+        <div style="min-width:640px; display:flex; flex-direction:column; align-items:center;">
+          <div class="node accent"><span class="mono">Angular Client</span><span class="sub">:4200 · signals, standalone</span></div>
+          <div class="connector-v"></div>
+          <div class="node"><span class="mono">API Gateway</span><span class="sub">:5000 · routage</span></div>
+          <div class="connector-v"></div>
+          <svg width="520" height="26" viewBox="0 0 520 26"><line x1="260" y1="0" x2="260" y2="8" stroke="var(--border)"/><line x1="80" y1="8" x2="440" y2="8" stroke="var(--border)"/><line x1="80" y1="8" x2="80" y2="26" stroke="var(--border)"/><line x1="260" y1="8" x2="260" y2="26" stroke="var(--border)"/><line x1="440" y1="8" x2="440" y2="26" stroke="var(--border)"/></svg>
+          <div style="display:flex; gap:1rem;">
+            <div class="node accent"><span class="mono">Core API</span><span class="sub">:5001 · Clean Architecture</span></div>
+            <div class="node"><span class="mono">Chatbot Service</span><span class="sub">:5002 · Ollama/phi3</span></div>
+            <div class="node"><span class="mono">Media Service</span><span class="sub">:5003 · Cloudinary</span></div>
+          </div>
+          <svg width="520" height="26" viewBox="0 0 520 26"><line x1="80" y1="0" x2="80" y2="8" stroke="var(--border)"/><line x1="260" y1="0" x2="260" y2="8" stroke="var(--border)"/><line x1="440" y1="0" x2="440" y2="8" stroke="var(--border)"/><line x1="30" y1="8" x2="490" y2="8" stroke="var(--border)"/><line x1="30" y1="8" x2="30" y2="26" stroke="var(--border)"/><line x1="170" y1="8" x2="170" y2="26" stroke="var(--border)"/><line x1="350" y1="8" x2="350" y2="26" stroke="var(--border)"/><line x1="490" y1="8" x2="490" y2="26" stroke="var(--border)"/></svg>
+          <div style="display:flex; gap:1rem;">
+            <div class="node"><span class="mono">SQL Server</span><span class="sub">:1433</span></div>
+            <div class="node"><span class="mono">RabbitMQ</span><span class="sub">:5672 · événements</span></div>
+            <div class="node"><span class="mono">Seq</span><span class="sub">:5341 · logs</span></div>
+            <div class="node faint"><span class="mono">Cloudinary</span><span class="sub">externe</span></div>
+          </div>
+        </div>
+      </div>
+
+      <p class="section-intro" style="margin-top:2.25rem;">À l'intérieur du Core API, la règle de dépendance de Clean Architecture ne souffre aucune exception : le Domain ne connaît rien d'autre que lui-même, et c'est l'Infrastructure qui implémente les interfaces définies par l'Application, jamais l'inverse.</p>
+      <div class="diagram-wrap" style="margin-top:1.5rem;">
+        <div style="min-width:520px; display:flex; align-items:center; justify-content:center; gap:0;">
+          <div class="node" style="border-radius:6px 0 0 6px;"><span class="mono">Api</span><span class="sub">Controllers, DI</span></div>
+          <div style="width:28px; text-align:center; color:var(--text-muted); font-size:0.85rem;">→</div>
+          <div class="node"><span class="mono">Application</span><span class="sub">Services, interfaces</span></div>
+          <div style="width:28px; text-align:center; color:var(--text-muted); font-size:0.85rem;">→</div>
+          <div class="node accent" style="border-radius:0 6px 6px 0;"><span class="mono">Domain</span><span class="sub">Match, Email, AgeRange</span></div>
+        </div>
+        <div style="min-width:520px; display:flex; justify-content:center; margin-top:0.75rem;">
+          <div class="node faint"><span class="mono">Infrastructure</span><span class="sub">EF Core, implémente Application ↑</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Composants -->
+    <section class="cs reveal" id="composants">
+      <p class="num">04</p>
+      <h2>Composants, en détail</h2>
+      <dl class="comp-list">
+        <dt>Frontend</dt>
+        <dd>Angular 20 en standalone components, avec les signals pour l'état réactif. NgRx n'est pas encore justifié vu la surface d'état actuelle de l'app. Le service <span class="mono">MemberService</span> type ses requêtes directement depuis le schéma OpenAPI généré : la moindre dérive de contrat casse la compilation TypeScript avant même d'atteindre la prod.</dd>
+        <dt>Api</dt>
+        <dd>Des controllers ASP.NET Core volontairement minces : authentification JWT, validation FluentValidation, puis délégation immédiate à l'Application. La documentation est générée via Swashbuckle, et ce même Swagger sert de source pour générer le client TypeScript.</dd>
+        <dt>Application</dt>
+        <dd><span class="mono">MatchingService</span> orchestre la logique métier, épaulé par des interfaces de rôle propres à chaque cas d'usage (<span class="mono">IMatchingUnitOfWork</span>, <span class="mono">ILikesUnitOfWork</span>…) : chaque consommateur ne voit que les repositories qu'il appelle réellement, conformément à l'ISP.</dd>
+        <dt>Domain</dt>
+        <dd>Les value objects <span class="mono">Email</span> et <span class="mono">AgeRange</span>, et l'agrégat <span class="mono">Match</span> dont l'invariant d'ordre déterministe entre les deux membres est imposé directement dans le constructeur, pas dans le repository, où il pourrait être contourné.</dd>
+        <dt>Infrastructure</dt>
+        <dd>Les repositories EF Core et le <span class="mono">UnitOfWork</span> (une instance scoped par requête, donc une seule transaction), plus des migrations versionnées. L'une d'elles embarque même un backfill SQL manuel pour reconstituer l'historique des matchs déjà existants.</dd>
+        <dt>Base de données</dt>
+        <dd>SQL Server, avec un index unique sur la paire ordonnée de membres : un doublon de match est rejeté au niveau de la base, pas seulement filtré côté code.</dd>
+        <dt>Messaging</dt>
+        <dd>RabbitMQ gère les événements inter-services, par exemple l'approbation d'une photo. Le pattern Outbox transactionnel n'est pas encore en place. L'état de ce chantier est détaillé plus loin, en section 8.</dd>
+        <dt>Temps réel</dt>
+        <dd>SignalR fait tourner la messagerie et la présence en ligne, via <span class="mono">MessageHub</span> et <span class="mono">PresenceHub</span>.</dd>
+        <dt>Observabilité</dt>
+        <dd>Serilog et Seq centralisent les logs structurés. Les métriques (Prometheus/Grafana) et le tracing distribué restent à construire.</dd>
+      </dl>
+    </section>
+
+    <!-- 5. Choix techniques -->
+    <section class="cs reveal" id="choix-techniques">
+      <p class="num">05</p>
+      <h2>Choix techniques &amp; alternatives écartées</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card">
+          <h3>.NET 9 / ASP.NET Core</h3>
+          <p>L'écosystème est mature, la performance au rendez-vous, et la prochaine LTS approche. Node/NestJS aurait sa place ailleurs, mais colle moins bien à un domaine aussi fortement typé que celui-ci.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>SQL Server + EF Core</h3>
+          <p>Les transactions ACID et des contraintes d'unicité fiables comptaient plus qu'un schéma flexible. Les relations entre membre, match et message sont de toute façon intrinsèquement relationnelles, ce qui a écarté MongoDB assez vite.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>RabbitMQ</h3>
+          <p>Le découplage événementiel qu'il offre suffit largement au volume actuel, et il s'opère simplement depuis Docker Compose. Kafka aurait du sens pour du streaming à fort débit ou du replay d'événements, pas encore pour ce volume ; il rejoindra la stack en complément plus tard, pas en remplacement.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>SignalR</h3>
+          <p>Le temps réel est géré nativement par ASP.NET Core, sans infrastructure séparée à opérer. Repartir d'un WebSocket brut aurait simplement obligé à réinventer la reconnexion, les groupes et le fallback que SignalR fournit déjà.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>Angular 20 + Signals</h3>
+          <p>La réactivité fine qu'apportent les signals suffit à cette taille d'application, sans le coût cognitif d'un store global. NgRx trouvera sa place le jour où l'état partagé entre fonctionnalités se complexifiera. Prématuré aujourd'hui.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>OpenAPI + client TS généré</h3>
+          <p>Le contrat devient une source de vérité unique : la moindre dérive entre backend et frontend se transforme en erreur de compilation plutôt qu'en bug découvert en production. C'est exactement ce qu'évite cette approche face à des DTO dupliqués à la main côté client.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Patterns -->
+    <section class="cs reveal" id="patterns">
+      <p class="num">06</p>
+      <h2>Patterns d'architecture</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card">
+          <h3>Clean Architecture</h3>
+          <p>Domain, Application, Infrastructure, Api, avec une règle de dépendance à sens unique. Le Domain, par exemple, n'a aucune référence à EF Core.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>Domain-Driven Design</h3>
+          <p>Les value objects <span class="mono">Email</span> et <span class="mono">AgeRange</span>, et l'agrégat <span class="mono">Match</span>, portent chacun leurs propres invariants plutôt que de les laisser traîner dans les controllers.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>SOLID · Interface Segregation</h3>
+          <p>Un <span class="mono">IUnitOfWork</span> unique exposait autrefois tous les repositories à tous les consommateurs. Il a depuis été décomposé en interfaces de rôle (<span class="mono">IMatchingUnitOfWork</span>, <span class="mono">ILikesUnitOfWork</span>…), assemblées sur une seule et même implémentation concrète.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>Repository + Unit of Work</h3>
+          <p>Ce pattern découple le Domain d'EF Core, avec une limite bien identifiée : une façade de ce genre glisse vite vers le God Object si elle n'est pas segmentée, d'où le refactor ISP évoqué juste au-dessus.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>API-First</h3>
+          <p>Le contrat OpenAPI est généré depuis le code puis consommé pour typer le client, jamais l'inverse.</p>
+        </div>
+        <div class="panel tech-card">
+          <h3>Event-Driven (partiel)</h3>
+          <p>Des consommateurs RabbitMQ sont déjà en place pour certains flux, mais le pattern Outbox transactionnel n'y est pas encore : un événement peut aujourd'hui partir sans garantie atomique avec l'écriture SQL. Le problème est identifié et priorisé pour la suite.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Flux complet -->
+    <section class="cs reveal" id="flux">
+      <p class="num">07</p>
+      <h2>Flux complet d'une requête</h2>
+      <p class="section-intro">Exemple réel : un like qui devient un match, du clic dans le navigateur à la ligne SQL.</p>
+      <div class="panel" style="padding:0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="flow-step"><span class="n">01</span><span class="t">Angular envoie <span class="mono">POST /api/likes/{targetId}</span> avec le bearer JWT.</span></div>
+        <div class="flow-step"><span class="n">02</span><span class="t"><span class="mono">LikesController</span> vérifie qu'on ne se like pas soi-même, lit le like existant via <span class="mono">ILikesUnitOfWork</span>.</span></div>
+        <div class="flow-step"><span class="n">03</span><span class="t">Le like est ajouté au <span class="mono">DbContext</span> (pas encore flush), puis <span class="mono">MatchingService.HandleLikeAddedAsync</span> est appelé.</span></div>
+        <div class="flow-step"><span class="n">04</span><span class="t">Le service vérifie la réciprocité via <span class="mono">IMatchingUnitOfWork</span>, puis l'idempotence (pas de match déjà existant).</span></div>
+        <div class="flow-step"><span class="n">05</span><span class="t"><span class="mono">Match.Create()</span> applique l'invariant du Domain (ordre déterministe des ids) et génère l'entité.</span></div>
+        <div class="flow-step"><span class="n">06</span><span class="t">Un seul <span class="mono">SaveChangesAsync</span> persiste like + match dans la même transaction implicite EF Core.</span></div>
+        <div class="flow-step"><span class="n">07</span><span class="t">SQL Server applique l'index unique sur la paire : un doublon échouerait même si le code applicatif avait un trou.</span></div>
+      </div>
+    </section>
+
+    <!-- 8. Sécurité, perf, scalabilité, DevOps, observabilité -->
+    <section class="cs reveal" id="qualite">
+      <p class="num">08</p>
+      <h2>Sécurité, performance, scalabilité, DevOps, observabilité</h2>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-top:1.5rem;">
+        <div class="panel" style="padding:1.2rem 1.4rem;">
+          <h3>Sécurité</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">Authentification JWT en place et fonctionnelle. Le durcissement production (validation stricte de l'émetteur/audience, secrets en coffre plutôt qu'en configuration, rate limiting) est un chantier identifié et planifié, pas encore livré.</p>
+        </div>
+        <div class="panel" style="padding:1.2rem 1.4rem;">
+          <h3>Performance</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">Pagination sur les listes de membres, index ciblés (dont l'unicité de <span class="mono">Match</span>), migrations incrémentales plutôt que des rebuilds de schéma.</p>
+        </div>
+        <div class="panel" style="padding:1.2rem 1.4rem;">
+          <h3>Scalabilité</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">Découpage en 3 services indépendants (core-api, chatbot, media) déployables séparément. Limite connue : SignalR est mono-instance aujourd'hui, sans backplane Redis, ce qui bloque un scaling horizontal, déjà en roadmap.</p>
+        </div>
+        <div class="panel" style="padding:1.2rem 1.4rem;">
+          <h3>DevOps</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">Stack complète orchestrée en Docker Compose (8 services). CI GitHub Actions couvre aujourd'hui le build/déploiement du Core API ; les 3 autres services ne sont pas encore automatisés.</p>
+        </div>
+        <div class="panel" style="padding:1.2rem 1.4rem; grid-column: 1 / -1;">
+          <h3>Observabilité</h3>
+          <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">Logs structurés centralisés via Serilog + Seq, déjà exploités pour diagnostiquer des bugs réels pendant le développement (voir section suivante). Métriques et tracing distribué (Prometheus/Grafana/OpenTelemetry) ne sont pas encore en place.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Difficultés / compromis -->
+    <section class="cs reveal" id="difficultes">
+      <p class="num">09</p>
+      <h2>Difficultés rencontrées &amp; compromis</h2>
+      <p class="section-intro">Rien de ce qui suit n'était prévu au départ : ce sont des problèmes réels, rencontrés puis résolus pendant la construction.</p>
+      <div style="display:flex; flex-direction:column; gap:1rem; margin-top:1.5rem;">
+        <div class="callout">
+          <h3>Un bug de DI a révélé la violation ISP avant même l'audit</h3>
+          <p>La génération d'une migration EF Core a échoué (<span class="mono">Unable to resolve service for type IMatchRepository</span>) parce que le service métier dépendait d'un repository jamais enregistré seul dans le container : seul <span class="mono">IUnitOfWork</span> l'était. Ce même symptôme a ensuite justifié le refactor en interfaces de rôle.</p>
+        </div>
+        <div class="callout">
+          <h3>Un bug de seed invisible en local, découvert seulement dans les logs Docker</h3>
+          <p>Après la restructuration en couches, le chemin de lecture du fichier de seed pointait encore vers l'ancien dossier. L'erreur était avalée par un <span class="mono">try/catch</span> existant : les health checks passaient, la base restait vide. Retrouvé en lisant les logs Seq du conteneur, pas en local.</p>
+        </div>
+        <div class="callout">
+          <h3>Un diamant d'interfaces pendant le refactor ISP</h3>
+          <p><span class="mono">Complete()</span> déclaré séparément dans deux interfaces de rôle compilait via la classe concrète mais devenait ambigu via le type composé. Corrigé en isolant l'opération commune dans une interface de base partagée.</p>
+        </div>
+      </div>
+      <p class="section-intro" style="margin-top:1.5rem;"><strong style="color:var(--text);">Compromis assumé :</strong> le scope de cette première phase se limite volontairement au socle (Clean Architecture, DDD, SOLID, contrat API) avant d'empiler CQRS, Kafka ou Outbox. Une fondation qui ne compile pas proprement rend tout le reste plus coûteux à corriger plus tard.</p>
+    </section>
+
+    <!-- 10. Compétences démontrées -->
+    <section class="cs reveal" id="competences">
+      <p class="num">10</p>
+      <h2>Compétences démontrées</h2>
+      <div class="skill-grid" style="margin-top:1.5rem;">
+        <div class="panel skill-card"><h3>Architecture</h3><p class="stars">★★★★★</p></div>
+        <div class="panel skill-card"><h3>C# / .NET</h3><p class="stars">★★★★★</p></div>
+        <div class="panel skill-card"><h3>DDD</h3><p class="stars">★★★★☆</p></div>
+        <div class="panel skill-card"><h3>API Design</h3><p class="stars">★★★★★</p></div>
+        <div class="panel skill-card"><h3>SQL / EF Core</h3><p class="stars">★★★★☆</p></div>
+        <div class="panel skill-card"><h3>Angular</h3><p class="stars">★★★★☆</p></div>
+        <div class="panel skill-card"><h3>Docker</h3><p class="stars">★★★★☆</p></div>
+        <div class="panel skill-card"><h3>Sécurité</h3><p class="stars">★★☆☆☆</p><p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.3rem;">honnêtement noté : durcissement en roadmap</p></div>
+      </div>
+    </section>
+
+    <!-- CTA démo -->
+    <section class="cs reveal" id="demonstration" style="text-align:center; padding: 2rem 0 1rem;">
+      <div class="panel" style="padding:3rem 2rem; background: var(--panel-2); border-color: var(--accent);">
+        <p class="eyebrow" style="justify-content:center;">Voir plutôt qu'entendre</p>
+        <h2 style="margin-top:0.6rem; border-bottom:none; padding-bottom:0;">« Plutôt que de vous parler de mes compétences, je vais vous les montrer. »</h2>
+        <p class="section-intro" style="margin: 1rem auto 0; text-align:center;">L'application tourne. Cliquez pour l'ouvrir en direct : profils, likes, matchs et messagerie en temps réel.</p>
+        <a href="http://localhost:4200/" target="_blank" rel="noopener" class="btn btn-primary btn-lg" style="margin-top:1.75rem;">Lancer la démonstration →</a>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière modification par Lhoussaine Thoumi · 1 août 2026</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Halo · étude de cas</span>
+    <a href="../index.html" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les études de cas</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.page-toc a'));
+    var sections = links
+      .map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); })
+      .filter(Boolean);
+    if (!sections.length || !('IntersectionObserver' in window)) return;
+
+    var byId = {};
+    links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var link = byId[entry.target.id];
+        if (!link) return;
+        if (entry.isIntersecting) {
+          links.forEach(function (a) { a.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-100px 0px -70% 0px' });
+
+    sections.forEach(function (s) { io.observe(s); });
+  })();
+</script>
+</body>
+</html>

@@ -17,7 +17,7 @@ export class App implements OnInit {
   protected router = inject(Router);
   protected chatbotVisible = false;
   private presenceService = inject(PresenceService);
-  private accountService = inject(AccountService);
+  protected accountService = inject(AccountService);
 
   constructor() {
     // S'assurer que le PresenceService est initialisé quand l'utilisateur se connecte
@@ -26,6 +26,9 @@ export class App implements OnInit {
       if (user && this.presenceService.hubConnection?.state !== HubConnectionState.Connected) {
         console.log('🔄 Initialisation globale du PresenceService depuis App');
         this.presenceService.createHubConnection(user);
+      }
+      if (!user) {
+        this.chatbotVisible = false;
       }
     });
   }

@@ -1,10 +1,11 @@
 <div class="card bg-base-100 w-1/2 mx-auto flex flex-col p-6 rounded-lg shadow-lg">
-    <div class="card-title justify-center text-3xl text-primary">{{ 'register.title' | translate }}</div>
+    <div class="card-title justify-center font-display text-3xl font-semibold text-primary">{{ 'register.title' | translate }}</div>
     <div class="card-body w-full">
 
         <ul class="steps">
             <li class="step step-primary">{{ 'register.credentials' | translate }}</li>
-            <li class="step" [class.step-primary]="currentStep() === 2">{{ 'register.profile' | translate }}</li>
+            <li class="step" [class.step-primary]="currentStep() >= 2">{{ 'register.profile' | translate }}</li>
+            <li class="step" [class.step-primary]="currentStep() >= 3">{{ 'register.prompts' | translate }}</li>
         </ul>
 
         @if (currentStep() === 1) {
@@ -58,10 +59,39 @@
             </form>
         }
 
+        @if (currentStep() === 3) {
+            <div class="flex flex-col w-full gap-4">
+                <p class="font-display italic text-base-content/70">{{ 'register.promptsIntro' | translate }}</p>
+
+                @for (slot of promptSlots; track $index) {
+                    <div [formGroup]="slot" class="flex flex-col gap-2 border border-base-300 rounded-lg p-4">
+                        <select formControlName="promptId" class="select select-sm w-full">
+                            <option [ngValue]="null">{{ 'register.choosePrompt' | translate }}</option>
+                            @for (p of promptOptionsFor($index); track p.id) {
+                                <option [ngValue]="p.id">{{p.text}}</option>
+                            }
+                        </select>
+                        <textarea formControlName="answer" class="textarea w-full" rows="2"
+                            [placeholder]="'register.yourAnswer' | translate"></textarea>
+                    </div>
+                }
+
+                <div class="flex items-center justify-end gap-3">
+                    <button (click)="skipPrompts()" type="button" class="btn btn-ghost">{{ 'register.skip' | translate }}</button>
+                    <button (click)="finishPrompts()" type="button" class="btn btn-primary" [disabled]="savingPrompts()">
+                        @if (savingPrompts()) {
+                            <span class="mr-1 loading loading-spinner loading-xs"></span>
+                        }
+                        {{ 'register.finish' | translate }}
+                    </button>
+                </div>
+            </div>
+        }
+
     </div>
 
     @if (validationErrors().length > 0) {
-        <div class="mt-5 flex bg-gray-200 rounded-2xl w-1/2 p-3 mx-auto">
+        <div class="mt-5 flex bg-base-200 rounded-2xl w-1/2 p-3 mx-auto">
             <ul class="flex flex-col text-error space-y-1">
                 @for (error of validationErrors(); track $index) {
                     <li>{{error}}</li>

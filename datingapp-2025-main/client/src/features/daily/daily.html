@@ -1,0 +1,18 @@
+<div class="flex flex-col w-full">
+    <div class="flex flex-col gap-1 mb-5">
+        <h1 class="font-display text-3xl font-semibold text-base-content">{{ 'daily.title' | translate }}</h1>
+        <p class="text-base-content/60">{{ 'daily.subtitle' | translate }}</p>
+    </div>
+
+    @if (members(); as members) {
+        @if (members.length > 0) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                @for (member of members; track member.id) {
+                    <app-member-card [member]="member" />
+                }
+            </div>
+        } @else {
+            <div class="text-lg text-base-content/60">{{ 'daily.empty' | translate }}</div>
+        }
+    }
+</div>

@@ -4,11 +4,11 @@
             (dragover)="onDragOver($event)"
             (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event)"
-            [class.border-purple-600]="isDragging"
+            [class.border-primary]="isDragging"
             [class.border-4]="isDragging"
             [class]="isDragging ? 'bg-secondary/5' : ''"
             for="dropzone-file"
-            class="flex flex-col items-center justify-center w-full border-2 border-gray-300 
+            class="flex flex-col items-center justify-center w-full border-2 border-base-300 
                 h-full border-dashed rounded-lg cursor-pointer" 
         >
                 <p class="mb-2 text-lg">Click to upload or drag and drop</p>
@@ -17,7 +17,7 @@
     </div>
     @if (imageSrc()) {
     <div class="flex flex-col w-1/3 gap-3">
-        <div class="flex justify-center border-2 border-gray-300 rounded-lg">
+        <div class="flex justify-center border-2 border-base-300 rounded-lg">
             <img src="{{imageSrc()}}" alt="image preview" 
                 class="aspect-square object-cover rounded-lg">
         </div>

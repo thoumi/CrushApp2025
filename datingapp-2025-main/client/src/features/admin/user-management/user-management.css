@@ -1,27 +1,26 @@
-/* Style général du bouton */
-button {
+/* Bouton bloqué / débloqué */
+.btn-locked,
+.btn-unlocked {
   padding: 6px 12px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--radius-field, 5px);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-/* Bouton bloqué */
 .btn-locked {
-  background-color: #dc3545; /* rouge */
+  background-color: var(--color-error);
 }
 
 .btn-locked:hover {
-  background-color: #c82333; /* rouge foncé au survol */
+  filter: brightness(0.92);
 }
 
-/* Bouton actif / débloqué */
 .btn-unlocked {
-  background-color: #28a745; /* vert */
+  background-color: var(--color-success);
 }
 
 .btn-unlocked:hover {
-  background-color: #218838; /* vert foncé au survol */
+  filter: brightness(0.92);
 }

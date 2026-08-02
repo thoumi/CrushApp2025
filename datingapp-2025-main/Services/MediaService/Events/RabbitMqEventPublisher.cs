@@ -14,7 +14,6 @@ public class RabbitMqEventPublisher : IEventPublisher, IDisposable
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private readonly ILogger<RabbitMqEventPublisher> _logger;
-    private const string ExchangeName = "crushapp.events";
 
     public RabbitMqEventPublisher(IConfiguration configuration, ILogger<RabbitMqEventPublisher> logger)
     {
@@ -34,14 +33,6 @@ public class RabbitMqEventPublisher : IEventPublisher, IDisposable
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
 
-            // Déclarer l'exchange (type topic pour routing flexible)
-            _channel.ExchangeDeclare(
-                exchange: ExchangeName,
-                type: ExchangeType.Topic,
-                durable: true,
-                autoDelete: false
-            );
-
             _logger.LogInformation("✅ RabbitMQ EventPublisher initialized");
         }
         catch (Exception ex)
@@ -55,6 +46,11 @@ public class RabbitMqEventPublisher : IEventPublisher, IDisposable
     {
         try
         {
+            // Publication directe sur la queue "eventName" (exchange par défaut "").
+            // Core API déclare cette même queue (durable) avant de la consommer :
+            // API/Events/RabbitMqEventConsumer.cs.
+            _channel.QueueDeclare(eventName, durable: true, exclusive: false, autoDelete: false);
+
             var message = JsonSerializer.Serialize(eventData);
             var body = Encoding.UTF8.GetBytes(message);
 
@@ -64,7 +60,7 @@ public class RabbitMqEventPublisher : IEventPublisher, IDisposable
             properties.Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
             _channel.BasicPublish(
-                exchange: ExchangeName,
+                exchange: "",
                 routingKey: eventName,
                 basicProperties: properties,
                 body: body

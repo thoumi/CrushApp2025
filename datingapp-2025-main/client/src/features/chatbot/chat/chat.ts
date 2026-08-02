@@ -4,6 +4,7 @@ import { ChatbotService } from '../../../core/services/chatbot-service';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BusyService } from '../../../core/services/busy-service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 
 
@@ -11,7 +12,7 @@ import { BusyService } from '../../../core/services/busy-service';
     selector: 'app-chatbot',
     templateUrl: './chat.html',
     styleUrls: ['./chat.css'],
-    imports: [NgClass, FormsModule]
+    imports: [NgClass, FormsModule, TranslatePipe]
 })
 export class ChatbotComponent implements OnInit, AfterViewChecked {
 
@@ -27,7 +28,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.messages.push({
       sender: 'bot',
-      prompt: 'Hi! I’m your Crush Helper coach. Ask me a question about how to improve your profile!',
+      prompt: 'Bonjour, je suis votre Coach Halo. Posez-moi une question sur votre profil ou demandez-moi une amorce de conversation.',
       timestamp: new Date()
     });
   }

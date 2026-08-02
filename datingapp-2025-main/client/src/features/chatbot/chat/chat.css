@@ -1,6 +1,6 @@
 .chat-window {
     height: 500px;
-    background: #f9f9f9;
+    background: var(--color-base-100);
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
     display: flex;
@@ -9,13 +9,13 @@
 }
 
 .chat-header {
-    background: linear-gradient(to right, #e91e63, #ff4081);
-    color: white;
+    background: var(--color-primary);
+    color: var(--color-primary-content);
     padding: 15px;
     text-align: center;
 }
-.chat-header h5 { margin: 0; font-weight: 600; }
-.chat-header p { margin: 0; font-size: 0.8em; opacity: 0.9; }
+.chat-header h5 { margin: 0; font-weight: 600; font-size: 1.05rem; }
+.chat-header p { margin: 0; font-size: 0.8em; opacity: 0.85; }
 
 .messages-area {
     flex-grow: 1;
@@ -37,15 +37,15 @@
 }
 
 .bot-message {
-    background: #e6e5eb;
-    color: #333;
+    background: var(--color-base-200);
+    color: var(--color-base-content);
     align-self: flex-start;
     border-bottom-left-radius: 5px;
 }
 
 .user-message {
-    background: #e91e63;
-    color: white;
+    background: var(--color-primary);
+    color: var(--color-primary-content);
     align-self: flex-end;
     border-bottom-right-radius: 5px;
 }
@@ -53,26 +53,28 @@
 .input-area {
   display: flex;
   padding: 10px;
-  border-top: 1px solid #ddd;
-  background: #fff;
+  border-top: 1px solid var(--color-base-300);
+  background: var(--color-base-100);
   align-items: center; /* centre verticalement */
 }
 
 .input-area input {
   flex: 1; /* occupe tout l’espace disponible */
   padding: 8px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-base-300);
+  background: var(--color-base-100);
+  color: var(--color-base-content);
   border-radius: 20px 0 0 20px; /* arrondi gauche */
   outline: none;
 }
 
 .input-area button {
   padding: 8px 16px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-base-300);
   border-left: none; /* évite la double bordure */
   border-radius: 0 20px 20px 0; /* arrondi droit */
-  background: #673ab7; /* violet */
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-primary-content);
   cursor: pointer;
 }
 
@@ -80,7 +82,8 @@
 /* Animation pour "le bot écrit..." */
 .typing-indicator span {
     height: 8px; width: 8px;
-    background-color: #999;
+    background-color: var(--color-base-content);
+    opacity: 0.4;
     border-radius: 50%;
     display: inline-block;
     animation: bounce 1.4s infinite ease-in-out both;

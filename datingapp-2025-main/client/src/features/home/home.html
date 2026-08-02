@@ -1,26 +1,25 @@
-<div class="hero bg-base-200 min-h-screen">
+<div class="halo-hero hero min-h-screen">
     @if (!registerMode()) {
-    <div class="hero-content text-center">
-        <div class="flex flex-col items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                class="size-60 text-primary">
-                <path
-                    d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM14.25 8.625a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0ZM1.5 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM17.25 19.128l-.001.144a2.25 2.25 0 0 1-.233.96 10.088 10.088 0 0 0 5.06-1.01.75.75 0 0 0 .42-.643 4.875 4.875 0 0 0-6.957-4.611 8.586 8.586 0 0 1 1.71 5.157v.003Z" />
+    <div class="hero-content text-center relative z-10">
+        <div class="flex flex-col items-center max-w-xl">
+            <svg class="halo-mark-ring mb-6" width="88" height="88" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="75" cy="75" r="62" stroke="currentColor" stroke-width="2.5" stroke-dasharray="298 96" stroke-linecap="round" transform="rotate(-38 75 75)"/>
+                <circle cx="75" cy="75" r="44" stroke="currentColor" stroke-width="9" stroke-dasharray="221 55" stroke-linecap="round" transform="rotate(20 75 75)"/>
             </svg>
-            <h1 class="text-5xl font-bold">{{ 'home.title' | translate }}</h1>
-            <p class="py-6">{{ 'home.subtitle' | translate }}</p>
+            <h1 class="font-display text-5xl md:text-6xl font-semibold tracking-tight text-base-content leading-[0.98]">{{ 'home.title' | translate }}</h1>
+            <p class="py-6 text-base-content/70 text-lg max-w-md">{{ 'home.subtitle' | translate }}</p>
             <div class="flex items-center gap-3">
                 @if (!accountService.currentUser()) {
-                <button (click)="showRegister(true)" 
+                <button (click)="showRegister(true)"
                     class="btn btn-primary btn-lg">{{ 'home.register' | translate }}</button>
                 }
-                <button class="btn btn-info btn-lg">{{ 'home.learnMore' | translate }}</button>
+                <button class="btn btn-outline btn-lg border-base-content/20 text-base-content hover:bg-base-content hover:text-base-100">{{ 'home.learnMore' | translate }}</button>
             </div>
         </div>
     </div>
     } @else {
-        <div class="w-full text-2xl text-center flex justify-center">
-            <app-register 
+        <div class="w-full text-2xl text-center flex justify-center relative z-10">
+            <app-register
                 class="w-full"
                 (cancelRegister)="showRegister($event)"
             />

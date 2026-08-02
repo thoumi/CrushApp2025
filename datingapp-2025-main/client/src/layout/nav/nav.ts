@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { AccountService } from '../../core/services/account-service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ToastService } from '../../core/services/toast-service';
-import { themes } from '../theme';
+import { lightTheme, darkTheme } from '../theme';
 import { BusyService } from '../../core/services/busy-service';
 import { HasRole } from '../../shared/directives/has-role';
 import { LanguageSelector } from '../../shared/language-selector/language-selector';
@@ -21,20 +21,20 @@ export class Nav implements OnInit {
   private router = inject(Router);
   private toast = inject(ToastService);
   protected creds: any = {}
-  protected selectedTheme = signal<string>(localStorage.getItem('theme') || 'light');
-  protected themes = themes;
+  private prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  protected selectedTheme = signal<string>(localStorage.getItem('theme') || (this.prefersDark ? darkTheme : lightTheme));
+  protected isDark = () => this.selectedTheme() === darkTheme;
   protected loading = signal(false);
 
   ngOnInit(): void {
     document.documentElement.setAttribute('data-theme', this.selectedTheme());
   }
 
-  handleSelectTheme(theme: string) {
-    this.selectedTheme.set(theme);
-    localStorage.setItem('theme', theme);
-    document.documentElement.setAttribute('data-theme', theme);
-    const elem = document.activeElement as HTMLDivElement;
-    if (elem) elem.blur();
+  toggleTheme() {
+    const next = this.isDark() ? lightTheme : darkTheme;
+    this.selectedTheme.set(next);
+    localStorage.setItem('theme', next);
+    document.documentElement.setAttribute('data-theme', next);
   }
 
   handleSelectUserItem() {
@@ -46,7 +46,7 @@ export class Nav implements OnInit {
     this.loading.set(true);
     this.accountService.login(this.creds).subscribe({
       next: () => {
-        this.router.navigateByUrl('/members');
+        this.router.navigateByUrl('/daily');
         this.toast.success('Logged in successfully');
         this.creds = {};
       },

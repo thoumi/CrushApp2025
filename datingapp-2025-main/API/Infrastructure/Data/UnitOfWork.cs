@@ -1,0 +1,52 @@
+using API.Application.Interfaces;
+using API.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System;
+
+namespace API.Infrastructure.Data;
+
+public class UnitOfWork(AppDbContext context, UserManager<AppUser> userManager) : IUnitOfWork
+{
+    private IMemberRepository? _memberRepository;
+    private IMessageRepository? _messageRepository;
+    private ILikesRepository? _likesRepository;
+    private IPhotoRepository? _photoRepository;
+    private IAdminRepository? _adminRepository;
+    private IMatchRepository? _matchRepository;
+
+    public IMemberRepository MemberRepository => _memberRepository
+        ??= new MemberRepository(context);
+
+    public IMessageRepository MessageRepository => _messageRepository
+        ??= new MessageRepository(context);
+
+    public ILikesRepository LikesRepository => _likesRepository
+        ??= new LikesRepository(context);
+
+    public IPhotoRepository PhotoRepository => _photoRepository
+        ??= new PhotoRepository(context);
+
+    public IAdminRepository AdminRepository => _adminRepository
+       ??= new AdminRepository(context, userManager);
+
+    public IMatchRepository MatchRepository => _matchRepository
+        ??= new MatchRepository(context);
+
+    public async Task<bool> Complete()
+    {
+        try
+        {
+            return await context.SaveChangesAsync() > 0;
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new Exception("An error occured while saving changes", ex);
+        }
+    }
+
+    public bool HasChanges()
+    {
+        return context.ChangeTracker.HasChanges();
+    }
+}

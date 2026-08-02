@@ -11,7 +11,7 @@
             [class.opacity-30]="!photo.isApproved"
         >
         @if (!photo.isApproved) {
-            <div class="absolute bottom-2 badge self-center badge-error">Awaiting approval</div>
+            <div class="absolute bottom-2 badge self-center badge-warning">Awaiting approval</div>
         }
         @if (accountService.currentUser()?.id === memberService.member()?.id) {
         <app-star-button 
@@ -26,7 +26,7 @@
     }
 </div>
 } @else {
-<p class="text-center text-gray-500">No photos available</p>
+<p class="text-center text-base-content/50">No photos available</p>
 }
 }
 } @else {

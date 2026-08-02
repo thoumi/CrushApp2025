@@ -46,22 +46,22 @@ public class ChatbotController : ControllerBase
         var history = _memoryCache.Get<List<string>>(userId) ?? new List<string>();
         
         // 2. Construire le prompt avec un rôle et l'historique (Prompt Engineering)
-        var systemPrompt = _config["Chatbot:SystemPrompt"] ?? 
-            "Tu es Crush Helper, un assistant virtuel amical pour une application de rencontres.";
+        var systemPrompt = _config["Chatbot:SystemPrompt"] ??
+            "Tu es le Coach Halo, un assistant virtuel amical pour une application de rencontres.";
         var historyExpirationMinutes = int.TryParse(
             _config["Chatbot:HistoryExpirationMinutes"], out var minutes) ? minutes : 30;
-        
+
         var historyPrompt = string.Join("\n", history);
         var userPrompt = $"Utilisateur: {request.Prompt}";
 
-        var fullPrompt = $"{systemPrompt}\n{historyPrompt}\n{userPrompt}\nCrush Helper:";
+        var fullPrompt = $"{systemPrompt}\n{historyPrompt}\n{userPrompt}\nCoach Halo:";
 
         // 3. Obtenir la réponse d'Ollama
         var botResponse = await _chatbotService.GetReplyAsync(fullPrompt);
 
         // 4. Mettre à jour l'historique avec le tour de conversation actuel
         history.Add(userPrompt);
-        history.Add($"Crush Helper: {botResponse}");
+        history.Add($"Coach Halo: {botResponse}");
         
         // Limiter l'historique aux 10 derniers échanges
         if (history.Count > 20)

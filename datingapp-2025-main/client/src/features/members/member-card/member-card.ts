@@ -16,8 +16,9 @@ export class MemberCard {
   private presenceService = inject(PresenceService);
   member = input.required<Member>();
   protected hasLiked = computed(() => this.likeService.likeIds().includes(this.member().id));
-  protected isOnline = computed(() => 
+  protected isOnline = computed(() =>
     this.presenceService.onlineUsers().includes(this.member().id));
+  protected featuredPrompt = computed(() => this.member().promptAnswers?.[0]);
 
   toggleLike(event: Event) {
     event.stopPropagation();

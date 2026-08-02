@@ -1,5 +1,5 @@
-import { Component, HostListener, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { EditableMember, Member } from '../../../types/member';
+import { Component, HostListener, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { EditableMember, Member, Prompt } from '../../../types/member';
 import { DatePipe } from '@angular/common';
 import { MemberService } from '../../../core/services/member-service';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -30,14 +30,32 @@ export class MemberProfile implements OnInit, OnDestroy {
     city: '',
     country: ''
   }
+  protected promptBank = signal<Prompt[]>([]);
+  protected editablePrompts: { promptId: number | null; answer: string }[] = [];
 
   ngOnInit(): void {
+    const member = this.memberService.member();
     this.editableMember = {
-      displayName: this.memberService.member()?.displayName || '',
-      description: this.memberService.member()?.description || '',
-      city: this.memberService.member()?.city || '',
-      country: this.memberService.member()?.country || '',
+      displayName: member?.displayName || '',
+      description: member?.description || '',
+      city: member?.city || '',
+      country: member?.country || '',
     }
+
+    const existing = member?.promptAnswers ?? [];
+    this.editablePrompts = [0, 1, 2].map(i => ({
+      promptId: existing[i]?.promptId ?? null,
+      answer: existing[i]?.answer ?? ''
+    }));
+
+    this.memberService.getPromptBank().subscribe(bank => this.promptBank.set(bank));
+  }
+
+  promptOptionsFor(index: number): Prompt[] {
+    const chosenElsewhere = this.editablePrompts
+      .filter((_, i) => i !== index)
+      .map(slot => slot.promptId);
+    return this.promptBank().filter(p => !chosenElsewhere.includes(p.id));
   }
 
   updateProfile() {
@@ -50,10 +68,27 @@ export class MemberProfile implements OnInit, OnDestroy {
           currentUser.displayName = updatedMember.displayName;
           this.accountService.setCurrentUser(currentUser);
         }
-        this.toast.success('Profile updated successfully');
-        this.memberService.editMode.set(false);
-        this.memberService.member.set(updatedMember as Member);
-        this.editForm?.reset(updatedMember);
+
+        const filledPrompts = this.editablePrompts.filter(p => p.promptId && p.answer.trim());
+        const savePrompts$ = filledPrompts.length > 0
+          ? this.memberService.savePromptAnswers(filledPrompts as { promptId: number; answer: string }[])
+          : null;
+
+        const finish = (promptAnswers: Member['promptAnswers']) => {
+          this.toast.success('Profile updated successfully');
+          this.memberService.editMode.set(false);
+          this.memberService.member.set({ ...updatedMember, promptAnswers } as Member);
+          this.editForm?.reset(updatedMember);
+        };
+
+        if (savePrompts$) {
+          savePrompts$.subscribe({
+            next: () => this.memberService.getMember(updatedMember.id!).subscribe(m => finish(m.promptAnswers)),
+            error: () => finish(this.memberService.member()?.promptAnswers)
+          });
+        } else {
+          finish(this.memberService.member()?.promptAnswers);
+        }
       }
     })
 

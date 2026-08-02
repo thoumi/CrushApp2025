@@ -118,19 +118,6 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/health",
-      "UpstreamHttpMethod": [ "Get", "Head" ],
-      "DownstreamPathTemplate": "/health",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "core-api",
-          "Port": 80
-        }
-      ],
-      "Priority": 10
-    },
-    {
       "UpstreamPathTemplate": "/{everything}",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/{everything}",

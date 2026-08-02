@@ -9,6 +9,20 @@ export type Member = {
   description?: string
   city: string
   country: string
+  promptAnswers?: PromptAnswer[]
+}
+
+export type Prompt = {
+  id: number
+  text: string
+}
+
+export type PromptAnswer = {
+  id: number
+  promptId: number
+  prompt: Prompt
+  answer: string
+  displayOrder: number
 }
 
 export type Photo = {
