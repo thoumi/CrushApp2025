@@ -1,4 +1,4 @@
-# CrushApp - Application de Rencontres
+# HalloApp - Application de Rencontres
 
 ## Description
 

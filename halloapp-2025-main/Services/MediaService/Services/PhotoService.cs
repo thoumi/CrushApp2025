@@ -45,7 +45,7 @@ public class PhotoService : IPhotoService
                     .Width(500)
                     .Crop("fill")
                     .Gravity("face"),
-                Folder = "crushapp"
+                Folder = "halloapp"
             };
 
             var result = await _cloudinary.UploadAsync(uploadParams);

@@ -62,7 +62,7 @@ halloapp-2025-main/
 │       └── 📄 03-DOCKER-COMPOSE-COMPLETE.md
 │
 ├── 📄 docker-compose.yml            # Orchestration des services
-├── 📄 CrushApp.sln                  # Solution .NET
+├── 📄 HalloApp.sln                  # Solution .NET
 ├── 📄 README.md                     # Documentation principale
 ├── 📄 mkdocs-simple.yml             # Configuration MkDocs
 ├── 📄 navigation.yml                # Navigation flexible

@@ -1,4 +1,4 @@
-# Guide Utilisateur - CrushApp
+# Guide Utilisateur - HalloApp
 
 ## Mode d'Emploi Complet de l'Application
 
@@ -25,7 +25,7 @@
 
 #### Étape 1 : Accéder à l'Application
 
-Ouvrez votre navigateur et allez sur : `https://crushapp.com` (ou `http://localhost:4200` en développement)
+Ouvrez votre navigateur et allez sur : `https://halloapp.com` (ou `http://localhost:4200` en développement)
 
 #### Étape 2 : Remplir le Formulaire d'Inscription
 
@@ -874,7 +874,7 @@ Si un utilisateur :
   - "Demander une fonctionnalité"
 
 **Option 2 : Email**
-- support@crushapp.com
+- support@halloapp.com
 - Réponse sous 24-48h ouvrées
 
 **Option 3 : FAQ en Ligne**
@@ -892,7 +892,7 @@ Si un utilisateur :
 
 ### Contribuer au Projet
 
-CrushApp est un projet open-source !
+HalloApp est un projet open-source !
 
 - **Repository GitHub** : [github.com/thoumi/CrushApp2025](https://github.com/thoumi/CrushApp2025)
 - **Signaler un bug** : Ouvrez une issue sur GitHub

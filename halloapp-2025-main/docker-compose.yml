@@ -1,4 +1,4 @@
-# Docker Compose - CrushApp Microservices Architecture
+# Docker Compose - HalloApp Microservices Architecture
 # Version: 1.0.0
 # Documentation: https://thoumi.github.io/CrushApp2025/
 
@@ -11,7 +11,7 @@ services:
   # ============================================
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: crushapp-sqlserver
+    container_name: halloapp-sqlserver
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "${DB_PASSWORD}"
@@ -21,7 +21,7 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
     networks:
-      - crushapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD-SHELL", "exit 0"]
       interval: 5s
@@ -35,18 +35,18 @@ services:
   # ============================================
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: crushapp-rabbitmq
+    container_name: halloapp-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD}"
-      RABBITMQ_DEFAULT_VHOST: crushapp
+      RABBITMQ_DEFAULT_VHOST: halloapp
     ports:
       - "5672:5672"      # AMQP protocol
       - "15672:15672"    # Management UI
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
-      - crushapp-network
+      - halloapp-network
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
@@ -60,7 +60,7 @@ services:
   # ============================================
   seq:
     image: datalust/seq:latest
-    container_name: crushapp-seq
+    container_name: halloapp-seq
     environment:
       ACCEPT_EULA: "Y"
       SEQ_FIRSTRUN_NOAUTHENTICATION: "true"
@@ -69,7 +69,7 @@ services:
     volumes:
       - seq-data:/data
     networks:
-      - crushapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD-SHELL", "exit 0"]
       interval: 5s
@@ -85,11 +85,11 @@ services:
     build:
       context: ./API
       dockerfile: Dockerfile
-    container_name: crushapp-core-api
+    container_name: halloapp-core-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
-      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=CrushAppDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=HalloAppDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True"
       TokenKey: "${JWT_TOKEN_KEY}"
       CloudinarySettings__CloudName: "${CLOUDINARY_CLOUD_NAME}"
       CloudinarySettings__ApiKey: "${CLOUDINARY_API_KEY}"
@@ -98,7 +98,7 @@ services:
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: "admin"
       RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
-      RabbitMQ__VirtualHost: "crushapp"
+      RabbitMQ__VirtualHost: "halloapp"
       Seq__ServerUrl: "http://seq:5341"
       Chatbot__ServiceUrl: "http://chatbot-service:80"
     ports:
@@ -109,7 +109,7 @@ services:
       rabbitmq:
         condition: service_healthy
     networks:
-      - crushapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -125,7 +125,7 @@ services:
     build:
       context: ./Services/ChatbotService
       dockerfile: Dockerfile
-    container_name: crushapp-chatbot-service
+    container_name: halloapp-chatbot-service
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
@@ -137,7 +137,7 @@ services:
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: "admin"
       RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
-      RabbitMQ__VirtualHost: "crushapp"
+      RabbitMQ__VirtualHost: "halloapp"
     ports:
       - "5002:80"
     depends_on:
@@ -146,7 +146,7 @@ services:
       seq:
         condition: service_healthy
     networks:
-      - crushapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -162,7 +162,7 @@ services:
     build:
       context: ./Services/MediaService
       dockerfile: Dockerfile
-    container_name: crushapp-media-service
+    container_name: halloapp-media-service
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
@@ -176,7 +176,7 @@ services:
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: "admin"
       RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
-      RabbitMQ__VirtualHost: "crushapp"
+      RabbitMQ__VirtualHost: "halloapp"
     ports:
       - "5003:80"
     depends_on:
@@ -185,7 +185,7 @@ services:
       rabbitmq:
         condition: service_healthy
     networks:
-      - crushapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -201,7 +201,7 @@ services:
     build:
       context: ./ApiGateway
       dockerfile: Dockerfile
-    container_name: crushapp-api-gateway
+    container_name: halloapp-api-gateway
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
@@ -214,7 +214,7 @@ services:
       - chatbot-service
       - media-service
     networks:
-      - crushapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -230,7 +230,7 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
-    container_name: crushapp-frontend
+    container_name: halloapp-frontend
     environment:
       NODE_ENV: development
     ports:
@@ -238,7 +238,7 @@ services:
     depends_on:
       - api-gateway
     networks:
-      - crushapp-network
+      - halloapp-network
     restart: unless-stopped
 
 # ============================================
@@ -256,7 +256,7 @@ volumes:
 # Network Configuration
 # ============================================
 networks:
-  crushapp-network:
+  halloapp-network:
     driver: bridge
     ipam:
       config:

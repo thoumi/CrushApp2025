@@ -1,8 +1,8 @@
-# Fonctionnalités de CrushApp
+# Fonctionnalités de HalloApp
 
 ## Vue d'Ensemble
 
-CrushApp est une application moderne de rencontres développée avec Angular 20 et ASP.NET Core 9, offrant une expérience utilisateur complète avec des fonctionnalités avancées.
+HalloApp est une application moderne de rencontres développée avec Angular 20 et ASP.NET Core 9, offrant une expérience utilisateur complète avec des fonctionnalités avancées.
 
 ## Fonctionnalités Principales
 
@@ -44,7 +44,7 @@ CrushApp est une application moderne de rencontres développée avec Angular 20 
 
 ## Architecture de l'Application
 
-L'application CrushApp suit une architecture en couches avec les composants suivants :
+L'application HalloApp suit une architecture en couches avec les composants suivants :
 
 - **Interface Web Angular** : Frontend moderne avec composants standalone
 - **API Backend ASP.NET** : Services REST et SignalR pour le temps réel
@@ -576,4 +576,4 @@ L'application CrushApp suit une architecture en couches avec les composants suiv
 
 ---
 
-Cette documentation couvre les fonctionnalités principales de CrushApp. Pour plus de détails techniques, consultez les guides spécialisés dans la documentation.
+Cette documentation couvre les fonctionnalités principales de HalloApp. Pour plus de détails techniques, consultez les guides spécialisés dans la documentation.

@@ -1,5 +1,5 @@
 # ============================================
-# CrushApp - Core API Dockerfile
+# HalloApp - Core API Dockerfile
 # Multi-stage build pour optimisation
 # ============================================
 

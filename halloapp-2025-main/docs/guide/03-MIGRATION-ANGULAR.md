@@ -1662,7 +1662,7 @@ memberId = input.required<string>();
 
 ---
 
-**Auteur** : Équipe CrushApp  
+**Auteur** : Équipe HalloApp  
 **Date** : Octobre 2025  
 **Version du Guide** : 1.0.0
 

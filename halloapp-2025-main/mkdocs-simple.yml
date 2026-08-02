@@ -1,7 +1,7 @@
-# Configuration MkDocs pour Documentation CrushApp
-site_name: CrushApp - Documentation Technique Complète
-site_description: Documentation complète de CrushApp - Application de rencontres moderne avec Angular 20 et ASP.NET Core 9, migration vers microservices
-site_author: CrushApp Dev Team
+# Configuration MkDocs pour Documentation HalloApp
+site_name: HalloApp - Documentation Technique Complète
+site_description: Documentation complète de HalloApp - Application de rencontres moderne avec Angular 20 et ASP.NET Core 9, migration vers microservices
+site_author: HalloApp Dev Team
 site_url: https://thoumi.github.io/CrushApp2025/
 
 # Theme
@@ -104,4 +104,4 @@ nav:
   - Guide WebSocket: TROUBLESHOOTING-WEBSOCKET.md
 
 # Copyright
-copyright: Copyright &copy; 2025 CrushApp Dev Team - Documentation Technique
+copyright: Copyright &copy; 2025 HalloApp Dev Team - Documentation Technique

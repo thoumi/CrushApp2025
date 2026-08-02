@@ -1,4 +1,4 @@
-# CrushApp - Documentation Technique
+# HalloApp - Documentation Technique
 
 ## Application de Rencontres - Architecture Microservices
 
@@ -6,7 +6,7 @@
 
 ## Présentation du Projet
 
-**CrushApp** est une application web de rencontres développée avec **ASP.NET Core 9** et **Angular 20**. Ce projet démontre une expertise technique complète en développement full-stack, architecture microservices, et migration de technologies.
+**HalloApp** est une application web de rencontres développée avec **ASP.NET Core 9** et **Angular 20**. Ce projet démontre une expertise technique complète en développement full-stack, architecture microservices, et migration de technologies.
 
 **Contexte de développement** : Projet personnel initié en août 2024 avec Angular 12 et .NET 8, migré progressivement vers les dernières versions pour démontrer la maîtrise des technologies modernes.
 

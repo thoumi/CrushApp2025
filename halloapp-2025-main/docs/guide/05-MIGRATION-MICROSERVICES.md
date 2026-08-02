@@ -2,7 +2,7 @@
 
 ## Vue d'Ensemble
 
-Ce document détaille la migration de l'application CrushApp d'une **architecture monolithique** vers une **architecture microservices partielle** en utilisant le pattern **Strangler Fig**. Cette approche permet une migration progressive et sécurisée.
+Ce document détaille la migration de l'application HalloApp d'une **architecture monolithique** vers une **architecture microservices partielle** en utilisant le pattern **Strangler Fig**. Cette approche permet une migration progressive et sécurisée.
 
 ## Contexte de la Migration
 
@@ -19,7 +19,7 @@ Ce document détaille la migration de l'application CrushApp d'une **architectur
 ### Architecture Monolithique (Avant)
 ```
 ┌─────────────────────────────────────┐
-│           CrushApp Monolithe        │
+│           HalloApp Monolithe        │
 │  ┌─────────────────────────────────┐│
 │  │        Frontend Angular         ││
 │  └─────────────────────────────────┘│
@@ -431,7 +431,7 @@ services:
       - chatbot-service
       - media-service
     networks:
-      - crushapp-network
+      - halloapp-network
 
   # Core API (Services principaux)
   core-api:
@@ -451,7 +451,7 @@ services:
       - sqlserver
       - rabbitmq
     networks:
-      - crushapp-network
+      - halloapp-network
 
   # Chatbot Service
   chatbot-service:
@@ -469,7 +469,7 @@ services:
       - ollama
       - rabbitmq
     networks:
-      - crushapp-network
+      - halloapp-network
 
   # Media Service
   media-service:
@@ -489,7 +489,7 @@ services:
     depends_on:
       - rabbitmq
     networks:
-      - crushapp-network
+      - halloapp-network
 
   # Ollama (IA)
   ollama:
@@ -499,7 +499,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     networks:
-      - crushapp-network
+      - halloapp-network
 
   # RabbitMQ (Message Broker)
   rabbitmq:
@@ -513,7 +513,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - crushapp-network
+      - halloapp-network
 
   # SQL Server
   sqlserver:
@@ -526,7 +526,7 @@ services:
     volumes:
       - sqlserver_data:/var/opt/mssql
     networks:
-      - crushapp-network
+      - halloapp-network
 
   # Seq (Logging)
   seq:
@@ -538,7 +538,7 @@ services:
     volumes:
       - seq_data:/data
     networks:
-      - crushapp-network
+      - halloapp-network
 
 volumes:
   ollama_data:
@@ -547,7 +547,7 @@ volumes:
   seq_data:
 
 networks:
-  crushapp-network:
+  halloapp-network:
     driver: bridge
 ```
 

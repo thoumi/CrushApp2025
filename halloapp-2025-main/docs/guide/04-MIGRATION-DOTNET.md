@@ -2,7 +2,7 @@
 
 ## Vue d'Ensemble
 
-Ce document détaille la migration complète de l'application CrushApp de **.NET 8** vers **.NET 9**, incluant les changements de configuration, les nouvelles fonctionnalités adoptées et les optimisations de performance.
+Ce document détaille la migration complète de l'application HalloApp de **.NET 8** vers **.NET 9**, incluant les changements de configuration, les nouvelles fonctionnalités adoptées et les optimisations de performance.
 
 ## Contexte de la Migration
 
