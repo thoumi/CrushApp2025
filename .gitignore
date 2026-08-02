@@ -1,4 +1,4 @@
-# Repo-wide rules (see datingapp-2025-main/.gitignore for .NET/VS-specific rules)
+# Repo-wide rules (see halloapp-2025-main/.gitignore for .NET/VS-specific rules)
 
 # Keep internal/working markdown notes (ADRs, audits, guides) out of version control
 # by default. Add explicit exceptions below for docs that should stay tracked.

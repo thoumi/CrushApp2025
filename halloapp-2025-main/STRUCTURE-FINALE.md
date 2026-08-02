@@ -7,7 +7,7 @@ Après nettoyage, le projet contient **256 fichiers essentiels** (vs ~400+ fichi
 ## Structure Finale
 
 ```
-datingapp-2025-main/
+halloapp-2025-main/
 ├── 📁 API/                          # Backend principal (ASP.NET Core 9)
 │   ├── 📄 API.csproj
 │   ├── 📄 Program.cs
@@ -121,7 +121,7 @@ datingapp-2025-main/
 - `client/ssl/` (certificats SSL)
 - `docs/javascripts/` (JS docs)
 - `docs/stylesheets/` (CSS docs)
-- `datingapp-2025-main/` (dossier dupliqué)
+- `halloapp-2025-main/` (dossier dupliqué)
 
 ### ✅ **Configuration Avancée Optionnelle** (Supprimés)
 - `navigation-advanced.yml`

@@ -2,6 +2,7 @@
 # Version: 1.0.0
 # Documentation: https://thoumi.github.io/CrushApp2025/
 
+name: halloapp
 version: '3.8'
 
 services:

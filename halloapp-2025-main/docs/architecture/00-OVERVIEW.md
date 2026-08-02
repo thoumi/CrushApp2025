@@ -1,4 +1,4 @@
-# Architecture Microservices - DatingApp 2025
+# Architecture Microservices - HalloApp 2025
 ## Vue d'ensemble de la migration
 
 ---
@@ -323,7 +323,7 @@ DELETE /api/media/{id}           # Supprimer photo
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│                    DATINGAPP DOMAIN                             │
+│                    HALLOAPP DOMAIN                             │
 └────────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
@@ -538,7 +538,7 @@ Cette overview fait partie d'une suite de documents :
 ---
 
 **Date de création** : {{ DATE }}  
-**Auteur** : DatingApp Team  
+**Auteur** : HalloApp Team  
 **Version** : 1.0  
 **Statut** : ✅ Validé
 

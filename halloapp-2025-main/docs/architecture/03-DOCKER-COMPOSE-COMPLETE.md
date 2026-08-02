@@ -1,5 +1,5 @@
 # Docker Compose - Configuration Complète
-## Orchestration Multi-Services pour DatingApp
+## Orchestration Multi-Services pour HalloApp
 
 ---
 
@@ -35,7 +35,7 @@ services:
   # SQL Server Database
   sql:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: datingapp-sql
+    container_name: halloapp-sql
     hostname: sql
     environment:
       ACCEPT_EULA: "Y"
@@ -47,7 +47,7 @@ services:
       - sql-data:/var/opt/mssql
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     networks:
-      - datingapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P VOTRE_MOT_DE_PASSE_SQL -Q 'SELECT 1' || exit 1"]
       interval: 30s
@@ -59,7 +59,7 @@ services:
   # RabbitMQ Message Broker
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: datingapp-rabbitmq
+    container_name: halloapp-rabbitmq
     hostname: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
@@ -73,7 +73,7 @@ services:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
     networks:
-      - datingapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 30s
@@ -85,7 +85,7 @@ services:
   # Seq Centralized Logging
   seq:
     image: datalust/seq:2024
-    container_name: datingapp-seq
+    container_name: halloapp-seq
     hostname: seq
     environment:
       ACCEPT_EULA: "Y"
@@ -96,7 +96,7 @@ services:
     volumes:
       - seq-data:/data
     networks:
-      - datingapp-network
+      - halloapp-network
     restart: unless-stopped
 
   #############################################
@@ -110,8 +110,8 @@ services:
       dockerfile: Dockerfile
       args:
         CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
-    image: datingapp-gateway:latest
-    container_name: datingapp-gateway
+    image: halloapp-gateway:latest
+    container_name: halloapp-gateway
     hostname: gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
@@ -130,7 +130,7 @@ services:
       seq:
         condition: service_started
     networks:
-      - datingapp-network
+      - halloapp-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -139,8 +139,8 @@ services:
       start_period: 40s
     restart: unless-stopped
     labels:
-      - "com.datingapp.service=gateway"
-      - "com.datingapp.description=API Gateway with Ocelot"
+      - "com.halloapp.service=gateway"
+      - "com.halloapp.description=API Gateway with Ocelot"
 
   # Core API (Monolith réduit)
   core-api:
@@ -149,13 +149,13 @@ services:
       dockerfile: Dockerfile
       args:
         CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
-    image: datingapp-core-api:latest
-    container_name: datingapp-core-api
+    image: halloapp-core-api:latest
+    container_name: halloapp-core-api
     hostname: core-api
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sql;Database=DatingApp;User Id=sa;Password=VOTRE_MOT_DE_PASSE_SQL;TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - ConnectionStrings__DefaultConnection=Server=sql;Database=HalloApp;User Id=sa;Password=VOTRE_MOT_DE_PASSE_SQL;TrustServerCertificate=True;MultipleActiveResultSets=true;
       - TokenKey=${JWT_TOKEN_KEY}
       - RabbitMQ__Host=rabbitmq
       - RabbitMQ__User=guest
@@ -171,7 +171,7 @@ services:
       seq:
         condition: service_started
     networks:
-      - datingapp-network
+      - halloapp-network
     volumes:
       - ./logs/core-api:/app/logs
     healthcheck:
@@ -182,8 +182,8 @@ services:
       start_period: 60s
     restart: unless-stopped
     labels:
-      - "com.datingapp.service=core-api"
-      - "com.datingapp.description=Core API - Auth, Members, Messages"
+      - "com.halloapp.service=core-api"
+      - "com.halloapp.description=Core API - Auth, Members, Messages"
 
   # Chatbot Microservice
   chatbot-service:
@@ -192,8 +192,8 @@ services:
       dockerfile: Dockerfile
       args:
         CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
-    image: datingapp-chatbot:latest
-    container_name: datingapp-chatbot
+    image: halloapp-chatbot:latest
+    container_name: halloapp-chatbot
     hostname: chatbot-service
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
@@ -210,7 +210,7 @@ services:
       seq:
         condition: service_started
     networks:
-      - datingapp-network
+      - halloapp-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
@@ -221,8 +221,8 @@ services:
       start_period: 20s
     restart: unless-stopped
     labels:
-      - "com.datingapp.service=chatbot"
-      - "com.datingapp.description=AI Chatbot with Ollama"
+      - "com.halloapp.service=chatbot"
+      - "com.halloapp.description=AI Chatbot with Ollama"
     # Resource limits pour isoler CPU/RAM
     deploy:
       resources:
@@ -240,8 +240,8 @@ services:
       dockerfile: Dockerfile
       args:
         CONFIGURATION: ${BUILD_CONFIGURATION:-Release}
-    image: datingapp-media:latest
-    container_name: datingapp-media
+    image: halloapp-media:latest
+    container_name: halloapp-media
     hostname: media-service
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
@@ -265,7 +265,7 @@ services:
       seq:
         condition: service_started
     networks:
-      - datingapp-network
+      - halloapp-network
     volumes:
       - media-temp:/app/temp-uploads
     healthcheck:
@@ -276,8 +276,8 @@ services:
       start_period: 40s
     restart: unless-stopped
     labels:
-      - "com.datingapp.service=media"
-      - "com.datingapp.description=Media/Photo Management Service"
+      - "com.halloapp.service=media"
+      - "com.halloapp.description=Media/Photo Management Service"
 
   #############################################
   # FRONTEND (Optionnel en Docker)
@@ -290,8 +290,8 @@ services:
       dockerfile: Dockerfile.dev
       args:
         NODE_VERSION: 22
-    image: datingapp-client:dev
-    container_name: datingapp-client
+    image: halloapp-client:dev
+    container_name: halloapp-client
     hostname: client
     environment:
       - NODE_ENV=development
@@ -301,15 +301,15 @@ services:
     depends_on:
       - gateway
     networks:
-      - datingapp-network
+      - halloapp-network
     volumes:
       - ./src/Client:/app
       - /app/node_modules
     command: npm start
     restart: unless-stopped
     labels:
-      - "com.datingapp.service=frontend"
-      - "com.datingapp.description=Angular SPA"
+      - "com.halloapp.service=frontend"
+      - "com.halloapp.description=Angular SPA"
 
 #############################################
 # VOLUMES
@@ -317,19 +317,19 @@ services:
 
 volumes:
   sql-data:
-    name: datingapp-sql-data
+    name: halloapp-sql-data
     driver: local
   
   rabbitmq-data:
-    name: datingapp-rabbitmq-data
+    name: halloapp-rabbitmq-data
     driver: local
   
   seq-data:
-    name: datingapp-seq-data
+    name: halloapp-seq-data
     driver: local
   
   media-temp:
-    name: datingapp-media-temp
+    name: halloapp-media-temp
     driver: local
 
 #############################################
@@ -337,8 +337,8 @@ volumes:
 #############################################
 
 networks:
-  datingapp-network:
-    name: datingapp-network
+  halloapp-network:
+    name: halloapp-network
     driver: bridge
     ipam:
       config:
@@ -575,10 +575,10 @@ docker stats
 docker-compose exec sql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "VOTRE_MOT_DE_PASSE_SQL"
 
 # Backup database
-docker-compose exec sql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "VOTRE_MOT_DE_PASSE_SQL" -Q "BACKUP DATABASE [DatingApp] TO DISK='/var/opt/mssql/backup/datingapp.bak'"
+docker-compose exec sql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "VOTRE_MOT_DE_PASSE_SQL" -Q "BACKUP DATABASE [HalloApp] TO DISK='/var/opt/mssql/backup/halloapp.bak'"
 
 # Copier backup vers host
-docker cp datingapp-sql:/var/opt/mssql/backup/datingapp.bak ./backups/
+docker cp halloapp-sql:/var/opt/mssql/backup/halloapp.bak ./backups/
 ```
 
 ### RabbitMQ
@@ -642,7 +642,7 @@ docker-compose ps sql
 docker-compose exec core-api ping sql
 
 # Vérifier network
-docker network inspect datingapp-network
+docker network inspect halloapp-network
 ```
 
 ### Problème: RabbitMQ messages non consommés
@@ -677,7 +677,7 @@ docker-compose logs gateway | Select-String "ocelot"
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│            datingapp-network (172.20.0.0/16)               │
+│            halloapp-network (172.20.0.0/16)               │
 │                                                            │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
 │  │ gateway  │  │ core-api │  │ chatbot  │  │  media   │ │
@@ -758,11 +758,11 @@ docker-compose logs gateway | Select-String "ocelot"
 
 ```powershell
 # 1. Exporter images vers registry
-docker tag datingapp-gateway:latest myregistry.azurecr.io/gateway:v1.0
+docker tag halloapp-gateway:latest myregistry.azurecr.io/gateway:v1.0
 docker push myregistry.azurecr.io/gateway:v1.0
 
 # 2. Adapter docker-compose pour swarm (alternative K8s)
-docker stack deploy -c docker-compose.prod.yml datingapp
+docker stack deploy -c docker-compose.prod.yml halloapp
 
 # 3. Ou générer manifests Kubernetes
 kompose convert -f docker-compose.yml
