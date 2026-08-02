@@ -135,7 +135,7 @@ services:
       RabbitMQ__Host: "rabbitmq"
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: "admin"
-      RabbitMQ__Password: "REDACTED_RABBITMQ_PASSWORD"
+      RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
       RabbitMQ__VirtualHost: "crushapp"
     ports:
       - "5002:80"

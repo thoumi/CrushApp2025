@@ -27,8 +27,8 @@ try
     builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
     // JWT Authentication
-    var tokenKey = builder.Configuration["TokenKey"] 
-        ?? "REDACTED_JWT_TOKEN_KEY";
+    var tokenKey = builder.Configuration["TokenKey"]
+        ?? throw new Exception("Token key not found - ApiGateway/Program.cs");
     
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
