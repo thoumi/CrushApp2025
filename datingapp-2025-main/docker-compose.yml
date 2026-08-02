@@ -204,6 +204,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
+      TokenKey: "${JWT_TOKEN_KEY}"
       Seq__ServerUrl: "http://seq:5341"
     ports:
       - "5000:80"
