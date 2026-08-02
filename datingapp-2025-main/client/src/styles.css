@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ---------- Halo type ---------- */
+/* ---------- Hallo type ---------- */
 @font-face {
   font-family: "Fraunces";
   font-style: normal;
@@ -29,14 +29,14 @@
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 }
 
-/* ---------- Halo theme: replaces the 21-theme DaisyUI picker with two ---------- */
+/* ---------- Hallo theme: replaces the 21-theme DaisyUI picker with two ---------- */
 @plugin "daisyui" {
-  themes: halo --default, halo-dark --prefersdark;
+  themes: hallo --default, hallo-dark --prefersdark;
   exclude: rootscrollgutter;
 }
 
 @plugin "daisyui/theme" {
-  name: "halo";
+  name: "hallo";
   default: true;
   prefersdark: false;
   color-scheme: "light";
@@ -71,7 +71,7 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "halo-dark";
+  name: "hallo-dark";
   default: false;
   prefersdark: true;
   color-scheme: "dark";

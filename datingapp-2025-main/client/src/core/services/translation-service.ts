@@ -31,7 +31,7 @@ export class TranslationService {
 
       // Accueil
       'home.title': 'Moins de profils. De vraies raisons d\'écrire.',
-      'home.subtitle': 'Halo vous propose une sélection restreinte chaque jour, avec de vraies amorces de conversation, pas juste une photo.',
+      'home.subtitle': 'Hallo vous propose une sélection restreinte chaque jour, avec de vraies amorces de conversation, pas juste une photo.',
       'home.register': 'Commencer',
       'home.login': 'Se connecter',
       'home.learnMore': 'Comment ça marche',
@@ -42,7 +42,7 @@ export class TranslationService {
       'daily.empty': 'Plus personne à découvrir aujourd\'hui. Revenez demain, ou essayez Explorer.',
 
       // Coach (chatbot)
-      'chatbot.title': 'Coach Halo',
+      'chatbot.title': 'Coach Hallo',
       'chatbot.subtitle': 'Des conseils de conversation, à la demande',
       'chatbot.placeholder': 'Posez votre question...',
       'chatbot.send': 'Envoyer',
@@ -222,7 +222,7 @@ export class TranslationService {
 
       // Home
       'home.title': 'Fewer profiles. Better reasons to talk.',
-      'home.subtitle': 'Halo shows you a small, curated selection each day, with real conversation starters, not just a photo.',
+      'home.subtitle': 'Hallo shows you a small, curated selection each day, with real conversation starters, not just a photo.',
       'home.register': 'Get started',
       'home.login': 'Login',
       'home.learnMore': 'How it works',
@@ -233,7 +233,7 @@ export class TranslationService {
       'daily.empty': 'No one new to discover today. Check back tomorrow, or try Explore.',
 
       // Coach (chatbot)
-      'chatbot.title': 'Halo Coach',
+      'chatbot.title': 'Hallo Coach',
       'chatbot.subtitle': 'Conversation tips, on demand',
       'chatbot.placeholder': 'Ask your question...',
       'chatbot.send': 'Send',

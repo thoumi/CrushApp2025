@@ -1,10 +1,10 @@
-.halo-hero {
+.hallo-hero {
   position: relative;
   overflow: hidden;
   background: var(--color-base-200);
 }
 
-.halo-hero::before {
+.hallo-hero::before {
   content: "";
   position: absolute;
   top: -20%;
@@ -16,7 +16,7 @@
   pointer-events: none;
 }
 
-.halo-hero::after {
+.hallo-hero::after {
   content: "";
   position: absolute;
   bottom: -25%;
@@ -28,10 +28,10 @@
   pointer-events: none;
 }
 
-.halo-mark-ring circle:first-child {
+.hallo-mark-ring circle:first-child {
   color: var(--color-base-content);
 }
 
-.halo-mark-ring circle:nth-child(2) {
+.hallo-mark-ring circle:nth-child(2) {
   color: var(--color-primary);
 }

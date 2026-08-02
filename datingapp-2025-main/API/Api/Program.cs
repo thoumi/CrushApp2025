@@ -126,9 +126,9 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Halo API",
+        Title = "Hallo API",
         Version = "v1",
-        Description = "API cœur de Halo (membres, likes/matchs, messagerie, prompts)."
+        Description = "API cœur de Hallo (membres, likes/matchs, messagerie, prompts)."
     });
 
     var jwtScheme = new OpenApiSecurityScheme
@@ -151,7 +151,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Halo API v1");
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Hallo API v1");
 });
 
 app.UseMiddleware<ExceptionMiddleware>();

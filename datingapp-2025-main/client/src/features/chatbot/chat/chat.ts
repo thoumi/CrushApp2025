@@ -28,7 +28,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.messages.push({
       sender: 'bot',
-      prompt: 'Bonjour, je suis votre Coach Halo. Posez-moi une question sur votre profil ou demandez-moi une amorce de conversation.',
+      prompt: 'Bonjour, je suis votre Coach Hallo. Posez-moi une question sur votre profil ou demandez-moi une amorce de conversation.',
       timestamp: new Date()
     });
   }

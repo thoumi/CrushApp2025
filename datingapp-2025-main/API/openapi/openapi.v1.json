@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Halo API",
-    "description": "API cœur de Halo (membres, likes/matchs, messagerie, prompts).",
+    "title": "Hallo API",
+    "description": "API cœur de Hallo (membres, likes/matchs, messagerie, prompts).",
     "version": "v1"
   },
   "paths": {

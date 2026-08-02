@@ -1,2 +1,2 @@
-export const lightTheme = 'halo';
-export const darkTheme = 'halo-dark';
+export const lightTheme = 'hallo';
+export const darkTheme = 'hallo-dark';
