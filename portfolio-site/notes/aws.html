@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AWS · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence AWS : compute, stockage, base de données, réseau, IAM, bonnes pratiques, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">AWS</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#services">2. Services par domaine</a>
+      <a href="#reseau">3. Réseau &amp; sécurité</a>
+      <a href="#well-architected">4. Well-Architected Framework</a>
+      <a href="#lambda">5. Lambda en détail</a>
+      <a href="#cheatsheet">6. Cheat sheet CLI</a>
+      <a href="#bonnes-pratiques">7. Bonnes pratiques</a>
+      <a href="#entretien">8. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Cloud</span>
+      <span class="lozenge">Débutant → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>AWS</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">Une carte mentale des services AWS que je recroise le plus souvent, organisée par le problème qu'ils résolvent (calcul, stockage, données, réseau, sécurité) plutôt que par ordre alphabétique.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">AWS loue à la demande ce qu'une infrastructure on-premise possède en dur : capacité de calcul, stockage, réseau. L'intérêt n'est pas seulement économique (pay-as-you-go) mais opérationnel : scaler horizontalement, changer de région, ou remplacer une brique managée sans racheter de matériel.</p>
+    </section>
+
+    <section class="cs reveal" id="services">
+      <h2>Services par domaine</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Compute</h3><p><strong>EC2</strong> : VM à la demande, contrôle total de l'OS. <strong>Lambda</strong> : fonctions serverless facturées à l'exécution, sans serveur à gérer. <strong>ECS/EKS</strong> : orchestration de conteneurs (Docker/Kubernetes managés).</p></div>
+        <div class="panel tech-card"><h3>Stockage</h3><p><strong>S3</strong> : stockage objet durable (11 neufs), pour fichiers, backups, contenu statique. <strong>EBS</strong> : disque bloc attaché à une instance EC2, comme un disque dur virtuel.</p></div>
+        <div class="panel tech-card"><h3>Base de données</h3><p><strong>RDS</strong> : PostgreSQL/MySQL/SQL Server managés (backups, patching automatiques). <strong>DynamoDB</strong> : NoSQL clé-valeur, latence à un chiffre de milliseconde, scaling horizontal natif.</p></div>
+        <div class="panel tech-card"><h3>Sécurité</h3><p><strong>IAM</strong> : qui (utilisateur, rôle, service) peut faire quoi sur quelle ressource. <strong>VPC</strong> : réseau privé isolé où vivent les ressources.</p></div>
+        <div class="panel tech-card"><h3>Monitoring</h3><p><strong>CloudWatch</strong> : métriques, logs, alarmes, le premier réflexe pour diagnostiquer un incident en production.</p></div>
+        <div class="panel tech-card"><h3>Réseau</h3><p><strong>Route 53</strong> : DNS managé. <strong>CloudFront</strong> : CDN pour rapprocher le contenu des utilisateurs. <strong>ALB/NLB</strong> : répartition de charge.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="reseau">
+      <h2>Réseau &amp; sécurité : les bases IAM/VPC</h2>
+      <dl class="comp-list">
+        <dt>IAM : utilisateur, groupe, rôle, policy</dt>
+        <dd>Une policy JSON décrit des permissions (actions autorisées sur des ressources). Un rôle est assumé temporairement par un service ou un utilisateur fédéré, et c'est la méthode recommandée plutôt que des clés d'accès statiques.</dd>
+        <dt>Principe du moindre privilège</dt>
+        <dd>Chaque rôle ne reçoit que les permissions strictement nécessaires à sa tâche, jamais <span class="mono">*:*</span> par confort.</dd>
+        <dt>VPC, subnets publics/privés</dt>
+        <dd>Un VPC isole un réseau virtuel ; les subnets publics ont une route vers un Internet Gateway, les subnets privés en sont dépourvus et sortent via un NAT Gateway si besoin.</dd>
+        <dt>Security Groups</dt>
+        <dd>Pare-feu stateful au niveau de l'instance : seul le trafic explicitement autorisé en entrée passe, la réponse est automatiquement permise.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="well-architected">
+      <h2>Well-Architected Framework</h2>
+      <p class="section-intro">Le référentiel qu'AWS utilise lui-même en revue d'architecture : cinq (à l'origine six) piliers pour évaluer une architecture cloud au-delà du simple « est-ce que ça marche ? ».</p>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Excellence opérationnelle</h3><p>Automatiser les changements, anticiper les échecs, apprendre de chaque incident plutôt que de le refermer sans analyse.</p></div>
+        <div class="panel tech-card"><h3>Sécurité</h3><p>Moindre privilège, chiffrement au repos/en transit par défaut, traçabilité complète des accès via CloudTrail.</p></div>
+        <div class="panel tech-card"><h3>Fiabilité</h3><p>Se remettre automatiquement d'une panne (auto-healing, multi-AZ) plutôt que de dépendre d'une intervention manuelle.</p></div>
+        <div class="panel tech-card"><h3>Performance</h3><p>Choisir le bon type de ressource pour la charge réelle, et revoir ce choix quand la charge change plutôt que de sur-dimensionner par précaution.</p></div>
+        <div class="panel tech-card"><h3>Optimisation des coûts</h3><p>Ne payer que pour ce qui est réellement utilisé (instances réservées, auto-scaling, suppression des ressources orphelines).</p></div>
+        <div class="panel tech-card"><h3>Durabilité</h3><p>Le pilier le plus récent : mesurer et réduire l'empreinte carbone d'une charge de travail, par exemple en choisissant une région à mix électrique plus favorable.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="lambda">
+      <h2>Lambda en détail</h2>
+      <p class="section-intro">Le service le plus représentatif du serverless : on déploie une fonction, AWS gère entièrement le provisionnement, le scaling et la facturation à la milliseconde d'exécution.</p>
+      <dl class="comp-list">
+        <dt>Triggers</dt>
+        <dd>Une Lambda ne s'exécute jamais toute seule : elle est déclenchée par un événement (requête API Gateway, fichier déposé sur S3, message SQS, planification EventBridge...).</dd>
+        <dt>Cold start</dt>
+        <dd>Le délai d'initialisation d'un nouvel environnement d'exécution avant le premier appel. Les runtimes interprétés (Node, Python) démarrent plus vite que la JVM ; le <em>provisioned concurrency</em> élimine ce délai au prix d'une capacité pré-chauffée en permanence, donc payée en continu.</dd>
+        <dt>Layers</dt>
+        <dd>Du code ou des dépendances partagés entre plusieurs fonctions (un SDK interne, par exemple), packagés une fois et référencés par chaque Lambda plutôt que dupliqués dans chaque déploiement.</dd>
+        <dt>Limites</dt>
+        <dd>15 minutes d'exécution maximum et une mémoire plafonnée : au-delà, ECS/Fargate ou EC2 deviennent le bon choix, Lambda n'est pas fait pour du traitement longue durée.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="cheatsheet">
+      <h2>Cheat sheet CLI</h2>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># Identité & configuration
+aws sts get-caller-identity
+aws configure
+
+# S3
+aws s3 cp fichier.txt s3://mon-bucket/
+aws s3 sync ./dist s3://mon-bucket/ --delete
+
+# EC2
+aws ec2 describe-instances --query "Reservations[].Instances[].[InstanceId,State.Name]"
+
+# Logs
+aws logs tail /aws/lambda/ma-fonction --follow
+
+# Lambda
+aws lambda invoke --function-name ma-fonction --payload '{}' out.json
+aws lambda update-function-code --function-name ma-fonction --zip-file fileb://build.zip
+
+# IAM
+aws iam list-attached-role-policies --role-name ma-fonction-role
+aws sts assume-role --role-arn arn:aws:iam::123456789012:role/deploy --role-session-name ci</pre>
+    </section>
+
+    <section class="cs reveal" id="bonnes-pratiques">
+      <h2>Bonnes pratiques</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Infrastructure as Code</h3><p>Terraform ou CloudFormation plutôt que des clics dans la console : reproductible, versionné, revu en pull request.</p></div>
+        <div class="panel tech-card"><h3>Pas de clés d'accès en dur</h3><p>Rôles IAM assumés par les services (EC2, Lambda) plutôt que des <span class="mono">AWS_ACCESS_KEY_ID</span> committés ou en variable d'environnement statique.</p></div>
+        <div class="panel tech-card"><h3>Multi-AZ pour la haute disponibilité</h3><p>Répartir les ressources critiques sur plusieurs zones de disponibilité pour survivre à la perte d'un datacenter.</p></div>
+        <div class="panel tech-card"><h3>Budgets &amp; alarmes de coût</h3><p>AWS Budgets pour être alerté avant qu'une ressource oubliée (instance, snapshot) ne fasse dériver la facture.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">EC2 vs Lambda, quand choisir quoi ?</p><p class="a">Lambda pour du traitement court et événementiel sans gestion de serveur ; EC2 quand on a besoin de contrôle total sur l'OS, de process longue durée, ou de charges qui dépassent les limites d'exécution serverless.</p></div>
+        <div class="qa-item"><p class="q">Comment sécuriser l'accès entre deux services AWS ?</p><p class="a">Un rôle IAM assumé par le service appelant, avec une policy limitée aux actions nécessaires. Jamais de clé d'accès statique partagée entre services.</p></div>
+        <div class="qa-item"><p class="q">RDS vs DynamoDB ?</p><p class="a">RDS pour des données relationnelles avec transactions ACID et requêtes complexes ; DynamoDB pour un accès clé-valeur à très faible latence et un scaling horizontal natif, au prix d'un modèle de requêtage plus contraint.</p></div>
+        <div class="qa-item"><p class="q">Qu'est-ce qu'un cold start Lambda, et comment le limiter ?</p><p class="a">Le délai d'initialisation d'un nouvel environnement d'exécution avant le premier appel. On le limite en choisissant un runtime léger, en réduisant la taille du package déployé, ou avec du provisioned concurrency si la latence est critique.</p></div>
+        <div class="qa-item"><p class="q">Comment appliquer le principe du moindre privilège sur AWS ?</p><p class="a">Une policy IAM dédiée par rôle, qui ne liste que les actions et ressources réellement nécessaires. Jamais une policy générique <span class="mono">*:*</span> par confort, même en environnement de test.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>AWS · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

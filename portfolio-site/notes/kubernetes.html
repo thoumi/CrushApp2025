@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence Kubernetes : architecture du cluster, objets clés, réseau, déploiements, dépannage, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">Kubernetes</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#architecture">2. Architecture du cluster</a>
+      <a href="#objets">3. Objets clés</a>
+      <a href="#rbac">4. RBAC &amp; sécurité d'accès</a>
+      <a href="#helm">5. Helm</a>
+      <a href="#cheatsheet">6. Cheat sheet kubectl</a>
+      <a href="#bonnes-pratiques">7. Bonnes pratiques</a>
+      <a href="#pieges">8. Dépannage</a>
+      <a href="#entretien">9. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Orchestration</span>
+      <span class="lozenge">Intermédiaire → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>Kubernetes</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">Ce que Docker Compose ne fait plus à l'échelle d'un cluster : Kubernetes prend le relais pour planifier, redémarrer, scaler et exposer des conteneurs sur plusieurs nœuds, avec un état désiré déclaré plutôt qu'une suite de commandes impératives.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">Kubernetes (K8s) est un orchestrateur : on lui décrit un état désiré (« 3 réplicas de cette image, exposés sur ce port »), et une boucle de contrôle permanente compare cet état à la réalité du cluster pour la corriger en continu : nœud qui tombe, pod qui crashe, montée en charge. C'est ce passage de l'impératif (« lance ce conteneur ») au déclaratif qui justifie sa complexité par rapport à Compose.</p>
+    </section>
+
+    <section class="cs reveal" id="architecture">
+      <h2>Architecture du cluster</h2>
+      <div class="diagram-wrap" style="margin-top:1.5rem;">
+        <div style="min-width:620px; display:flex; flex-direction:column; align-items:center;">
+          <div class="node accent"><span class="mono">Control Plane</span><span class="sub">API Server · etcd · Scheduler · Controller Manager</span></div>
+          <div class="connector-v"></div>
+          <div style="display:flex; gap:1rem;">
+            <div class="node"><span class="mono">Node 1</span><span class="sub">kubelet · kube-proxy · pods</span></div>
+            <div class="node"><span class="mono">Node 2</span><span class="sub">kubelet · kube-proxy · pods</span></div>
+            <div class="node faint"><span class="mono">Node N</span><span class="sub">…</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="section-intro" style="margin-top:1.5rem;">Le control plane décide (où placer un pod, quoi corriger) ; chaque node exécute (kubelet démarre les conteneurs, kube-proxy gère le routage réseau local). <span class="mono">etcd</span> est la seule source de vérité de l'état du cluster, et sa sauvegarde est le premier réflexe avant toute opération risquée en production.</p>
+    </section>
+
+    <section class="cs reveal" id="objets">
+      <h2>Objets clés</h2>
+      <dl class="comp-list">
+        <dt>Pod</dt>
+        <dd>La plus petite unité déployable : un ou plusieurs conteneurs qui partagent réseau et stockage. On ne crée quasiment jamais un pod nu directement : il est géré par un contrôleur au-dessus.</dd>
+        <dt>Deployment</dt>
+        <dd>Gère un ensemble de pods identiques (ReplicaSet) et pilote les mises à jour progressives (rolling update) : de nouveaux pods démarrent avant que les anciens ne soient arrêtés, sans interruption de service.</dd>
+        <dt>Service</dt>
+        <dd>Adresse réseau stable devant un ensemble de pods éphémères. <span class="mono">ClusterIP</span> pour la communication interne, <span class="mono">NodePort</span>/<span class="mono">LoadBalancer</span> pour exposer vers l'extérieur.</dd>
+        <dt>Ingress</dt>
+        <dd>Couche de routage HTTP(S) au-dessus des Services : un seul point d'entrée qui route par host/path vers plusieurs services, avec TLS termination.</dd>
+        <dt>ConfigMap &amp; Secret</dt>
+        <dd>Séparent la configuration et les données sensibles de l'image : même image, comportement différent selon l'environnement dans lequel elle est déployée.</dd>
+        <dt>StatefulSet</dt>
+        <dd>Comme un Deployment, mais pour les workloads avec état (bases de données) : identité réseau stable et volume dédié par réplica, dans un ordre de démarrage garanti.</dd>
+        <dt>Namespace</dt>
+        <dd>Cloisonnement logique (équipes, environnements) à l'intérieur d'un même cluster physique.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="rbac">
+      <h2>RBAC &amp; sécurité d'accès</h2>
+      <p class="section-intro">Le contrôle d'accès basé sur les rôles décide qui peut faire quoi sur quelles ressources, indispensable dès que plusieurs équipes partagent un même cluster.</p>
+      <dl class="comp-list">
+        <dt>Role &amp; ClusterRole</dt>
+        <dd>Un <span class="mono">Role</span> définit des permissions dans un namespace donné ; un <span class="mono">ClusterRole</span> les définit à l'échelle du cluster entier (utile pour des ressources non-namespacées comme les nodes).</dd>
+        <dt>RoleBinding &amp; ClusterRoleBinding</dt>
+        <dd>Associent un Role/ClusterRole à un utilisateur, groupe ou ServiceAccount. Sans binding, un rôle défini n'a strictement aucun effet.</dd>
+        <dt>ServiceAccount</dt>
+        <dd>L'identité qu'utilise un pod pour s'authentifier auprès de l'API Server. Par défaut c'est le <span class="mono">default</span> ServiceAccount du namespace, à restreindre explicitement plutôt qu'à laisser en accès large par défaut.</dd>
+      </dl>
+      <pre class="snippet mono" style="margin-top:1.25rem;">apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: { namespace: staging, name: pod-reader }
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]</pre>
+    </section>
+
+    <section class="cs reveal" id="helm">
+      <h2>Helm</h2>
+      <p class="section-intro">Le gestionnaire de paquets de Kubernetes : un <strong>chart</strong> Helm packages un ensemble de manifestes YAML paramétrables, pour éviter de dupliquer 10 fichiers presque identiques entre dev, staging et prod.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;">helm install mon-app ./chart -f values-staging.yaml
+helm upgrade mon-app ./chart --set image.tag=1.4.0
+helm rollback mon-app 2          # revenir à la révision 2
+helm list -n staging</pre>
+      <p class="section-intro" style="margin-top:1rem;">Chaque <span class="mono">values.yaml</span> paramètre le même chart pour un environnement différent (réplicas, tag d'image, ressources) : la logique de templating reste unique, seules les valeurs changent.</p>
+    </section>
+
+    <section class="cs reveal" id="cheatsheet">
+      <h2>Cheat sheet kubectl</h2>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># État du cluster
+kubectl get nodes
+kubectl get pods -n mon-namespace
+kubectl get all -A
+kubectl top pods -n mon-namespace           # conso CPU/mémoire en direct
+
+# Déploiement
+kubectl apply -f deployment.yaml
+kubectl rollout status deployment/api
+kubectl rollout undo deployment/api        # revenir en arrière
+kubectl rollout history deployment/api     # historique des révisions
+
+# Debug
+kubectl describe pod api-7d4f9-x2z8k       # events, dernières erreurs
+kubectl logs -f api-7d4f9-x2z8k
+kubectl logs --previous api-7d4f9-x2z8k    # logs du conteneur précédent (avant crash)
+kubectl exec -it api-7d4f9-x2z8k -- sh
+kubectl get events --sort-by=.lastTimestamp -n mon-namespace
+
+# Scaling
+kubectl scale deployment/api --replicas=5
+kubectl autoscale deployment/api --min=2 --max=10 --cpu-percent=70
+
+# RBAC & contexte
+kubectl auth can-i delete pods --as=system:serviceaccount:staging:ci-bot
+kubectl config use-context production</pre>
+    </section>
+
+    <section class="cs reveal" id="bonnes-pratiques">
+      <h2>Bonnes pratiques</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Requests &amp; limits</h3><p>Sans <span class="mono">resources.requests/limits</span>, un pod peut affamer tout le node ou être expulsé arbitrairement sous pression mémoire.</p></div>
+        <div class="panel tech-card"><h3>Liveness vs readiness</h3><p>La liveness probe redémarre un pod bloqué ; la readiness probe le retire du Service tant qu'il n'est pas prêt à recevoir du trafic. Confondre les deux provoque des redémarrages en boucle inutiles.</p></div>
+        <div class="panel tech-card"><h3>Jamais de <span class="mono">:latest</span></h3><p>Un tag immuable (version ou SHA) rend un rollback réellement possible.</p></div>
+        <div class="panel tech-card"><h3>PodDisruptionBudget</h3><p>Garantit un nombre minimum de réplicas disponibles pendant une maintenance de nœud planifiée.</p></div>
+        <div class="panel tech-card"><h3>Secrets via un vault externe</h3><p>Les Secrets Kubernetes ne sont encodés qu'en base64 par défaut, pas chiffrés au repos sans configuration supplémentaire (encryption at rest, ou Vault/External Secrets).</p></div>
+        <div class="panel tech-card"><h3>GitOps</h3><p>L'état désiré du cluster versionné dans Git (Argo CD, Flux) plutôt que des <span class="mono">kubectl apply</span> manuels non traçables.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="pieges">
+      <h2>Dépannage courant</h2>
+      <div class="table-wrap" style="margin-top:1.5rem;">
+        <table>
+          <thead><tr><th>Symptôme</th><th>Cause fréquente</th><th>Réflexe</th></tr></thead>
+          <tbody>
+            <tr><td>Pod en <span class="mono">CrashLoopBackOff</span></td><td>Le process principal plante au démarrage</td><td><span class="mono">kubectl logs --previous</span></td></tr>
+            <tr><td>Pod en <span class="mono">Pending</span></td><td>Aucun node ne satisfait les requests de ressources</td><td><span class="mono">kubectl describe pod</span> → section Events</td></tr>
+            <tr><td>Pod en <span class="mono">ImagePullBackOff</span></td><td>Tag inexistant ou secret de registry manquant</td><td>Vérifier le tag et <span class="mono">imagePullSecrets</span></td></tr>
+            <tr><td>Service ne route vers aucun pod</td><td>Le <span class="mono">selector</span> du Service ne matche pas les labels des pods</td><td><span class="mono">kubectl get endpoints</span></td></tr>
+            <tr><td>Rolling update bloqué</td><td>Readiness probe qui échoue sur les nouveaux pods</td><td><span class="mono">kubectl rollout status</span> + logs du nouveau ReplicaSet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Pod vs Deployment vs ReplicaSet ?</p><p class="a">Le Pod exécute les conteneurs. Le ReplicaSet garantit qu'un nombre donné de pods identiques tourne en permanence. Le Deployment pilote le ReplicaSet et gère les mises à jour progressives et les rollbacks.</p></div>
+        <div class="qa-item"><p class="q">Comment un Service trouve-t-il ses pods ?</p><p class="a">Par correspondance de labels (<span class="mono">selector</span>), pas par nom ou par IP, qui sont éphémères pour un pod.</p></div>
+        <div class="qa-item"><p class="q">Liveness vs readiness probe ?</p><p class="a">Liveness : « ce pod est-il bloqué, faut-il le redémarrer ? ». Readiness : « ce pod peut-il recevoir du trafic maintenant ? ». Un pod peut être vivant mais pas prêt (démarrage en cours).</p></div>
+        <div class="qa-item"><p class="q">Comment gérer une base de données sur K8s ?</p><p class="a">Via un StatefulSet avec un volume persistant par réplica, ou plus souvent en la laissant en dehors du cluster (managed database) tant que le gain d'opérer un état stateful in-cluster ne dépasse pas le risque.</p></div>
+        <div class="qa-item"><p class="q">À quoi sert un ServiceAccount, et pourquoi ne pas laisser le <span class="mono">default</span> ?</p><p class="a">C'est l'identité qu'un pod présente à l'API Server. Le ServiceAccount <span class="mono">default</span> a souvent plus de droits que nécessaire pour un workload donné ; en créer un dédié par application avec un RoleBinding minimal applique le principe du moindre privilège.</p></div>
+        <div class="qa-item"><p class="q">Pourquoi utiliser Helm plutôt que des manifestes YAML bruts ?</p><p class="a">Dès que la même stack doit être déployée sur plusieurs environnements, dupliquer des YAML presque identiques devient une source d'erreurs. Un chart Helm centralise le templating et ne fait varier que les valeurs par environnement.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Kubernetes · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

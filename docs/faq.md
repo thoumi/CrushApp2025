@@ -10,8 +10,9 @@ droits réservés" — voir [LICENSE](https://github.com/thoumi/HalloApp/blob/ma
 
 Parce que la transparence est elle-même une compétence évaluée : savoir
 identifier, prioriser et planifier la correction d'un risque est plus
-convaincant qu'un README qui prétend qu'il n'y en a aucun. Voir
-[SECURITY.md](https://github.com/thoumi/HalloApp/blob/main/SECURITY.md).
+convaincant qu'un README qui prétend qu'il n'y en a aucun. Voir la section
+[Sécurité & transparence](https://github.com/thoumi/HalloApp/blob/main/README.md#-sécurité--transparence)
+du README.
 
 ## Pourquoi RabbitMQ *et* Kafka sont prévus, plutôt qu'un seul des deux ?
 

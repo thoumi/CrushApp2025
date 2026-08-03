@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ansible · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence Ansible : architecture agentless, playbooks, idempotence, rôles, bonnes pratiques, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">Ansible</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#concepts">2. Concepts clés</a>
+      <a href="#templates">3. Templates Jinja2</a>
+      <a href="#inventaire-dynamique">4. Inventaire dynamique</a>
+      <a href="#cheatsheet">5. Cheat sheet</a>
+      <a href="#bonnes-pratiques">6. Bonnes pratiques</a>
+      <a href="#pieges">7. Pièges courants</a>
+      <a href="#entretien">8. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Automatisation / IaC</span>
+      <span class="lozenge">Débutant → Intermédiaire</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>Ansible</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">Automatiser la configuration d'un parc de serveurs sans agent à installer partout : Ansible se connecte en SSH, décrit l'état désiré en YAML, et ne modifie que ce qui diverge de cet état.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">Contrairement à Puppet ou Chef, Ansible ne nécessite aucun agent résident sur les machines gérées : il pousse ses instructions par SSH (ou WinRM côté Windows) et s'exécute, puis repart. Son unité de travail est le <strong>playbook</strong>, un fichier YAML qui décrit une séquence de tâches idempotentes : les rejouer ne change rien si l'état désiré est déjà atteint.</p>
+    </section>
+
+    <section class="cs reveal" id="concepts">
+      <h2>Concepts clés</h2>
+      <dl class="comp-list">
+        <dt>Inventory</dt>
+        <dd>La liste des machines cibles, organisées en groupes (<span class="mono">[web]</span>, <span class="mono">[db]</span>), statique ou générée dynamiquement depuis un cloud provider.</dd>
+        <dt>Playbook</dt>
+        <dd>Un fichier YAML qui associe des hosts à une liste ordonnée de tâches et de rôles à exécuter.</dd>
+        <dt>Module</dt>
+        <dd>L'unité d'action réutilisable (<span class="mono">apt</span>, <span class="mono">copy</span>, <span class="mono">service</span>, <span class="mono">template</span>...). Chaque module encapsule sa propre logique d'idempotence.</dd>
+        <dt>Rôle</dt>
+        <dd>Un ensemble de tâches, variables, templates et handlers packagés de façon réutilisable, l'équivalent d'un module bien organisé pour un composant d'infrastructure (nginx, postgres...).</dd>
+        <dt>Idempotence</dt>
+        <dd>Le principe central : exécuter le même playbook deux fois de suite doit produire le même état final, sans effet de bord la seconde fois.</dd>
+        <dt>Handler</dt>
+        <dd>Une tâche déclenchée uniquement si une autre tâche a réellement changé quelque chose (ex : redémarrer nginx seulement si sa config a changé).</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="templates">
+      <h2>Templates Jinja2</h2>
+      <p class="section-intro">Le module <span class="mono">template</span> génère un fichier de configuration à partir d'un gabarit Jinja2 et des variables de l'inventaire. C'est la façon dont un même rôle nginx produit une configuration différente par environnement sans dupliquer le fichier.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># templates/nginx.conf.j2
+server {
+  listen {{ nginx_port | default(80) }};
+  server_name {{ inventory_hostname }};
+{% for upstream in upstreams %}
+  location /{{ upstream.path }} {
+    proxy_pass http://{{ upstream.host }}:{{ upstream.port }};
+  }
+{% endfor %}
+}
+
+# task correspondante
+- name: Déployer la config nginx
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/app.conf
+  notify: restart nginx</pre>
+      <p class="section-intro" style="margin-top:1rem;">Les filtres (<span class="mono">| default(...)</span>), les boucles (<span class="mono">{% for %}</span>) et les conditions (<span class="mono">{% if %}</span>) font de Jinja2 un vrai langage de templating, pas un simple remplacement de variables.</p>
+    </section>
+
+    <section class="cs reveal" id="inventaire-dynamique">
+      <h2>Inventaire dynamique</h2>
+      <p class="section-intro">Un inventaire statique (<span class="mono">inventory.ini</span>) devient vite intenable dès que des machines sont créées/détruites dynamiquement dans le cloud. Un plugin d'inventaire dynamique interroge directement le provider pour construire la liste des hosts à chaque exécution.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># inventory/aws_ec2.yml
+plugin: amazon.aws.aws_ec2
+regions: [eu-west-3]
+filters:
+  tag:Environment: production
+keyed_groups:
+  - key: tags.Role
+    prefix: role</pre>
+      <p class="section-intro" style="margin-top:1rem;">Combiné à des groupes générés automatiquement (<span class="mono">keyed_groups</span>), un playbook peut cibler « tous les hosts taggés <span class="mono">role_web</span> en production » sans jamais maintenir de liste d'IP à la main.</p>
+    </section>
+
+    <section class="cs reveal" id="cheatsheet">
+      <h2>Cheat sheet</h2>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># Exécution
+ansible-playbook -i inventory.ini site.yml
+ansible-playbook site.yml --check          # dry-run
+ansible-playbook site.yml --limit web       # cibler un groupe
+ansible-playbook site.yml --tags deploy     # exécuter un sous-ensemble
+
+# Ad-hoc (une commande ponctuelle, sans playbook)
+ansible web -m ping
+ansible web -m shell -a "uptime"
+
+# Exemple de tâche idempotente
+- name: Installer nginx
+  apt:
+    name: nginx
+    state: present
+  notify: restart nginx
+
+handlers:
+  - name: restart nginx
+    service:
+      name: nginx
+      state: restarted
+
+# Boucle & condition
+- name: Installer plusieurs paquets
+  apt: { name: "{{ item }}", state: present }
+  loop: [nginx, postgresql, redis-server]
+  when: ansible_os_family == "Debian"</pre>
+    </section>
+
+    <section class="cs reveal" id="bonnes-pratiques">
+      <h2>Bonnes pratiques</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Ansible Vault</h3><p>Chiffrer les secrets (mots de passe, clés API) directement dans le repo Git avec <span class="mono">ansible-vault</span>, plutôt que de les laisser en clair dans les variables.</p></div>
+        <div class="panel tech-card"><h3>Rôles plutôt que playbooks monolithiques</h3><p>Un rôle par responsabilité (nginx, postgres, monitoring) : testable, réutilisable entre projets, partageable via Ansible Galaxy.</p></div>
+        <div class="panel tech-card"><h3>Toujours tester en <span class="mono">--check</span></h3><p>Le mode dry-run signale ce qui changerait sans l'appliquer, précieux avant de toucher une flotte de production.</p></div>
+        <div class="panel tech-card"><h3>Variables par environnement</h3><p>Séparer <span class="mono">group_vars/staging</span> et <span class="mono">group_vars/production</span> plutôt que des conditions <span class="mono">if</span> dispersées dans les tâches.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="pieges">
+      <h2>Pièges courants</h2>
+      <div class="table-wrap" style="margin-top:1.5rem;">
+        <table>
+          <thead><tr><th>Piège</th><th>Conséquence</th><th>Bonne pratique</th></tr></thead>
+          <tbody>
+            <tr><td>Utiliser <span class="mono">shell</span>/<span class="mono">command</span> partout</td><td>Perte de l'idempotence : la tâche s'exécute à chaque run</td><td>Préférer un module dédié (<span class="mono">apt</span>, <span class="mono">copy</span>...) qui vérifie l'état avant d'agir</td></tr>
+            <tr><td>Secrets en clair dans les vars</td><td>Fuite si le repo est exposé</td><td>Ansible Vault ou secret manager externe</td></tr>
+            <tr><td>Pas de <span class="mono">--check</span> avant un run large</td><td>Changement inattendu sur toute la flotte</td><td>Dry-run systématique + <span class="mono">--limit</span> sur un sous-groupe pilote</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Pourquoi Ansible plutôt que Puppet/Chef ?</p><p class="a">Aucun agent à déployer et maintenir sur les cibles : la connexion SSH suffit. Le coût d'entrée est plus faible, au prix d'un modèle légèrement moins adapté à des synchronisations continues très fréquentes.</p></div>
+        <div class="qa-item"><p class="q">Qu'est-ce que l'idempotence et pourquoi est-ce essentiel ?</p><p class="a">Rejouer la même tâche ne doit rien changer si l'état désiré est déjà atteint. Sans cette garantie, on ne peut pas rejouer un playbook en confiance après un échec partiel.</p></div>
+        <div class="qa-item"><p class="q">Rôle vs playbook ?</p><p class="a">Le playbook orchestre ; le rôle encapsule une responsabilité réutilisable (variables, tâches, templates, handlers) qu'un ou plusieurs playbooks peuvent inclure.</p></div>
+        <div class="qa-item"><p class="q">Comment gérer un inventaire de machines qui changent en permanence (cloud) ?</p><p class="a">Un plugin d'inventaire dynamique (<span class="mono">aws_ec2</span>, <span class="mono">azure_rm</span>...) interroge le provider à chaque run pour reconstruire la liste des hosts à partir de tags, plutôt que de maintenir un fichier statique voué à devenir obsolète.</p></div>
+        <div class="qa-item"><p class="q">Comment un même rôle produit-il une configuration différente par environnement ?</p><p class="a">Via un template Jinja2 dont les valeurs proviennent des variables de <span class="mono">group_vars/&lt;environnement&gt;</span> : le gabarit reste unique, seules les variables changent d'un environnement à l'autre.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Ansible · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

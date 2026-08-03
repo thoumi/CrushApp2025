@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C# · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence C# / .NET : types valeur/référence, async/await, LINQ, pattern matching, records, pièges courants, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">C#</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#concepts">2. Concepts clés</a>
+      <a href="#async">3. Async/await en détail</a>
+      <a href="#linq">4. LINQ &amp; collections</a>
+      <a href="#cheatsheet">5. Cheat sheet</a>
+      <a href="#bonnes-pratiques">6. Bonnes pratiques</a>
+      <a href="#pieges">7. Pièges courants</a>
+      <a href="#entretien">8. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Langage &amp; .NET</span>
+      <span class="lozenge">Intermédiaire → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>C#</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">Le langage que j'utilise au quotidien sur mes projets .NET (dont Hallo) : ce qui distingue un value type d'un reference type, comment async/await évite de bloquer un thread, et les pièges qui reviennent le plus souvent en revue de code.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">C# est un langage fortement typé, orienté objet avec des emprunts fonctionnels de plus en plus marqués (LINQ, pattern matching, records). La grande majorité des bugs subtils que je croise viennent de deux zones précises : la confusion entre types valeur et référence, et un usage incorrect d'async/await, les deux premières sections de cette fiche.</p>
+    </section>
+
+    <section class="cs reveal" id="concepts">
+      <h2>Concepts clés</h2>
+      <dl class="comp-list">
+        <dt>Value types vs reference types</dt>
+        <dd>Un <span class="mono">struct</span> (int, DateTime, un struct custom) est copié par valeur à chaque affectation ou passage en paramètre ; une <span class="mono">class</span> est copiée par référence : deux variables pointent alors vers le même objet en mémoire. Confondre les deux produit des bugs de mutation inattendue.</dd>
+        <dt>Nullable reference types</dt>
+        <dd>Depuis C# 8, <span class="mono">#nullable enable</span> fait du compilateur un allié : <span class="mono">string?</span> annonce explicitement qu'une référence peut être nulle, <span class="mono">string</span> seul ne le devrait jamais être. Le compilateur avertit dès qu'un chemin de code contredit cette promesse.</dd>
+        <dt>Records</dt>
+        <dd>Type de référence (ou <span class="mono">record struct</span>) avec égalité par valeur et immutabilité générées automatiquement : l'outil naturel pour un DTO ou un value object qui ne doit pas changer après sa création.</dd>
+        <dt>Pattern matching</dt>
+        <dd>Le <span class="mono">switch</span> expression et les patterns <span class="mono">is</span> permettent de décomposer un type ou une valeur directement dans la condition, sans cascade de <span class="mono">if/else</span> ni cast manuel.</dd>
+        <dt>Génériques</dt>
+        <dd>Du code type-safe et réutilisable sans dupliquer par type ni perdre en performance : <span class="mono">List&lt;T&gt;</span> évite le boxing qu'imposerait une collection non générique sur des types valeur.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="async">
+      <h2>Async/await en détail</h2>
+      <p class="section-intro">async/await ne crée pas de nouveau thread : il libère le thread appelant pendant l'attente d'une opération I/O (requête HTTP, disque, base de données), qui peut alors servir une autre requête. C'est ce qui permet à une API ASP.NET Core de tenir des milliers de requêtes concurrentes avec un pool de threads restreint.</p>
+      <dl class="comp-list">
+        <dt>Task vs Task&lt;T&gt; vs ValueTask&lt;T&gt;</dt>
+        <dd><span class="mono">Task</span>/<span class="mono">Task&lt;T&gt;</span> représentent une opération asynchrone en cours. <span class="mono">ValueTask&lt;T&gt;</span> évite une allocation sur le tas quand le résultat est très souvent déjà disponible de façon synchrone (un cache qui répond en mémoire la plupart du temps), une micro-optimisation à réserver aux chemins chauds mesurés.</dd>
+        <dt>Async all the way</dt>
+        <dd>Un appel bloquant (<span class="mono">.Result</span>, <span class="mono">.Wait()</span>) sur une Task depuis un contexte synchrone qui possède un <span class="mono">SynchronizationContext</span> (ancien ASP.NET, WPF) peut provoquer un deadlock : le thread attend la fin de la tâche, mais la tâche attend de pouvoir reprendre la main sur ce même thread. ASP.NET Core n'a plus ce contexte par défaut, mais la règle reste : ne jamais bloquer sur de l'async.</dd>
+        <dt>CancellationToken</dt>
+        <dd>Propage une demande d'annulation à travers toute une chaîne d'appels asynchrones, indispensable pour arrêter une requête EF Core quand le client HTTP a fermé la connexion, plutôt que de laisser la requête tourner pour rien.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="linq">
+      <h2>LINQ &amp; collections</h2>
+      <p class="section-intro">LINQ unifie la syntaxe de requête sur des collections en mémoire (LINQ to Objects) et sur une base de données (LINQ to Entities via EF Core), mais leur exécution diffère fondamentalement.</p>
+      <dl class="comp-list">
+        <dt>Exécution différée (deferred execution)</dt>
+        <dd>Un <span class="mono">IEnumerable&lt;T&gt;</span> issu de <span class="mono">Where</span>/<span class="mono">Select</span> ne s'exécute qu'au moment où il est énuméré (<span class="mono">foreach</span>, <span class="mono">.ToList()</span>), pas à sa déclaration. Énumérer deux fois la même requête ré-exécute deux fois le filtre, ou pire, deux fois la requête SQL avec EF Core.</dd>
+        <dt>IEnumerable vs IQueryable</dt>
+        <dd><span class="mono">IEnumerable&lt;T&gt;</span> exécute le filtre en mémoire, côté application. <span class="mono">IQueryable&lt;T&gt;</span> (EF Core) traduit l'expression LINQ en SQL et ne rapatrie que les lignes filtrées. Utiliser <span class="mono">IEnumerable</span> par erreur sur une grande table charge tout en mémoire avant de filtrer.</dd>
+        <dt>Matérialiser au bon moment</dt>
+        <dd><span class="mono">.ToList()</span> force l'exécution immédiate et fige le résultat, à faire une fois que la requête est complète, jamais avant, pour ne pas perdre le bénéfice de la traduction SQL sur les opérations suivantes.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="cheatsheet">
+      <h2>Cheat sheet</h2>
+      <pre class="snippet mono" style="margin-top:1.25rem;">// Pattern matching
+var aire = forme switch
+{
+    Cercle c => Math.PI * c.Rayon * c.Rayon,
+    Carre s => s.Cote * s.Cote,
+    _ => throw new ArgumentException("Forme inconnue")
+};
+
+// Records : égalité par valeur, immutabilité
+public record Point(double X, double Y);
+var p1 = new Point(1, 2);
+var p2 = p1 with { X = 5 };   // copie immuable, seul X change
+Console.WriteLine(p1 == new Point(1, 2)); // True : égalité par valeur
+
+// Async/await avec annulation
+public async Task&lt;Member?&gt; GetMemberAsync(int id, CancellationToken ct)
+{
+    return await _db.Members
+        .FirstOrDefaultAsync(m => m.Id == id, ct);
+}
+
+// LINQ : IQueryable traduit en SQL par EF Core
+var emailsActifs = _db.Members
+    .Where(m => m.IsActive)
+    .OrderBy(m => m.LastName)
+    .Select(m => m.Email)
+    .ToListAsync();   // une seule requête SQL, exécutée ici</pre>
+    </section>
+
+    <section class="cs reveal" id="bonnes-pratiques">
+      <h2>Bonnes pratiques</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Async de bout en bout</h3><p>Une méthode async appelée en <span class="mono">.Result</span> quelque part dans la chaîne annule tout le bénéfice du non-bloquant : la propager en async jusqu'au point d'entrée.</p></div>
+        <div class="panel tech-card"><h3>Nullable reference types activés</h3><p><span class="mono">&lt;Nullable&gt;enable&lt;/Nullable&gt;</span> dans le csproj, dès le début d'un projet : ajouté après coup sur une grosse base de code, les warnings deviennent vite ingérables.</p></div>
+        <div class="panel tech-card"><h3>Records pour les DTO</h3><p>Un DTO ou un value object qui ne doit pas changer après sa création devient un <span class="mono">record</span> : égalité par valeur et immutabilité gratuites, sans code de plomberie.</p></div>
+        <div class="panel tech-card"><h3><span class="mono">using</span> declarations</h3><p>Un <span class="mono">IDisposable</span> (connexion, flux) libéré via <span class="mono">using var conn = ...;</span> plutôt qu'un <span class="mono">Dispose()</span> manuel qu'un chemin d'exception peut faire sauter.</p></div>
+        <div class="panel tech-card"><h3>Dependency Injection native</h3><p>Le conteneur intégré d'ASP.NET Core suffit dans l'immense majorité des cas ; un conteneur tiers ne se justifie que pour des besoins avancés précis (interception, cycles de vie personnalisés).</p></div>
+        <div class="panel tech-card"><h3>ConfigureAwait dans les bibliothèques</h3><p><span class="mono">ConfigureAwait(false)</span> évite de revenir sur le contexte de synchronisation d'origine, pertinent dans une librairie partagée consommée par des contextes variés (UI, ASP.NET classique), mais inutile dans une app ASP.NET Core qui n'a plus ce contexte.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="pieges">
+      <h2>Pièges courants</h2>
+      <div class="table-wrap" style="margin-top:1.5rem;">
+        <table>
+          <thead><tr><th>Piège</th><th>Cause</th><th>Correction</th></tr></thead>
+          <tbody>
+            <tr><td>Deadlock sur un appel asynchrone</td><td><span class="mono">.Result</span> ou <span class="mono">.Wait()</span> bloquant depuis un contexte avec <span class="mono">SynchronizationContext</span></td><td>Propager <span class="mono">async</span>/<span class="mono">await</span> jusqu'au point d'entrée, jamais bloquer sur une Task</td></tr>
+            <tr><td><span class="mono">NullReferenceException</span> malgré nullable activé</td><td>Usage de l'opérateur <span class="mono">!</span> (null-forgiving) pour faire taire un warning réel</td><td>Traiter le cas nul explicitement plutôt que de forcer le compilateur à se taire</td></tr>
+            <tr><td>Une requête EF Core exécutée deux fois</td><td>Le même <span class="mono">IQueryable</span> énuméré deux fois (deux <span class="mono">foreach</span>, ou <span class="mono">.Count()</span> puis <span class="mono">.ToList()</span>)</td><td><span class="mono">.ToList()</span> une seule fois, puis travailler sur la liste matérialisée</td></tr>
+            <tr><td>Fuite mémoire via un event</td><td>Un abonnement à un event jamais désabonné garde l'abonné vivant tant que la source existe</td><td>Désabonner explicitement (<span class="mono">-=</span>) ou utiliser un <span class="mono">WeakEventManager</span></td></tr>
+            <tr><td>Boxing implicite dans une boucle chaude</td><td>Un type valeur passé à une API qui attend <span class="mono">object</span> (collection non générique, interpolation dans certains contextes)</td><td>Préférer les génériques (<span class="mono">List&lt;T&gt;</span>) qui évitent le boxing pour les types valeur</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Value type vs reference type, concrètement ?</p><p class="a">Un value type est copié à chaque affectation ou passage en paramètre : modifier la copie ne touche pas l'original. Un reference type partage la même instance entre toutes les variables qui la référencent, donc modifier l'une modifie ce que voient toutes les autres.</p></div>
+        <div class="qa-item"><p class="q">Comment fonctionne async/await sous le capot ?</p><p class="a">Le compilateur transforme la méthode en machine à états : à chaque <span class="mono">await</span>, le thread est libéré pendant l'attente de l'opération I/O, et l'exécution reprend sur un thread du pool (pas forcément le même) une fois le résultat disponible.</p></div>
+        <div class="qa-item"><p class="q">IEnumerable vs IQueryable ?</p><p class="a"><span class="mono">IEnumerable</span> exécute la requête en mémoire, côté application. <span class="mono">IQueryable</span> construit un arbre d'expression traduit en SQL par le provider (EF Core) et exécuté côté base de données. La différence devient critique sur de gros volumes.</p></div>
+        <div class="qa-item"><p class="q">Pourquoi utiliser un record plutôt qu'une classe classique ?</p><p class="a">Pour un type dont l'identité repose sur ses valeurs plutôt que sur une référence (un DTO, un value object) : égalité par valeur, immutabilité et une syntaxe <span class="mono">with</span> pour créer une copie modifiée, sans écrire ce code à la main.</p></div>
+        <div class="qa-item"><p class="q">Que fait le garbage collector, en résumé ?</p><p class="a">Il libère automatiquement la mémoire des objets du tas managé qui ne sont plus référencés, en travaillant par générations (0, 1, 2) : les objets récents sont collectés plus fréquemment, sur l'hypothèse qu'un objet qui survit longtemps a plus de chances de continuer à survivre.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>C# · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

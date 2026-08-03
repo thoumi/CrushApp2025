@@ -1,0 +1,136 @@
+/* ============================================================
+   Habillage "page de doc" façon Confluence, partagé par toutes les
+   fiches de portfolio-site/notes/. Redéfinit les tokens de style.css
+   (chargé juste avant) : le reste du site garde l'identité carnet
+   d'architecte d'origine. Repris du gabarit de projects/hallo.html.
+   ============================================================ */
+:root {
+  --bg: #F7F8F9;
+  --panel: #FFFFFF;
+  --panel-2: #EEF4FF;
+  --text: #172B4D;
+  --text-muted: #626F86;
+  --border: #DCDFE4;
+  --accent: #0C66E4;
+  --grid-line: transparent;
+  --code-bg: #F1F2F4;
+  --good: #1F845A;
+  --good-bg: #DFFCF0;
+  --warn: #974F0C;
+  --warn-bg: #FFF7D6;
+  --lozenge-bg: #DCDFE4; --lozenge-text: #44546F;
+  --lozenge-green-bg: #BAF3DB; --lozenge-green-text: #164B35;
+  --lozenge-blue-bg: #CCE0FF; --lozenge-blue-text: #09326C;
+  --info-bg: #E9F2FF; --info-icon: #0C66E4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1D2125; --panel: #22272B; --panel-2: #1C2B41;
+    --text: #DEE4EA; --text-muted: #8C9BAB; --border: #38414A;
+    --accent: #579DFF; --grid-line: transparent; --code-bg: #161A1D;
+    --good: #4BCE97; --good-bg: #133328;
+    --warn: #E9C466; --warn-bg: #332C13;
+    --lozenge-bg: #38414A; --lozenge-text: #B6C2CF;
+    --lozenge-green-bg: #164B35; --lozenge-green-text: #7EE2B8;
+    --lozenge-blue-bg: #09326C; --lozenge-blue-text: #85B8FF;
+    --info-bg: #0E2A4A; --info-icon: #579DFF;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1D2125; --panel: #22272B; --panel-2: #1C2B41;
+  --text: #DEE4EA; --text-muted: #8C9BAB; --border: #38414A;
+  --accent: #579DFF; --grid-line: transparent; --code-bg: #161A1D;
+  --good: #4BCE97; --good-bg: #133328;
+  --warn: #E9C466; --warn-bg: #332C13;
+  --lozenge-bg: #38414A; --lozenge-text: #B6C2CF;
+  --lozenge-green-bg: #164B35; --lozenge-green-text: #7EE2B8;
+  --lozenge-blue-bg: #09326C; --lozenge-blue-text: #85B8FF;
+  --info-bg: #0E2A4A; --info-icon: #579DFF;
+}
+:root[data-theme="light"] {
+  --bg: #F7F8F9; --panel: #FFFFFF; --panel-2: #EEF4FF;
+  --text: #172B4D; --text-muted: #626F86; --border: #DCDFE4;
+  --accent: #0C66E4; --grid-line: transparent; --code-bg: #F1F2F4;
+  --good: #1F845A; --good-bg: #DFFCF0;
+  --warn: #974F0C; --warn-bg: #FFF7D6;
+  --lozenge-bg: #DCDFE4; --lozenge-text: #44546F;
+  --lozenge-green-bg: #BAF3DB; --lozenge-green-text: #164B35;
+  --lozenge-blue-bg: #CCE0FF; --lozenge-blue-text: #09326C;
+  --info-bg: #E9F2FF; --info-icon: #0C66E4;
+}
+
+body, h1, h2, h3, .eyebrow, .brand {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: normal;
+}
+h1 { font-size: 2.1rem; font-weight: 700; }
+h2 { font-size: 1.35rem; font-weight: 700; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
+h3 { font-weight: 600; }
+.eyebrow::before { display: none; }
+.eyebrow { font-weight: 600; letter-spacing: 0.02em; text-transform: none; }
+
+/* Breadcrumb */
+.breadcrumb-bar { border-bottom: 1px solid var(--border); }
+.breadcrumb-bar .wrap { padding: 0.75rem 1.5rem; }
+.breadcrumb { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: var(--text-muted); flex-wrap: wrap; }
+.breadcrumb a { color: var(--text-muted); text-decoration: none; }
+.breadcrumb a:hover { color: var(--accent); text-decoration: underline; }
+.breadcrumb .sep { color: var(--border); }
+.breadcrumb .current { color: var(--text); font-weight: 600; }
+
+/* Two-column doc layout */
+.confluence-shell { display: flex; gap: 2.75rem; align-items: flex-start; padding: 2.5rem 1.5rem 5rem; max-width: 1120px; margin: 0 auto; }
+.page-toc { position: sticky; top: 84px; width: 216px; flex-shrink: 0; }
+.page-toc-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem; }
+.page-toc nav { display: flex; flex-direction: column; gap: 0.1rem; border-left: 2px solid var(--border); }
+.page-toc a { padding: 0.32rem 0 0.32rem 0.85rem; margin-left: -2px; border-left: 2px solid transparent; font-size: 0.84rem; color: var(--text-muted); text-decoration: none; line-height: 1.35; }
+.page-toc a:hover { color: var(--text); }
+.page-toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.page-content { flex: 1; min-width: 0; max-width: 760px; }
+
+@media (max-width: 900px) {
+  .confluence-shell { flex-direction: column; }
+  .page-toc { position: static; width: 100%; }
+  .page-toc nav { flex-direction: row; flex-wrap: wrap; border-left: none; border-top: 1px solid var(--border); padding-top: 0.6rem; gap: 0.2rem 1rem; }
+  .page-toc a { border-left: none; border-bottom: 2px solid transparent; padding-left: 0; }
+  .page-toc a.active { border-left: none; border-bottom-color: var(--accent); }
+}
+
+/* Page head */
+.lozenge-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.lozenge { display: inline-flex; align-items: center; height: 20px; padding: 0 0.55rem; border-radius: 3px; font-size: 0.72rem; font-weight: 600; background: var(--lozenge-bg); color: var(--lozenge-text); white-space: nowrap; }
+.lozenge-green { background: var(--lozenge-green-bg); color: var(--lozenge-green-text); }
+.lozenge-blue { background: var(--lozenge-blue-bg); color: var(--lozenge-blue-text); }
+.byline { color: var(--text-muted); font-size: 0.88rem; margin: 0.6rem 0 0; }
+.page-summary { font-size: 1.05rem; color: var(--text); margin: 1.1rem 0 0; max-width: 68ch; }
+
+/* Info / warning panels */
+.callout { border-left: none; background: var(--info-bg); border-radius: 6px; padding: 1rem 1.1rem 1rem 3.1rem; position: relative; }
+.callout::before {
+  content: "i"; position: absolute; left: 1.05rem; top: 1.05rem;
+  width: 19px; height: 19px; border-radius: 50%; background: var(--info-icon); color: #fff;
+  font-size: 0.72rem; font-weight: 700; font-style: normal; font-family: Georgia, "Times New Roman", serif;
+  display: flex; align-items: center; justify-content: center; line-height: 1;
+}
+.callout h3 { margin-bottom: 0.4rem; }
+.callout p { margin: 0; color: var(--text-muted); font-size: 0.94rem; }
+
+section.cs { margin-top: 2.75rem; scroll-margin-top: 100px; }
+section.cs .num { display: none; }
+
+.tech-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:1rem; }
+.tech-card { padding:1.1rem 1.3rem; }
+.tech-card h3 { font-size:0.95rem; margin-bottom:0.5rem; border-bottom:none; padding-bottom:0; }
+.tech-card p { margin:0.25rem 0; font-size:0.85rem; color:var(--text-muted); }
+.tech-card p strong { color:var(--text); font-weight:600; }
+
+.comp-list dt { font-weight:700; font-size:0.9rem; color:var(--accent); margin-top:1.4rem; }
+.comp-list dt:first-child { margin-top:0; }
+.comp-list dd { margin:0.3rem 0 0; color:var(--text-muted); font-size:0.92rem; max-width:70ch; }
+
+.qa-item { padding: 1rem 0; border-top: 1px solid var(--border); }
+.qa-item:first-child { border-top: none; padding-top: 0; }
+.qa-item .q { font-weight: 700; font-size: 0.94rem; color: var(--text); }
+.qa-item .a { margin: 0.4rem 0 0; font-size: 0.9rem; color: var(--text-muted); }
+
+.page-footer-meta { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.82rem; }

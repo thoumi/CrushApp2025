@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence System Design : architecture d'une requête, scalabilité, cache, bases de données, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">System Design</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#architecture">2. Anatomie d'une requête</a>
+      <a href="#composants">3. Composants clés</a>
+      <a href="#communication">4. Patterns de communication</a>
+      <a href="#scalabilite">5. Scalabilité</a>
+      <a href="#etude-de-cas">6. Étude de cas</a>
+      <a href="#methode">7. Méthode d'entretien</a>
+      <a href="#entretien">8. Questions fréquentes</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Architecture distribuée</span>
+      <span class="lozenge">Intermédiaire → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>System Design</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">Les blocs de construction récurrents d'un système à grande échelle (DNS, CDN, load balancer, cache, base de données) et la logique de compromis qui guide le choix de chacun, plutôt qu'une réponse unique valable partout.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">Le system design ne cherche pas la solution parfaite mais le compromis le plus adapté à des contraintes données : volume d'utilisateurs, cohérence exigée, budget, latence tolérée. Une bonne réponse d'entretien commence toujours par clarifier ces contraintes avant de dessiner quoi que ce soit.</p>
+    </section>
+
+    <section class="cs reveal" id="architecture">
+      <h2>Anatomie d'une requête</h2>
+      <div class="diagram-wrap" style="margin-top:1.5rem;">
+        <div style="min-width:640px; display:flex; flex-direction:column; align-items:center;">
+          <div class="node accent"><span class="mono">Client</span><span class="sub">navigateur / mobile</span></div>
+          <div class="connector-v"></div>
+          <div class="node"><span class="mono">DNS</span><span class="sub">résolution du nom de domaine</span></div>
+          <div class="connector-v"></div>
+          <div class="node"><span class="mono">CDN</span><span class="sub">contenu statique au plus près de l'utilisateur</span></div>
+          <div class="connector-v"></div>
+          <div class="node"><span class="mono">Load Balancer</span><span class="sub">répartition entre instances</span></div>
+          <div class="connector-v"></div>
+          <div style="display:flex; gap:1rem;">
+            <div class="node"><span class="mono">App Server</span><span class="sub">instance 1</span></div>
+            <div class="node"><span class="mono">App Server</span><span class="sub">instance 2</span></div>
+            <div class="node faint"><span class="mono">App Server</span><span class="sub">…</span></div>
+          </div>
+          <div class="connector-v"></div>
+          <div style="display:flex; gap:1rem;">
+            <div class="node"><span class="mono">Cache</span><span class="sub">Redis</span></div>
+            <div class="node"><span class="mono">Base de données</span><span class="sub">SQL / NoSQL</span></div>
+            <div class="node faint"><span class="mono">Stockage objet</span><span class="sub">S3-like</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="composants">
+      <h2>Composants clés</h2>
+      <dl class="comp-list">
+        <dt>Load balancer</dt>
+        <dd>Répartit le trafic entre plusieurs instances applicatives, avec un healthcheck qui retire automatiquement une instance défaillante de la rotation.</dd>
+        <dt>Cache</dt>
+        <dd>Réduit la charge sur la base de données pour les lectures fréquentes. Le vrai sujet n'est pas de le mettre en place mais de gérer son invalidation quand la donnée sous-jacente change : la source classique de bugs de cache.</dd>
+        <dt>Base de données SQL vs NoSQL</dt>
+        <dd>SQL pour des relations fortes et des transactions ACID ; NoSQL (clé-valeur, document) pour un scaling horizontal natif au prix d'une cohérence parfois éventuelle plutôt qu'immédiate.</dd>
+        <dt>Message queue</dt>
+        <dd>Découple un traitement long (envoi d'email, génération de rapport) du chemin critique de la requête utilisateur, en absorbant les pics de charge.</dd>
+        <dt>Réplication &amp; sharding</dt>
+        <dd>La réplication duplique la même donnée sur plusieurs nœuds (lecture scalable, tolérance de panne). Le sharding répartit des sous-ensembles différents de données sur plusieurs nœuds (écriture scalable), au prix de requêtes cross-shard plus complexes.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="communication">
+      <h2>Patterns de communication</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>REST synchrone</h3><p>Le client attend la réponse avant de continuer. Simple à raisonner, mais un service lent ralentit directement tous ses appelants, faute de découplage temporel.</p></div>
+        <div class="panel tech-card"><h3>Messagerie asynchrone</h3><p>Le producteur dépose un message et continue sans attendre ; le consommateur le traite à son rythme. Absorbe les pics de charge, au prix d'une cohérence différée plutôt qu'immédiate.</p></div>
+        <div class="panel tech-card"><h3>gRPC</h3><p>RPC binaire (Protobuf) plus performant que du JSON/REST pour de la communication interne service-à-service à fort volume, avec un contrat fortement typé, moins adapté à une API publique consommée par des navigateurs.</p></div>
+        <div class="panel tech-card"><h3>Rate limiting</h3><p>Protège un service d'un client (ou d'un pic) qui dépasserait sa capacité. Algorithmes courants : token bucket (autorise des rafales contrôlées) ou sliding window (compte précis sur une fenêtre glissante).</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="scalabilite">
+      <h2>Scalabilité</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Vertical vs horizontal</h3><p>Scaler verticalement (machine plus grosse) est simple mais plafonne vite et introduit un point de panne unique. Scaler horizontalement (plus d'instances) demande des services sans état (stateless), mais tient dans la durée.</p></div>
+        <div class="panel tech-card"><h3>CAP theorem</h3><p>En cas de partition réseau, un système distribué doit choisir entre cohérence (Consistency) et disponibilité (Availability), impossible de garantir les deux simultanément à ce moment-là.</p></div>
+        <div class="panel tech-card"><h3>Idempotence des API</h3><p>Une requête rejouée (retry réseau) ne doit pas dupliquer l'effet, essentiel dès qu'un client peut retenter un appel après un timeout.</p></div>
+        <div class="panel tech-card"><h3>Consistent hashing</h3><p>Répartit les clés sur les nœuds d'un cache ou d'une base shardée de façon à ce qu'ajouter/retirer un nœud ne redistribue qu'une petite fraction des clés. Sans ça, changer le nombre de nœuds invaliderait presque tout le cache d'un coup.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="etude-de-cas">
+      <h2>Étude de cas : concevoir un raccourcisseur d'URL</h2>
+      <p class="section-intro">Un exercice classique d'entretien, qui illustre bien la méthode plutôt qu'une réponse à réciter par cœur.</p>
+      <div class="panel" style="padding:0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="flow-step"><span class="n">01</span><span class="t"><strong>Contraintes</strong> : ratio lecture/écriture très déséquilibré (bien plus de redirections que de créations de lien), latence de redirection critique.</span></div>
+        <div class="flow-step"><span class="n">02</span><span class="t"><strong>Génération de la clé courte</strong> : encoder en base62 un compteur distribué (ou hasher l'URL et tronquer, avec gestion des collisions).</span></div>
+        <div class="flow-step"><span class="n">03</span><span class="t"><strong>Écriture</strong> : persister le mapping clé→URL en base, avec un cache en écriture pour les liens créés en masse.</span></div>
+        <div class="flow-step"><span class="n">04</span><span class="t"><strong>Lecture</strong> : un cache (Redis) devant la base absorbe l'essentiel du trafic de redirection, largement dominant sur ce cas d'usage.</span></div>
+        <div class="flow-step"><span class="n">05</span><span class="t"><strong>Scalabilité</strong> : sharder par clé courte si le volume dépasse une seule base, avec consistent hashing pour limiter la redistribution lors d'un ajout de nœud.</span></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="methode">
+      <h2>Méthode pour un entretien de system design</h2>
+      <div class="panel" style="padding:0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="flow-step"><span class="n">01</span><span class="t">Clarifier les exigences fonctionnelles et les contraintes chiffrées (utilisateurs actifs, volume de données, latence tolérée).</span></div>
+        <div class="flow-step"><span class="n">02</span><span class="t">Estimer les ordres de grandeur (requêtes/seconde, stockage) avant de dessiner quoi que ce soit.</span></div>
+        <div class="flow-step"><span class="n">03</span><span class="t">Proposer une architecture minimale qui répond au besoin, puis l'étoffer point par point (cache, réplication, CDN).</span></div>
+        <div class="flow-step"><span class="n">04</span><span class="t">Identifier explicitement les goulots d'étranglement et les compromis assumés : c'est souvent ce point qui distingue une bonne réponse d'une excellente.</span></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Comment gérer l'invalidation de cache ?</p><p class="a">Selon le besoin : TTL court pour une fraîcheur acceptable, invalidation explicite à l'écriture pour une cohérence stricte, ou write-through pour garder cache et base synchronisés à chaque écriture.</p></div>
+        <div class="qa-item"><p class="q">Réplication vs sharding ?</p><p class="a">La réplication copie les mêmes données partout (scale la lecture, tolère les pannes). Le sharding répartit des données différentes sur des nœuds différents (scale l'écriture), au prix de requêtes cross-shard plus coûteuses.</p></div>
+        <div class="qa-item"><p class="q">Comment rendre une API idempotente ?</p><p class="a">Un identifiant unique de requête (idempotency key) côté client, vérifié côté serveur avant traitement : un retry avec la même clé renvoie le résultat déjà produit plutôt que de le rejouer.</p></div>
+        <div class="qa-item"><p class="q">Pourquoi le consistent hashing plutôt qu'un modulo simple pour répartir des clés ?</p><p class="a">Avec un modulo (<span class="mono">hash(clé) % N</span>), changer N redistribue presque toutes les clés d'un coup. Le consistent hashing place nœuds et clés sur un même anneau : ajouter ou retirer un nœud ne redistribue que les clés voisines de ce nœud, pas l'ensemble.</p></div>
+        <div class="qa-item"><p class="q">Quand préférer une messagerie asynchrone à un appel REST synchrone ?</p><p class="a">Dès que l'appelant n'a pas besoin du résultat immédiat pour continuer (envoi d'email, génération de rapport) ou que le service appelé doit rester protégé d'un pic de charge : le découplage absorbe la charge au prix d'une cohérence différée.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>System Design · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

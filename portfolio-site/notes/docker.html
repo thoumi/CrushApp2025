@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docker · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence Docker : architecture, Dockerfile, réseau et volumes, Compose, dépannage, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">Docker</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#concepts">2. Concepts clés</a>
+      <a href="#reseau">3. Réseau en détail</a>
+      <a href="#cheatsheet">4. Cheat sheet</a>
+      <a href="#compose">5. Docker Compose</a>
+      <a href="#securite">6. Sécurité de l'image</a>
+      <a href="#bonnes-pratiques">7. Bonnes pratiques</a>
+      <a href="#pieges">8. Dépannage</a>
+      <a href="#entretien">9. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Conteneurisation</span>
+      <span class="lozenge">Débutant → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>Docker</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">Un pense-bête technique que je tiens à jour au fil de ma pratique DevOps : ce que Docker résout, comment un Dockerfile devient une image puis un conteneur, et les commandes que je réutilise vraiment en local et en CI.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">Docker empaquette une application et toutes ses dépendances dans une image immuable, exécutée ensuite comme conteneur isolé. L'intérêt n'est pas la virtualisation en soi (les conteneurs partagent le noyau de l'hôte, contrairement à une VM) mais la garantie que l'environnement d'exécution est identique du poste du développeur jusqu'à la production : « build once, run anywhere ».</p>
+      <div class="diagram-wrap" style="margin-top:1.5rem;">
+        <div style="min-width:560px; display:flex; align-items:center; justify-content:center; gap:0;">
+          <div class="node" style="border-radius:6px 0 0 6px;"><span class="mono">Dockerfile</span><span class="sub">instructions</span></div>
+          <div style="width:32px; text-align:center; color:var(--text-muted);">→</div>
+          <div class="node accent"><span class="mono">docker build</span><span class="sub">image en couches</span></div>
+          <div style="width:32px; text-align:center; color:var(--text-muted);">→</div>
+          <div class="node" style="border-radius:0 6px 6px 0;"><span class="mono">docker run</span><span class="sub">conteneur (processus isolé)</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="concepts">
+      <h2>Concepts clés</h2>
+      <dl class="comp-list">
+        <dt>Image vs conteneur</dt>
+        <dd>L'image est un artefact immuable en couches (layers), en lecture seule. Le conteneur est une instance en cours d'exécution de cette image, avec une fine couche inscriptible par-dessus. Une même image peut donner naissance à N conteneurs indépendants.</dd>
+        <dt>Layers &amp; cache de build</dt>
+        <dd>Chaque instruction du Dockerfile crée une couche mise en cache. Ordonner le Dockerfile du moins volatil (dépendances) au plus volatil (code source) maximise la réutilisation du cache et accélère les builds CI.</dd>
+        <dt>Volumes</dt>
+        <dd>Stockage persistant géré par Docker, indépendant du cycle de vie du conteneur. Indispensable pour les données qui doivent survivre à un <span class="mono">docker rm</span> (bases de données, uploads).</dd>
+        <dt>Réseau</dt>
+        <dd>Par défaut, les conteneurs d'un même réseau <span class="mono">bridge</span> défini par l'utilisateur se résolvent par leur nom de service. C'est ce qui permet à un backend de joindre <span class="mono">db:5432</span> sans IP en dur.</dd>
+        <dt>Registry</dt>
+        <dd>Docker Hub, GitHub Container Registry ou un registry privé (ACR, ECR) stockent et versionnent les images taguées, point de passage obligé entre le CI et le déploiement.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="reseau">
+      <h2>Réseau en détail</h2>
+      <p class="section-intro">Docker propose plusieurs pilotes réseau, chacun pour un cas d'usage précis, et choisir le bon évite bien des « ça ne se joint pas » en debug.</p>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>bridge (défaut)</h3><p>Réseau privé isolé sur l'hôte. Le réseau <span class="mono">bridge</span> par défaut ne fait pas de résolution DNS par nom ; un réseau bridge <strong>défini par l'utilisateur</strong> (<span class="mono">docker network create</span>), lui, résout chaque conteneur par son nom de service.</p></div>
+        <div class="panel tech-card"><h3>host</h3><p>Le conteneur partage directement la pile réseau de l'hôte, sans isolation ni NAT : un gain de performance au prix de l'isolation, à réserver à des cas ciblés (agents de monitoring, par exemple).</p></div>
+        <div class="panel tech-card"><h3>none</h3><p>Aucune interface réseau. Utile pour un traitement batch qui ne doit avoir aucun accès réseau, par principe de moindre privilège.</p></div>
+        <div class="panel tech-card"><h3>overlay</h3><p>Réseau qui s'étend sur plusieurs hôtes Docker (Swarm), la brique qui permet à des conteneurs sur des machines différentes de se joindre comme s'ils étaient sur le même réseau local.</p></div>
+      </div>
+      <p class="section-intro" style="margin-top:1.25rem;">Exposer un port (<span class="mono">-p 8080:80</span>) publie un mapping hôte→conteneur. Sans <span class="mono">-p</span>, un conteneur reste joignable par les autres conteneurs du même réseau via son port interne, mais invisible depuis l'extérieur de l'hôte. Cette distinction revient souvent en entretien.</p>
+    </section>
+
+    <section class="cs reveal" id="cheatsheet">
+      <h2>Cheat sheet</h2>
+      <p class="section-intro">Les commandes que j'utilise le plus souvent, classées par intention plutôt que par ordre alphabétique.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># Cycle de vie image / conteneur
+docker build -t app:1.0 .
+docker run -d --name app -p 8080:80 app:1.0
+docker ps -a                     # tous les conteneurs, y compris arrêtés
+docker stop app && docker rm app
+
+# Inspection & debug
+docker logs -f app
+docker exec -it app sh           # ouvrir un shell dans le conteneur
+docker inspect app               # config réseau, volumes, env...
+docker stats                     # CPU / mémoire en direct
+
+# Nettoyage
+docker system df                 # espace disque utilisé
+docker system prune -a           # supprime images/conteneurs orphelins
+
+# Réseau & volumes
+docker network ls
+docker volume ls
+docker network create app-net
+docker run -d --network app-net --name db postgres:16
+
+# Build avancé
+docker build --build-arg VERSION=1.2 -t app:1.2 .
+docker buildx build --platform linux/amd64,linux/arm64 -t app:1.0 --push .</pre>
+    </section>
+
+    <section class="cs reveal" id="compose">
+      <h2>Docker Compose</h2>
+      <p class="section-intro">Dès qu'une stack dépasse un seul conteneur (API + base + cache), Compose déclare l'ensemble des services dans un seul fichier YAML versionné avec le code.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;">services:
+  api:
+    build: .
+    ports: ["8080:80"]
+    environment:
+      ConnectionStrings__Default: "Host=db;Database=app"
+    depends_on: [db]
+  db:
+    image: postgres:16
+    volumes: ["db_data:/var/lib/postgresql/data"]
+volumes:
+  db_data:</pre>
+      <p class="section-intro" style="margin-top:1rem;"><span class="mono">docker compose up -d</span> démarre toute la stack, <span class="mono">docker compose logs -f api</span> suit un service en particulier. C'est la même logique que j'utilise pour orchestrer les 8 services de Hallo (voir l'<a href="../projects/hallo.html" style="color:var(--accent);">étude de cas complète</a>).</p>
+    </section>
+
+    <section class="cs reveal" id="securite">
+      <h2>Sécurité de l'image</h2>
+      <p class="section-intro">Une image mal construite reste le vecteur d'attaque le plus sous-estimé d'une stack conteneurisée : la sécurité se joue dès le Dockerfile, pas seulement au runtime.</p>
+      <dl class="comp-list">
+        <dt>Scan de vulnérabilités</dt>
+        <dd>Docker Scout, Trivy ou Grype analysent chaque layer à la recherche de CVE connues dans les paquets installés, à intégrer directement dans le pipeline CI avant la publication sur le registry.</dd>
+        <dt>Images de base minimales</dt>
+        <dd>Une image <span class="mono">alpine</span> ou <span class="mono">distroless</span> réduit drastiquement la surface d'attaque par rapport à une base <span class="mono">ubuntu</span> complète : moins de paquets installés, moins de CVE possibles, et souvent aucun shell exploitable en cas de compromission.</dd>
+        <dt>Lecture seule &amp; capacités réduites</dt>
+        <dd><span class="mono">--read-only</span> interdit toute écriture dans le système de fichiers du conteneur en dehors des volumes déclarés ; <span class="mono">--cap-drop=ALL</span> retire les privilèges Linux non utilisés (un conteneur web n'a par exemple aucune raison de pouvoir changer l'heure système).</dd>
+        <dt>Signature &amp; provenance</dt>
+        <dd>Docker Content Trust ou Sigstore/cosign signent une image au moment du build, pour garantir en production qu'elle provient bien du pipeline CI attendu et n'a pas été altérée entre-temps.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="bonnes-pratiques">
+      <h2>Bonnes pratiques</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Images multi-stage</h3><p>Compiler dans une étape <span class="mono">build</span>, ne copier que l'artefact final dans l'image d'exécution : des images 5 à 10x plus légères, sans SDK ni outils de build en production.</p></div>
+        <div class="panel tech-card"><h3>Ne jamais tourner en root</h3><p><span class="mono">USER app</span> dans le Dockerfile réduit la surface d'attaque si le conteneur est compromis.</p></div>
+        <div class="panel tech-card"><h3>Tags explicites</h3><p><span class="mono">:latest</span> rend les déploiements non reproductibles. Un tag de version ou le SHA du commit garantit qu'on sait exactement ce qui tourne.</p></div>
+        <div class="panel tech-card"><h3>.dockerignore</h3><p>Exclure <span class="mono">node_modules</span>, <span class="mono">.git</span>, les secrets locaux : build plus rapide, image plus légère, rien de sensible copié par erreur.</p></div>
+        <div class="panel tech-card"><h3>Healthchecks</h3><p>Un <span class="mono">HEALTHCHECK</span> ou une sonde d'orchestrateur détecte un conteneur « up » mais bloqué, avant que ça n'impacte les utilisateurs.</p></div>
+        <div class="panel tech-card"><h3>Secrets hors de l'image</h3><p>Jamais de mot de passe en <span class="mono">ENV</span> dans le Dockerfile : ça reste lisible dans l'historique des layers. Variables d'environnement injectées au run, ou secret manager.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="pieges">
+      <h2>Dépannage courant</h2>
+      <div class="table-wrap" style="margin-top:1.5rem;">
+        <table>
+          <thead><tr><th>Symptôme</th><th>Cause fréquente</th><th>Réflexe</th></tr></thead>
+          <tbody>
+            <tr><td>Le conteneur redémarre en boucle</td><td>Le process principal crashe au démarrage (config, port déjà pris)</td><td><span class="mono">docker logs</span> avant toute autre action</td></tr>
+            <tr><td>Les données disparaissent au redémarrage</td><td>Pas de volume monté, écriture dans la couche du conteneur</td><td>Vérifier <span class="mono">docker inspect</span> → section <span class="mono">Mounts</span></td></tr>
+            <tr><td>Un service ne joint pas un autre</td><td>Les deux conteneurs ne sont pas sur le même réseau Compose</td><td><span class="mono">docker network inspect</span></td></tr>
+            <tr><td>Le disque se remplit</td><td>Images et volumes orphelins accumulés</td><td><span class="mono">docker system df</span> puis <span class="mono">prune -a</span></td></tr>
+            <tr><td>Build très lent en CI</td><td>Cache de layers invalidé à chaque run</td><td>Réordonner le Dockerfile, activer le cache BuildKit</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Différence entre une image et un conteneur ?</p><p class="a">L'image est un artefact statique en couches ; le conteneur est un processus qui exécute cette image, avec son propre système de fichiers en écriture et son propre espace réseau/PID.</p></div>
+        <div class="qa-item"><p class="q">Pourquoi un build multi-stage ?</p><p class="a">Pour séparer les outils nécessaires à la compilation de l'image finale d'exécution, et réduire drastiquement la taille et la surface d'attaque de l'image livrée.</p></div>
+        <div class="qa-item"><p class="q">Comment un conteneur persiste-t-il des données ?</p><p class="a">Via un volume nommé géré par Docker ou un bind mount vers l'hôte ; jamais dans la couche inscriptible du conteneur, supprimée avec lui.</p></div>
+        <div class="qa-item"><p class="q">CMD vs ENTRYPOINT ?</p><p class="a"><span class="mono">ENTRYPOINT</span> fixe le binaire exécuté et n'est pas facilement écrasé ; <span class="mono">CMD</span> fournit les arguments par défaut, remplaçables au <span class="mono">docker run</span>.</p></div>
+        <div class="qa-item"><p class="q">Pourquoi éviter le réseau <span class="mono">bridge</span> par défaut au profit d'un réseau créé explicitement ?</p><p class="a">Le bridge par défaut ne fait pas de résolution DNS par nom de conteneur, seulement par IP, ce qui devient fragile dès qu'un conteneur redémarre et change d'IP. Un réseau bridge défini par l'utilisateur résout chaque service par son nom, exactement comme le fait Compose en coulisses.</p></div>
+        <div class="qa-item"><p class="q">Comment réduire la surface d'attaque d'une image en production ?</p><p class="a">Base minimale (alpine/distroless), utilisateur non-root, scan de vulnérabilités en CI (Trivy), et <span class="mono">--cap-drop=ALL</span> au runtime pour ne garder que les privilèges Linux réellement nécessaires.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Docker · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

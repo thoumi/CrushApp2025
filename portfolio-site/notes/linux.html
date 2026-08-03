@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence Linux : arborescence, permissions, processus, réseau, systemd, dépannage, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">Linux</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#concepts">2. Concepts clés</a>
+      <a href="#scripting">3. Scripting Bash</a>
+      <a href="#securite">4. Sécurité &amp; pare-feu</a>
+      <a href="#cheatsheet">5. Cheat sheet</a>
+      <a href="#pieges">6. Dépannage</a>
+      <a href="#entretien">7. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Administration système</span>
+      <span class="lozenge">Débutant → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>Linux</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">La base commune à Docker, Kubernetes et à quasiment tout serveur de production : permissions, processus, réseau et logs. Ce qu'un conteneur ou un cluster masque en surface finit toujours par redevenir un problème Linux au niveau du dessous.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">« Tout est fichier » est la philosophie centrale d'Unix : périphériques, processus, sockets réseau sont exposés comme des fichiers, manipulables avec les mêmes outils. Une fois ce principe intégré, la plupart des commandes système deviennent prévisibles plutôt qu'à mémoriser une par une.</p>
+    </section>
+
+    <section class="cs reveal" id="concepts">
+      <h2>Concepts clés</h2>
+      <dl class="comp-list">
+        <dt>Permissions (rwx, propriétaire/groupe/autres)</dt>
+        <dd><span class="mono">chmod 755 script.sh</span> = propriétaire en lecture/écriture/exécution, groupe et autres en lecture/exécution seulement. Le chiffre encode les trois bits (4=read, 2=write, 1=execute) additionnés par catégorie.</dd>
+        <dt>Processus &amp; signaux</dt>
+        <dd>Chaque processus a un PID et un parent. <span class="mono">SIGTERM</span> (15) demande un arrêt propre, <span class="mono">SIGKILL</span> (9) tue immédiatement sans laisser l'occasion de nettoyer, à utiliser en dernier recours.</dd>
+        <dt>systemd</dt>
+        <dd>Le gestionnaire de services de la majorité des distributions modernes : démarre, surveille et redémarre automatiquement les services déclarés en unit files.</dd>
+        <dt>Redirections &amp; pipes</dt>
+        <dd><span class="mono">&gt;</span> écrase, <span class="mono">&gt;&gt;</span> ajoute, <span class="mono">|</span> chaîne la sortie d'une commande vers l'entrée de la suivante : la base de tout script de diagnostic.</dd>
+        <dt>Montages &amp; systèmes de fichiers</dt>
+        <dd>Un disque n'existe pour les programmes qu'une fois monté sur un point de l'arborescence (<span class="mono">/mnt</span>, <span class="mono">/media</span>...), pas de lettre de lecteur comme sous Windows.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="scripting">
+      <h2>Scripting Bash</h2>
+      <p class="section-intro">Un script bien écrit échoue bruyamment plutôt que silencieusement : <span class="mono">set -euo pipefail</span> est le premier réflexe avant d'écrire quoi que ce soit d'autre.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;">#!/usr/bin/env bash
+set -euo pipefail   # stoppe au premier échec, variable non définie = erreur
+
+ENV="${1:-staging}"           # valeur par défaut si aucun argument
+LOG_DIR="/var/log/app"
+
+if [[ ! -d "$LOG_DIR" ]]; then
+  echo "Dossier de logs introuvable : $LOG_DIR" >&2
+  exit 1
+fi
+
+for f in "$LOG_DIR"/*.log; do
+  echo "Archivage de $f pour l'environnement $ENV"
+  gzip "$f"
+done</pre>
+      <p class="section-intro" style="margin-top:1rem;"><span class="mono">set -e</span> arrête le script à la première commande en échec, <span class="mono">-u</span> transforme une variable non définie en erreur plutôt qu'en chaîne vide silencieuse, <span class="mono">-o pipefail</span> propage l'échec à travers un pipe. Sans ça, un pipe où seule la première commande échoue peut passer inaperçu.</p>
+      <p class="section-intro" style="margin-top:1rem;">Planifié via <span class="mono">crontab -e</span> (<span class="mono">0 3 * * * /opt/scripts/archive-logs.sh production</span>) pour une exécution récurrente, sans intervention manuelle.</p>
+    </section>
+
+    <section class="cs reveal" id="securite">
+      <h2>Sécurité &amp; pare-feu</h2>
+      <dl class="comp-list">
+        <dt>ufw / iptables</dt>
+        <dd><span class="mono">ufw</span> simplifie la configuration d'<span class="mono">iptables</span> sous-jacent : <span class="mono">ufw allow 22/tcp</span> puis <span class="mono">ufw enable</span> ferme par défaut tout ce qui n'est pas explicitement autorisé.</dd>
+        <dt>Durcissement SSH</dt>
+        <dd>Désactiver l'authentification par mot de passe (<span class="mono">PasswordAuthentication no</span>) au profit de clés, et interdire la connexion directe en root (<span class="mono">PermitRootLogin no</span>) dans <span class="mono">/etc/ssh/sshd_config</span>.</dd>
+        <dt>Gestion des paquets</dt>
+        <dd><span class="mono">apt</span> (Debian/Ubuntu) ou <span class="mono">dnf</span> (RHEL/Fedora) installent et mettent à jour les paquets système ; des mises à jour de sécurité automatiques (<span class="mono">unattended-upgrades</span>) réduisent la fenêtre d'exposition aux CVE connues.</dd>
+      </dl>
+      <pre class="snippet mono" style="margin-top:1.25rem;">sudo ufw allow 22/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+sudo ufw status verbose</pre>
+    </section>
+
+    <section class="cs reveal" id="cheatsheet">
+      <h2>Cheat sheet</h2>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># Processus & ressources
+ps aux | grep nginx
+top                       # ou htop
+kill -15 &lt;pid&gt;             # arrêt propre
+df -h                      # espace disque
+du -sh */                  # taille par dossier
+
+# Réseau
+ss -tulpn                  # ports en écoute (remplace netstat)
+curl -I https://exemple.com
+ping -c 4 exemple.com
+
+# Fichiers & recherche
+find . -name "*.log" -mtime -1
+grep -R "ERROR" /var/log/
+tail -f /var/log/syslog
+
+# systemd
+systemctl status nginx
+systemctl restart nginx
+journalctl -u nginx -f</pre>
+    </section>
+
+    <section class="cs reveal" id="pieges">
+      <h2>Dépannage courant</h2>
+      <div class="table-wrap" style="margin-top:1.5rem;">
+        <table>
+          <thead><tr><th>Symptôme</th><th>Cause fréquente</th><th>Réflexe</th></tr></thead>
+          <tbody>
+            <tr><td>« Permission denied »</td><td>Utilisateur/groupe sans le bit d'accès requis</td><td><span class="mono">ls -l</span> puis <span class="mono">chmod</span>/<span class="mono">chown</span> ciblé, pas <span class="mono">777</span> par réflexe</td></tr>
+            <tr><td>Disque plein alors que <span class="mono">du</span> ne trouve rien</td><td>Un fichier supprimé est encore ouvert par un processus (log qui tourne)</td><td><span class="mono">lsof +L1</span> pour repérer les fichiers supprimés encore ouverts</td></tr>
+            <tr><td>Service qui ne démarre pas</td><td>Erreur silencieuse au boot</td><td><span class="mono">journalctl -u &lt;service&gt; -xe</span></td></tr>
+            <tr><td>Port déjà utilisé</td><td>Un autre process écoute déjà dessus</td><td><span class="mono">ss -tulpn | grep :PORT</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Différence entre SIGTERM et SIGKILL ?</p><p class="a">SIGTERM demande poliment au process de s'arrêter (il peut intercepter le signal et nettoyer avant). SIGKILL le tue immédiatement au niveau noyau, sans possibilité de nettoyage, à réserver aux process qui ne répondent plus.</p></div>
+        <div class="qa-item"><p class="q">Comment savoir quel process occupe un port ?</p><p class="a"><span class="mono">ss -tulpn | grep :PORT</span> (ou l'historique <span class="mono">netstat -tulpn</span>), qui liste le PID et le nom du process en écoute.</p></div>
+        <div class="qa-item"><p class="q">À quoi sert <span class="mono">chmod 755</span> ?</p><p class="a">Donne au propriétaire les droits lecture/écriture/exécution (7), et au groupe comme aux autres uniquement lecture/exécution (5), typique pour un script exécutable partagé sans droit d'écriture externe.</p></div>
+        <div class="qa-item"><p class="q">À quoi sert <span class="mono">set -euo pipefail</span> en tête d'un script Bash ?</p><p class="a">À faire échouer le script bruyamment plutôt que de continuer sur une erreur silencieuse : arrêt à la première commande en échec (<span class="mono">-e</span>), variable non définie traitée comme une erreur (<span class="mono">-u</span>), et échec propagé à travers un pipe (<span class="mono">-o pipefail</span>).</p></div>
+        <div class="qa-item"><p class="q">Comment sécuriser un accès SSH exposé sur Internet ?</p><p class="a">Désactiver l'authentification par mot de passe au profit de clés, interdire la connexion root directe, et restreindre le port avec un pare-feu (<span class="mono">ufw</span>). L'attaque par force brute sur mot de passe reste le vecteur le plus courant sur un serveur mal configuré.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Linux · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

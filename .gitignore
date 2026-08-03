@@ -494,8 +494,5 @@ API/dating.db*
 # explicitly allowed below.
 *.md
 !README.md
-!CONTRIBUTING.md
-!CODE_OF_CONDUCT.md
-!SECURITY.md
 !docs/**/*.md
 !.github/**/*.md

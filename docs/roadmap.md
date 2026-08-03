@@ -51,10 +51,10 @@ recalculée à l'exécution.
 ## Phase 4 — Sécurité
 
 OIDC/Entra ID, Azure Key Vault, rate limiting sur `/register`/`/login`,
-conformité RGPD. Corrige les gaps documentés dans
-[SECURITY.md](https://github.com/thoumi/HalloApp/blob/main/SECURITY.md) :
-validation JWT issuer/audience désactivée, cookies refresh token non
-sécurisés en dev.
+conformité RGPD. Corrige les gaps documentés dans la section
+[Sécurité & transparence](https://github.com/thoumi/HalloApp/blob/main/README.md#-sécurité--transparence)
+du README : validation JWT issuer/audience désactivée, cookies refresh token
+non sécurisés en dev.
 
 ## Phase 5 — Data
 

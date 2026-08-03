@@ -8,7 +8,7 @@
 [![Docs](https://github.com/thoumi/HalloApp/actions/workflows/docs.yml/badge.svg)](https://github.com/thoumi/HalloApp/actions/workflows/docs.yml)
 [![License](https://img.shields.io/badge/license-All%20rights%20reserved-lightgrey.svg)](LICENSE)
 
-📖 [Documentation complète](https://thoumi.github.io/HalloApp/) · 🗺️ [Roadmap](#-roadmap) · 🔒 [Sécurité](#-sécurité--transparence) · 🤝 [Contribuer](CONTRIBUTING.md)
+📖 [Documentation complète](https://thoumi.github.io/HalloApp/) · 🗺️ [Roadmap](#-roadmap) · 🔒 [Sécurité](#-sécurité--transparence)
 
 ---
 
@@ -23,7 +23,6 @@
 - [Documentation](#documentation)
 - [Roadmap](#-roadmap)
 - [Sécurité & transparence](#-sécurité--transparence)
-- [Contribuer](#contribuer)
 - [Licence](#licence)
 - [À propos](#à-propos)
 
@@ -181,14 +180,6 @@ pour les corriger, avec le contexte du problème d'abord.
 | `ValidateIssuer` / `ValidateAudience` désactivés sur la validation JWT | Connu — corrigé en Phase 4 |
 | Pas de rate limiting sur `/register` et `/login` | Connu — corrigé en Phase 4 |
 | Cookie de refresh token en dev (`Secure=false`) | Connu — configuration dev uniquement, durci en Phase 4 |
-
-Détails complets : [SECURITY.md](SECURITY.md).
-
-## Contribuer
-
-Ce dépôt est avant tout un projet personnel de démonstration technique, mais
-les retours et suggestions sont bienvenus — voir [CONTRIBUTING.md](CONTRIBUTING.md)
-et le [code de conduite](CODE_OF_CONDUCT.md).
 
 ## Licence
 

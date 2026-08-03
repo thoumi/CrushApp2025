@@ -7,6 +7,7 @@
 <meta name="description" content="Développeur Senior Fullstack .NET Core / Angular · études de cas techniques d'architecture, DDD et systèmes événementiels.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/resources.css">
 </head>
 <body>
 
@@ -16,6 +17,7 @@
     <div class="nav-links">
       <a href="#profil">Profil</a>
       <a href="#projets" class="current">Études de cas</a>
+      <a href="#ressources">Ressources</a>
       <a href="mailto:thoumi@outlook.com">Contact</a>
       <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
     </div>
@@ -81,6 +83,69 @@
       <p style="color:var(--text-muted); font-size:0.92rem; margin:0;">Des tests automatisés (xUnit, Testcontainers) d'abord, puis CQRS et Kafka/Outbox sur Hallo, publiés au fur et à mesure que le projet avance.</p>
     </div>
 
+  </div>
+</main>
+
+<main class="wrap" id="ressources" style="padding-bottom: 5rem;">
+  <p class="eyebrow">Ressources</p>
+  <h2>Fiches techniques que je tiens à jour</h2>
+  <p class="section-intro">Ce sont mes synthèses personnelles, pas des captures de cours : ce que je révise avant un entretien, ce que je reprends comme pense-bête en mission, avec les commandes et les pièges que j'ai vraiment croisés.</p>
+
+  <div class="reveal res-grid" style="margin-top:2.25rem;">
+    <a href="notes/docker.html" class="panel res-card">
+      <div class="res-icon">DK</div>
+      <h3>Docker</h3>
+      <p>Images, conteneurs, réseau, volumes, Compose, dépannage.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">Conteneurs</span></div>
+    </a>
+    <a href="notes/kubernetes.html" class="panel res-card">
+      <div class="res-icon">K8s</div>
+      <h3>Kubernetes</h3>
+      <p>Architecture du cluster, objets clés, kubectl, dépannage.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">Orchestration</span></div>
+    </a>
+    <a href="notes/ansible.html" class="panel res-card">
+      <div class="res-icon">ANS</div>
+      <h3>Ansible</h3>
+      <p>Playbooks, idempotence, rôles, Vault, bonnes pratiques.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">IaC</span></div>
+    </a>
+    <a href="notes/aws.html" class="panel res-card">
+      <div class="res-icon">AWS</div>
+      <h3>AWS</h3>
+      <p>Compute, stockage, bases de données, IAM/VPC, cheat sheet CLI.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">Cloud</span></div>
+    </a>
+    <a href="notes/azure-devops.html" class="panel res-card">
+      <div class="res-icon">ADO</div>
+      <h3>Azure DevOps</h3>
+      <p>Boards, Repos, Pipelines YAML, Artifacts, bonnes pratiques CI/CD.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">CI/CD</span></div>
+    </a>
+    <a href="notes/git.html" class="panel res-card">
+      <div class="res-icon">GIT</div>
+      <h3>Git</h3>
+      <p>Modèle en graphe, rebase vs merge, reflog, sortir d'un merge cassé.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">Contrôle de version</span></div>
+    </a>
+    <a href="notes/linux.html" class="panel res-card">
+      <div class="res-icon">LNX</div>
+      <h3>Linux</h3>
+      <p>Permissions, processus, systemd, réseau, dépannage courant.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">Administration</span></div>
+    </a>
+    <a href="notes/system-design.html" class="panel res-card">
+      <div class="res-icon">SD</div>
+      <h3>System Design</h3>
+      <p>Anatomie d'une requête, cache, scalabilité, méthode d'entretien.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">Architecture</span></div>
+    </a>
+    <a href="notes/csharp.html" class="panel res-card">
+      <div class="res-icon">C#</div>
+      <h3>C#</h3>
+      <p>Types valeur/référence, async/await, LINQ, pattern matching, records.</p>
+      <div class="res-tags"><span class="badge badge-roadmap">Langage</span></div>
+    </a>
   </div>
 </main>
 

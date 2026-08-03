@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azure DevOps · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence Azure DevOps : Boards, Repos, Pipelines YAML, Artifacts, bonnes pratiques CI/CD, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">Azure DevOps</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#composants">2. Les 5 piliers</a>
+      <a href="#pipeline">3. Anatomie d'un pipeline YAML</a>
+      <a href="#templates">4. Templates réutilisables</a>
+      <a href="#agents">5. Agents &amp; environnements</a>
+      <a href="#bonnes-pratiques">6. Bonnes pratiques CI/CD</a>
+      <a href="#entretien">7. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">CI/CD</span>
+      <span class="lozenge">Débutant → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>Azure DevOps</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">La suite d'outils Microsoft qui couvre tout le cycle de vie logiciel : planification (Boards), code (Repos), intégration et déploiement continus (Pipelines), gestion d'artefacts (Artifacts). C'est la même chaîne que j'utilise pour automatiser build et déploiement sur mes projets .NET.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">Azure DevOps couvre le cycle Plan → Code → Build → Test → Release → Monitor sur une plateforme unique, intégrée nativement à l'écosystème .NET/Azure. La pièce la plus structurante au quotidien reste Pipelines : un pipeline YAML versionné avec le code, qui compile, teste et déploie automatiquement à chaque push.</p>
+    </section>
+
+    <section class="cs reveal" id="composants">
+      <h2>Les 5 piliers</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Boards</h3><p>Gestion de backlog agile : work items, sprints, tableaux Kanban, liés directement aux commits et pull requests qui les résolvent.</p></div>
+        <div class="panel tech-card"><h3>Repos</h3><p>Dépôts Git managés, avec des politiques de branche (revue obligatoire, build qui doit passer avant merge).</p></div>
+        <div class="panel tech-card"><h3>Pipelines</h3><p>CI/CD as code en YAML : build, tests, packaging et déploiement multi-environnements (dev → staging → prod).</p></div>
+        <div class="panel tech-card"><h3>Artifacts</h3><p>Registre de packages (NuGet, npm, Maven) internes à l'organisation, versionnés et partagés entre projets.</p></div>
+        <div class="panel tech-card"><h3>Test Plans</h3><p>Gestion de campagnes de tests manuels et exploratoires, complémentaire aux tests automatisés du pipeline.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="pipeline">
+      <h2>Anatomie d'un pipeline YAML</h2>
+      <pre class="snippet mono" style="margin-top:1.25rem;">trigger:
+  branches: { include: [main] }
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildAndTest
+        steps:
+          - task: UseDotNet@2
+            inputs: { version: "9.x" }
+          - script: dotnet restore
+          - script: dotnet build --configuration Release
+          - script: dotnet test --logger trx
+
+  - stage: Deploy
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: ToStaging
+        environment: staging
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "Déploiement vers staging"</pre>
+      <p class="section-intro" style="margin-top:1rem;">Chaque <span class="mono">stage</span> ne s'exécute que si la précédente réussit (<span class="mono">dependsOn</span> + <span class="mono">condition</span>) : impossible de déployer un build qui ne compile pas ou dont les tests échouent.</p>
+    </section>
+
+    <section class="cs reveal" id="templates">
+      <h2>Templates réutilisables</h2>
+      <p class="section-intro">Dès que plusieurs projets partagent la même logique de build (restore/build/test .NET, par exemple), un template extrait cette logique dans un fichier unique, inclus partout où c'est nécessaire, pour éviter que 5 pipelines dérivent chacun de leur côté au fil du temps.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># templates/dotnet-build.yml
+parameters:
+  - name: dotnetVersion
+    default: "9.x"
+steps:
+  - task: UseDotNet@2
+    inputs: { version: ${{ parameters.dotnetVersion }} }
+  - script: dotnet restore
+  - script: dotnet build --configuration Release
+
+# azure-pipelines.yml
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildAndTest
+        steps:
+          - template: templates/dotnet-build.yml
+            parameters: { dotnetVersion: "9.x" }</pre>
+      <p class="section-intro" style="margin-top:1rem;">Une évolution du process de build (ajout d'un scan de sécurité, par exemple) se fait alors à un seul endroit, et se propage à tous les pipelines qui référencent le template.</p>
+    </section>
+
+    <section class="cs reveal" id="agents">
+      <h2>Agents &amp; environnements</h2>
+      <dl class="comp-list">
+        <dt>Agents hébergés par Microsoft</dt>
+        <dd>Machines éphémères fournies par Azure DevOps (<span class="mono">vmImage: ubuntu-latest</span>), sans maintenance, mais avec des minutes de build limitées selon le plan et sans accès à un réseau interne.</dd>
+        <dt>Agents self-hosted</dt>
+        <dd>Des machines qu'on enregistre soi-même dans un pool : nécessaires dès qu'un build a besoin d'un accès réseau interne (base de données on-premise) ou d'outils/licences spécifiques non disponibles sur les images Microsoft.</dd>
+        <dt>Environments &amp; approbations</dt>
+        <dd>Un <span class="mono">environment</span> Azure DevOps (staging, production) peut exiger une approbation manuelle d'une personne ou d'un groupe désigné avant que le déploiement ne se poursuive : le point de contrôle humain avant la prod.</dd>
+        <dt>Service connections</dt>
+        <dd>La façon dont un pipeline s'authentifie auprès d'un service externe (Azure, Docker Hub, un cluster Kubernetes) sans exposer les identifiants dans le YAML.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="bonnes-pratiques">
+      <h2>Bonnes pratiques CI/CD</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Pipeline as code</h3><p>Le YAML vit dans le repo, versionné et revu en pull request comme n'importe quel autre changement.</p></div>
+        <div class="panel tech-card"><h3>Environnements avec approbation</h3><p>Un déploiement en production peut exiger une approbation manuelle explicite, contrairement à staging qui se déploie automatiquement.</p></div>
+        <div class="panel tech-card"><h3>Variable groups &amp; Key Vault</h3><p>Secrets injectés depuis Azure Key Vault au moment du run, jamais en clair dans le YAML.</p></div>
+        <div class="panel tech-card"><h3>Politiques de branche</h3><p>Build obligatoire au vert et revue de code requise avant de pouvoir merger sur <span class="mono">main</span>.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Différence entre intégration continue et déploiement continu ?</p><p class="a">L'intégration continue compile et teste automatiquement chaque changement. Le déploiement continu va plus loin : livrer automatiquement ce build validé jusqu'en production, sans intervention manuelle (à distinguer de la « delivery » continue, qui s'arrête juste avant la mise en prod, en attente d'une validation).</p></div>
+        <div class="qa-item"><p class="q">Comment gérer des secrets dans un pipeline ?</p><p class="a">Variable groups liés à Azure Key Vault, jamais en variable en clair dans le YAML ni committés dans le repo.</p></div>
+        <div class="qa-item"><p class="q">Comment empêcher un déploiement si les tests échouent ?</p><p class="a">Le stage de déploiement déclare une dépendance (<span class="mono">dependsOn</span>) sur le stage de build/test avec la condition <span class="mono">succeeded()</span> : il ne se déclenche tout simplement pas sinon.</p></div>
+        <div class="qa-item"><p class="q">Quand utiliser un agent self-hosted plutôt qu'un agent Microsoft ?</p><p class="a">Dès qu'un build a besoin d'un accès réseau interne (base de données on-premise, VPN d'entreprise) ou d'outils spécifiques non disponibles sur les images standard, au prix de la maintenance de cette machine.</p></div>
+        <div class="qa-item"><p class="q">Comment éviter que plusieurs pipelines divergent au fil du temps ?</p><p class="a">Extraire la logique commune (restore/build/test) dans un template YAML partagé, référencé par chaque pipeline avec ses propres paramètres : un seul endroit à faire évoluer plutôt que N copies qui dérivent chacune de leur côté.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Azure DevOps · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

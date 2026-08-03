@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git · Fiche technique · Lhoussaine Thoumi</title>
+<meta name="description" content="Fiche de référence Git : modèle en graphe de commits, branches, rebase vs merge, résolution de conflits, questions d'entretien.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230e1116'/%3E%3Ctext x='16' y='22' font-family='Consolas,monospace' font-size='15' font-weight='700' fill='%23e3a857' text-anchor='middle'%3ELT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/notes.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="../index.html" class="brand"><span class="mark">LT</span> Lhoussaine Thoumi</a>
+    <div class="nav-links">
+      <a href="../index.html#ressources">← Ressources</a>
+      <a href="mailto:thoumi@outlook.com">Contact</a>
+      <button class="theme-toggle" data-theme-toggle aria-label="Changer de thème" title="Changer de thème">◐</button>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="wrap">
+    <p class="breadcrumb">
+      <a href="../index.html">Portfolio</a>
+      <span class="sep">/</span>
+      <a href="../index.html#ressources">Ressources</a>
+      <span class="sep">/</span>
+      <span class="current">Git</span>
+    </p>
+  </div>
+</div>
+
+<div class="confluence-shell">
+
+  <aside class="page-toc">
+    <p class="page-toc-label">Sur cette page</p>
+    <nav>
+      <a href="#vue-ensemble">1. Vue d'ensemble</a>
+      <a href="#concepts">2. Le modèle mental</a>
+      <a href="#cheatsheet">3. Cheat sheet</a>
+      <a href="#rebase-merge">4. Rebase vs merge</a>
+      <a href="#rebase-interactif">5. Rebase interactif</a>
+      <a href="#workflows">6. Workflows d'équipe</a>
+      <a href="#pieges">7. Sortir d'une situation difficile</a>
+      <a href="#entretien">8. Questions d'entretien</a>
+    </nav>
+  </aside>
+
+  <div class="page-content">
+
+    <div class="lozenge-row">
+      <span class="lozenge lozenge-blue">Contrôle de version</span>
+      <span class="lozenge">Débutant → Avancé</span>
+      <span class="lozenge lozenge-green">Fiche personnelle</span>
+    </div>
+    <h1>Git</h1>
+    <p class="byline">Fiche de synthèse par Lhoussaine Thoumi · Mise à jour le 3 août 2026</p>
+    <p class="page-summary">Git devient simple dès qu'on arrête de le voir comme une liste de commandes à mémoriser et qu'on le voit pour ce qu'il est : un graphe orienté de commits. Le reste (branches, rebase, reflog) n'est que de la manipulation de ce graphe.</p>
+
+    <section class="cs reveal" id="vue-ensemble">
+      <h2>Vue d'ensemble</h2>
+      <p class="section-intro">Un commit est un instantané complet du projet, pas un simple diff, avec un pointeur vers son ou ses parents. Une branche n'est qu'une étiquette mobile qui pointe vers un commit : la créer ou la supprimer ne coûte rien et ne déplace aucun fichier.</p>
+    </section>
+
+    <section class="cs reveal" id="concepts">
+      <h2>Le modèle mental</h2>
+      <dl class="comp-list">
+        <dt>Les trois zones</dt>
+        <dd><em>Working directory</em> (fichiers sur le disque) → <em>staging area / index</em> (<span class="mono">git add</span>, ce qui sera dans le prochain commit) → <em>historique local</em> (<span class="mono">git commit</span>). Comprendre ces trois zones dissout la moitié des confusions sur Git.</dd>
+        <dt>HEAD</dt>
+        <dd>Un pointeur vers le commit actuellement extrait (checked out), généralement via une branche. Un HEAD détaché pointe directement vers un commit, sans branche.</dd>
+        <dt>Remote</dt>
+        <dd>Une référence vers un autre dépôt (<span class="mono">origin</span>). <span class="mono">fetch</span> rapatrie son historique sans y toucher localement ; <span class="mono">pull</span> fait <span class="mono">fetch</span> puis fusionne (ou rebase).</dd>
+        <dt>Reflog</dt>
+        <dd>Le journal local de tous les déplacements de HEAD, y compris après un reset ou un rebase raté. C'est le vrai filet de sécurité : tant qu'un commit apparaît dans le reflog, il est récupérable.</dd>
+      </dl>
+    </section>
+
+    <section class="cs reveal" id="cheatsheet">
+      <h2>Cheat sheet</h2>
+      <pre class="snippet mono" style="margin-top:1.25rem;"># Explorer
+git log --oneline --graph --all
+git status
+git diff --staged
+
+# Corriger
+git commit --amend                 # modifier le dernier commit (pas encore publié)
+git reset --soft HEAD~1            # annule le commit, garde les changements en staging
+git checkout -- fichier.txt        # jette les modifs locales non commitées
+git restore --staged fichier.txt   # retire du staging sans perdre les modifs
+
+# Sauver du travail en cours
+git stash
+git stash pop
+
+# Investiguer un bug introduit
+git bisect start
+git bisect bad
+git bisect good v1.2</pre>
+    </section>
+
+    <section class="cs reveal" id="rebase-merge">
+      <h2>Rebase vs merge</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>Merge</h3><p>Crée un commit de fusion qui préserve l'historique exact, y compris les branches parallèles. Sûr sur une branche déjà partagée/publiée.</p></div>
+        <div class="panel tech-card"><h3>Rebase</h3><p>Rejoue les commits d'une branche sur une nouvelle base : historique linéaire, plus lisible. À réserver aux commits <strong>pas encore poussés</strong> : rebaser une branche déjà partagée réécrit son historique et casse le travail de toute autre personne dessus.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="rebase-interactif">
+      <h2>Rebase interactif</h2>
+      <p class="section-intro">L'outil pour nettoyer une série de commits locaux avant de les partager : regrouper, réordonner, reformuler. Jamais sur des commits déjà poussés et partagés.</p>
+      <pre class="snippet mono" style="margin-top:1.25rem;">git rebase -i HEAD~4
+
+pick a1b2c3d Ajoute le formulaire de profil
+squash e4f5g6h Corrige une faute de frappe
+reword h7i8j9k Ajoute la validation email
+drop   k1l2m3n Commit de debug à supprimer</pre>
+      <p class="section-intro" style="margin-top:1rem;"><span class="mono">squash</span> fusionne un commit dans le précédent (utile pour un « fix typo » qui n'a pas sa place seul dans l'historique), <span class="mono">reword</span> réécrit uniquement le message, <span class="mono">drop</span> supprime le commit. Le résultat : un historique qui raconte une intention claire plutôt que le désordre réel du développement.</p>
+    </section>
+
+    <section class="cs reveal" id="workflows">
+      <h2>Workflows d'équipe</h2>
+      <div class="tech-grid" style="margin-top:1.5rem;">
+        <div class="panel tech-card"><h3>GitHub flow</h3><p>Une branche par fonctionnalité depuis <span class="mono">main</span>, pull request, revue, merge. Simple et adapté au déploiement continu, c'est celui que j'utilise sur mes projets solo comme en équipe restreinte.</p></div>
+        <div class="panel tech-card"><h3>Git flow</h3><p>Des branches dédiées (<span class="mono">develop</span>, <span class="mono">release/*</span>, <span class="mono">hotfix/*</span>) pour des cycles de release plus formels. Plus lourd, pertinent quand plusieurs versions doivent être maintenues en parallèle.</p></div>
+        <div class="panel tech-card"><h3>Trunk-based development</h3><p>Des branches très courte durée (moins d'un jour), fusionnées fréquemment sur <span class="mono">main</span> derrière des feature flags plutôt que des branches longues : le modèle qui s'accorde le mieux avec un déploiement continu réel.</p></div>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="pieges">
+      <h2>Sortir d'une situation difficile</h2>
+      <div class="table-wrap" style="margin-top:1.5rem;">
+        <table>
+          <thead><tr><th>Situation</th><th>Commande</th></tr></thead>
+          <tbody>
+            <tr><td>J'ai commité sur la mauvaise branche</td><td><span class="mono">git reset --soft HEAD~1</span> puis se replacer sur la bonne branche et recommitter</td></tr>
+            <tr><td>J'ai perdu un commit après un reset</td><td><span class="mono">git reflog</span> pour retrouver son SHA, puis <span class="mono">git cherry-pick</span> ou <span class="mono">git reset --hard &lt;sha&gt;</span></td></tr>
+            <tr><td>Conflit de merge</td><td>Éditer les marqueurs <span class="mono">&lt;&lt;&lt;&lt;&lt;&lt;&lt; / ======= / &gt;&gt;&gt;&gt;&gt;&gt;&gt;</span>, puis <span class="mono">git add</span> + <span class="mono">git commit</span></td></tr>
+            <tr><td>Je veux annuler un commit déjà publié</td><td><span class="mono">git revert &lt;sha&gt;</span>, qui crée un nouveau commit inversant les changements sans réécrire l'historique</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cs reveal" id="entretien">
+      <h2>Questions d'entretien fréquentes</h2>
+      <div class="panel" style="padding: 0.3rem 1.5rem; margin-top:1.5rem;">
+        <div class="qa-item"><p class="q">Différence entre <span class="mono">git fetch</span> et <span class="mono">git pull</span> ?</p><p class="a"><span class="mono">fetch</span> rapatrie les références distantes sans toucher à la branche locale ; <span class="mono">pull</span> fait un fetch puis fusionne (ou rebase) automatiquement dans la branche courante.</p></div>
+        <div class="qa-item"><p class="q">Comment annuler un commit déjà poussé sans réécrire l'historique ?</p><p class="a"><span class="mono">git revert</span>, qui crée un nouveau commit inverse, plutôt que <span class="mono">reset --hard</span> qui réécrirait un historique déjà partagé.</p></div>
+        <div class="qa-item"><p class="q">Qu'est-ce qu'un HEAD détaché ?</p><p class="a">HEAD pointe directement sur un commit plutôt que sur une branche. Tout nouveau commit dans cet état devient orphelin si on change de branche sans en créer une nouvelle à cet endroit.</p></div>
+        <div class="qa-item"><p class="q">Pourquoi ne jamais rebaser une branche déjà partagée ?</p><p class="a">Le rebase réécrit les commits (nouveaux SHA), donc l'historique de toute personne qui a déjà tiré cette branche diverge du sien. Résultat : conflits en cascade et confusion sur quel commit est le « bon ». Sur du travail publié, <span class="mono">merge</span> ou <span class="mono">revert</span> restent les options sûres.</p></div>
+        <div class="qa-item"><p class="q">Quand préférer trunk-based development à Git flow ?</p><p class="a">Dès que l'objectif est un déploiement continu réel : des branches longue durée (comme <span class="mono">develop</span>) accumulent des divergences coûteuses à réconcilier. Git flow reste pertinent quand plusieurs versions doivent être maintenues et patchées en parallèle.</p></div>
+      </div>
+    </section>
+
+    <p class="page-footer-meta">Dernière mise à jour : 3 août 2026.</p>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>Git · fiche technique</span>
+    <a href="../index.html#ressources" class="mono" style="text-decoration:none; color:var(--text-muted);">← toutes les ressources</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
