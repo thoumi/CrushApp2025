@@ -1,0 +1,262 @@
+# Docker Compose - HalloApp Microservices Architecture
+# Version: 1.0.0
+# Documentation: https://thoumi.github.io/HalloApp/
+
+name: halloapp
+
+services:
+  # ============================================
+  # 1. Base de Données SQL Server
+  # ============================================
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: halloapp-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${DB_PASSWORD}"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - halloapp-network
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 5s
+      timeout: 5s
+      retries: 1
+      start_period: 30s
+    restart: unless-stopped
+
+  # ============================================
+  # 2. RabbitMQ - Message Broker
+  # ============================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: halloapp-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD}"
+      RABBITMQ_DEFAULT_VHOST: halloapp
+    ports:
+      - "5672:5672"      # AMQP protocol
+      - "15672:15672"    # Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - halloapp-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  # ============================================
+  # 3. Seq - Centralized Logging
+  # ============================================
+  seq:
+    image: datalust/seq:latest
+    container_name: halloapp-seq
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_NOAUTHENTICATION: "true"
+    ports:
+      - "5341:80"        # Seq UI
+    volumes:
+      - seq-data:/data
+    networks:
+      - halloapp-network
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 5s
+      timeout: 5s
+      retries: 1
+      start_period: 5s
+    restart: unless-stopped
+
+  # ============================================
+  # 4. Core API (Monolithe)
+  # ============================================
+  core-api:
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+    container_name: halloapp-core-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=HalloAppDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True"
+      TokenKey: "${JWT_TOKEN_KEY}"
+      CloudinarySettings__CloudName: "${CLOUDINARY_CLOUD_NAME}"
+      CloudinarySettings__ApiKey: "${CLOUDINARY_API_KEY}"
+      CloudinarySettings__ApiSecret: "${CLOUDINARY_API_SECRET}"
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: "admin"
+      RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
+      RabbitMQ__VirtualHost: "halloapp"
+      Seq__ServerUrl: "http://seq:5341"
+      Chatbot__ServiceUrl: "http://chatbot-service:80"
+    ports:
+      - "5001:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - halloapp-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # ============================================
+  # 5. Chatbot Microservice
+  # ============================================
+  chatbot-service:
+    build:
+      context: ./Services/ChatbotService
+      dockerfile: Dockerfile
+    container_name: halloapp-chatbot-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+      TokenKey: "${JWT_TOKEN_KEY}"
+      Ollama__BaseUrl: "http://host.docker.internal:11434"
+      Ollama__Model: "phi3"
+      Seq__ServerUrl: "http://seq:5341"
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: "admin"
+      RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
+      RabbitMQ__VirtualHost: "halloapp"
+    ports:
+      - "5002:80"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      seq:
+        condition: service_healthy
+    networks:
+      - halloapp-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ============================================
+  # 6. Media Microservice
+  # ============================================
+  media-service:
+    build:
+      context: ./Services/MediaService
+      dockerfile: Dockerfile
+    container_name: halloapp-media-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+      TokenKey: "${JWT_TOKEN_KEY}"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=MediaServiceDb;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True"
+      CloudinarySettings__CloudName: "${CLOUDINARY_CLOUD_NAME}"
+      CloudinarySettings__ApiKey: "${CLOUDINARY_API_KEY}"
+      CloudinarySettings__ApiSecret: "${CLOUDINARY_API_SECRET}"
+      Seq__ServerUrl: "http://seq:5341"
+      RabbitMQ__Host: "rabbitmq"
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: "admin"
+      RabbitMQ__Password: "${RABBITMQ_PASSWORD}"
+      RabbitMQ__VirtualHost: "halloapp"
+    ports:
+      - "5003:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - halloapp-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ============================================
+  # 7. API Gateway (Ocelot)
+  # ============================================
+  api-gateway:
+    build:
+      context: ./ApiGateway
+      dockerfile: Dockerfile
+    container_name: halloapp-api-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+      TokenKey: "${JWT_TOKEN_KEY}"
+      Seq__ServerUrl: "http://seq:5341"
+    ports:
+      - "5000:80"
+    depends_on:
+      - core-api
+      - chatbot-service
+      - media-service
+    networks:
+      - halloapp-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  # ============================================
+  # 8. Angular Frontend (Optionnel - Pour Dev)
+  # ============================================
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: halloapp-frontend
+    environment:
+      NODE_ENV: development
+    ports:
+      - "4200:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - halloapp-network
+    restart: unless-stopped
+
+# ============================================
+# Volumes Persistants
+# ============================================
+volumes:
+  sqlserver-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  seq-data:
+    driver: local
+
+# ============================================
+# Network Configuration
+# ============================================
+networks:
+  halloapp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
