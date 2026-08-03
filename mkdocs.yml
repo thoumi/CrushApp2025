@@ -90,6 +90,7 @@ markdown_extensions:
 # Navigation
 nav:
 - Accueil: index-simple.md
+- Vision produit: product/vision.md
 - Guide Utilisateur:
   - Fonctionnalités: guide/01-FONCTIONNALITES-SIMPLE.md
   - Guide Utilisateur: guide/02-GUIDE-UTILISATEUR.md

@@ -10,14 +10,27 @@ fondations Clean Architecture de la Phase 1).
 Positionnement produit ("intentionnalité & profondeur" plutôt que swipe
 infini), identité de marque, remap de l'IA (écran par écran), 6 fonctionnalités
 différenciantes scorées (UX / maintenabilité / performance / trade-offs).
+Détail complet : [Vision produit](product/vision.md).
 
-## Phase 1 — Fondations 🔄 en cours
+## Phase 1 — Fondations ✅
 
-Clean Architecture (couches `Api` / `Application` / `Infrastructure`), SOLID,
-DDD, API-first.
+Clean Architecture (couches `Domain` / `Application` / `Infrastructure` /
+`Api`), SOLID, DDD tactique, API-first.
 
 - [ADR-0001 — Fondations Clean Architecture](architecture/adr/0001-clean-architecture-foundations.md)
-- [Audit SOLID Phase 1](architecture/solid-audit-phase1.md)
+- [Audit SOLID Phase 1](architecture/solid-audit-phase1.md) — les deux
+  constats de sévérité Haute (agrégat `Match` comme source unique de
+  vérité, extraction de l'algorithme du Rendez-vous du jour vers
+  `Application`) sont corrigés. Les constats Medium/Basse restants sont
+  volontairement reportés (`IPhotoService` → Phase 2, `IUnitOfWork` fourre-tout
+  → Phase 3) plutôt que corrigés prématurément.
+- Client TypeScript généré depuis l'OpenAPI (`openapi-typescript`) branché
+  côté `client/src/core/api/schema.d.ts`.
+
+**Non vérifié dans cette phase** : la parité manuelle des endpoints après
+restructuration (critère de validation de l'ADR-0001) n'a été confirmée que
+par la compilation (`dotnet build`), pas par un test end-to-end de l'API en
+cours d'exécution — les tests automatisés arrivent en Phase 2.
 
 ## Phase 2 — Tests
 

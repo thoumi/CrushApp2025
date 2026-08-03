@@ -6,7 +6,7 @@ namespace API.Application.Interfaces;
 /// brique (IMemberUnitOfWork, IMessagingUnitOfWork, ILikesUnitOfWork,
 /// IMatchingUnitOfWork, IModerationUnitOfWork...) qui couvre exactement son besoin.
 /// </summary>
-public interface IUnitOfWork : IMessagingUnitOfWork, IMatchingUnitOfWork, IModerationUnitOfWork
+public interface IUnitOfWork : IMessagingUnitOfWork, IMatchingUnitOfWork, IModerationUnitOfWork, IDailySelectionUnitOfWork
 {
     bool HasChanges();
 }

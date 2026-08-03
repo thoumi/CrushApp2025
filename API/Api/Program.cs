@@ -52,7 +52,9 @@ builder.Services.AddScoped<IMessagingUnitOfWork>(sp => sp.GetRequiredService<Uni
 builder.Services.AddScoped<ILikesUnitOfWork>(sp => sp.GetRequiredService<UnitOfWork>());
 builder.Services.AddScoped<IMatchingUnitOfWork>(sp => sp.GetRequiredService<UnitOfWork>());
 builder.Services.AddScoped<IModerationUnitOfWork>(sp => sp.GetRequiredService<UnitOfWork>());
+builder.Services.AddScoped<IDailySelectionUnitOfWork>(sp => sp.GetRequiredService<UnitOfWork>());
 builder.Services.AddScoped<IMatchingService, MatchingService>();
+builder.Services.AddScoped<IDailySelectionService, DailySelectionService>();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 builder.Services.AddScoped<LogUserActivity>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration

@@ -13,6 +13,7 @@ namespace API.Api.Controllers
     [Authorize]
     public class MembersController(IMemberUnitOfWork uow,
         IPhotoService photoService,
+        IDailySelectionService dailySelectionService,
         IValidator<MemberUpdateDto> memberUpdateValidator,
         IValidator<SavePromptAnswersDto> savePromptAnswersValidator) : BaseApiController
     {
@@ -47,7 +48,7 @@ namespace API.Api.Controllers
         {
             count = Math.Clamp(count, 1, 12);
 
-            return Ok(await uow.MemberRepository.GetDailySelectionAsync(User.GetMemberId(), count));
+            return Ok(await dailySelectionService.GetDailySelectionAsync(User.GetMemberId(), count));
         }
 
         [HttpGet("prompts/bank")]

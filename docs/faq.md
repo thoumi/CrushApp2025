@@ -41,5 +41,6 @@ le README. Le chatbot nécessite en plus qu'Ollama tourne sur la machine hôte
 
 ## Où en est le projet dans sa roadmap actuellement ?
 
-Phase 1 (fondations Clean Architecture) est en cours. Voir le détail phase
-par phase dans [roadmap.md](roadmap.md).
+Les Phases 0 (blueprint produit) et 1 (fondations Clean Architecture) sont
+terminées. La Phase 2 (tests automatisés) est la prochaine étape. Voir le
+détail phase par phase dans [roadmap.md](roadmap.md).

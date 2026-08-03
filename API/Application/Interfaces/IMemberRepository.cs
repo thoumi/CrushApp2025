@@ -12,5 +12,6 @@ public interface IMemberRepository
     Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId, bool isCurrentUser);
     Task<Member?> GetMemberForUpdate(string id);
     Task<IReadOnlyList<Prompt>> GetPromptBankAsync();
-    Task<IReadOnlyList<Member>> GetDailySelectionAsync(string currentMemberId, int count);
+    Task<IReadOnlyList<string>> GetCandidateMemberIdsAsync(string currentMemberId, IReadOnlyCollection<string> excludedIds);
+    Task<IReadOnlyList<Member>> GetMembersByIdsAsync(IReadOnlyCollection<string> ids);
 }

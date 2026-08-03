@@ -1,8 +1,6 @@
 using API.Application.DTOs;
 using API.Application.Helpers;
 using API.Application.Interfaces;
-using API.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
@@ -10,7 +8,7 @@ using System;
 
 namespace API.Infrastructure.Data;
 
-public class AdminRepository(AppDbContext context, UserManager<AppUser> userManager) : IAdminRepository
+public class AdminRepository(AppDbContext context) : IAdminRepository
 {
     public async Task<PaginatedResult<UsersManageDto>> GetUsersWithRoles([FromQuery] MemberParams memberParams)
     {

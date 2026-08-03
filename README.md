@@ -159,8 +159,8 @@ ensemble de compétences distinct (Clean Architecture → tests → messagerie
 événementielle → sécurité → data → observabilité → industrialisation → IA →
 polish). Statut honnête, mis à jour au fil de l'avancement réel :
 
-- [x] **Phase 0 — Blueprint produit** : positionnement, identité de marque, IA remap
-- [ ] **Phase 1 — Fondations** (🔄 en cours) : Clean Architecture, SOLID, DDD, API-first — voir [ADR-0001](docs/architecture/adr/0001-clean-architecture-foundations.md) et [audit SOLID](docs/architecture/solid-audit-phase1.md)
+- [x] **Phase 0 — Blueprint produit** : positionnement, identité de marque, IA remap — voir [Vision produit](docs/product/vision.md)
+- [x] **Phase 1 — Fondations** : Clean Architecture, SOLID, DDD, API-first — voir [ADR-0001](docs/architecture/adr/0001-clean-architecture-foundations.md) et [audit SOLID](docs/architecture/solid-audit-phase1.md)
 - [ ] **Phase 2 — Tests** : xUnit, Testcontainers, Playwright, SonarCloud
 - [ ] **Phase 3 — CQRS & événementiel** : MediatR, Outbox pattern réel, Kafka en complément de RabbitMQ
 - [ ] **Phase 4 — Sécurité** : OIDC/Entra ID, Key Vault, rate limiting, conformité RGPD

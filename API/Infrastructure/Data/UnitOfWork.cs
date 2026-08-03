@@ -1,12 +1,10 @@
 using API.Application.Interfaces;
-using API.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace API.Infrastructure.Data;
 
-public class UnitOfWork(AppDbContext context, UserManager<AppUser> userManager) : IUnitOfWork
+public class UnitOfWork(AppDbContext context) : IUnitOfWork
 {
     private IMemberRepository? _memberRepository;
     private IMessageRepository? _messageRepository;
@@ -28,7 +26,7 @@ public class UnitOfWork(AppDbContext context, UserManager<AppUser> userManager) 
         ??= new PhotoRepository(context);
 
     public IAdminRepository AdminRepository => _adminRepository
-       ??= new AdminRepository(context, userManager);
+       ??= new AdminRepository(context);
 
     public IMatchRepository MatchRepository => _matchRepository
         ??= new MatchRepository(context);

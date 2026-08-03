@@ -31,46 +31,20 @@ public class MemberRepository(AppDbContext context) : IMemberRepository
         return await context.Prompts.OrderBy(x => x.Id).ToListAsync();
     }
 
-    public async Task<IReadOnlyList<Member>> GetDailySelectionAsync(string currentMemberId, int count)
+    public async Task<IReadOnlyList<string>> GetCandidateMemberIdsAsync(string currentMemberId, IReadOnlyCollection<string> excludedIds)
     {
-        var likedIds = await context.Likes
-            .Where(l => l.SourceMemberId == currentMemberId)
-            .Select(l => l.TargetMemberId)
-            .ToListAsync();
-
-        var candidateIds = await context.Members
-            .Where(m => m.Id != currentMemberId && !likedIds.Contains(m.Id))
+        return await context.Members
+            .Where(m => m.Id != currentMemberId && !excludedIds.Contains(m.Id))
             .Select(m => m.Id)
             .ToListAsync();
-
-        // Deterministic for the day: same seed all day, changes tomorrow. Avoids needing
-        // a precomputed/batched recommendation job for this candidate pool size.
-        var seed = StableHash(currentMemberId + DateOnly.FromDateTime(DateTime.UtcNow));
-        var rng = new Random(seed);
-
-        var selectedIds = candidateIds
-            .OrderBy(_ => rng.Next())
-            .Take(count)
-            .ToList();
-
-        var members = await context.Members
-            .Include(x => x.PromptAnswers).ThenInclude(x => x.Prompt)
-            .Where(m => selectedIds.Contains(m.Id))
-            .ToListAsync();
-
-        return selectedIds
-            .Select(id => members.First(m => m.Id == id))
-            .ToList();
     }
 
-    private static int StableHash(string value)
+    public async Task<IReadOnlyList<Member>> GetMembersByIdsAsync(IReadOnlyCollection<string> ids)
     {
-        unchecked
-        {
-            var hash = 17;
-            foreach (var c in value) hash = hash * 31 + c;
-            return hash;
-        }
+        return await context.Members
+            .Include(x => x.PromptAnswers).ThenInclude(x => x.Prompt)
+            .Where(m => ids.Contains(m.Id))
+            .ToListAsync();
     }
 
     public async Task<PaginatedResult<Member>> GetMembersAsync(MemberParams memberParams)
