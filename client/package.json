@@ -29,7 +29,7 @@
     "@angular/build": "^20.3.2",
     "@angular/cli": "^20.0.0-rc.3",
     "@angular/compiler-cli": "^20.3.2",
-    "@types/jasmine": "~5.1.0",
+    "@types/jasmine": "~6.0.0",
     "daisyui": "^5.0.37",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
